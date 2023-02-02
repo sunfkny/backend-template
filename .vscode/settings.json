@@ -1,0 +1,15 @@
+{
+    "python.analysis.extraPaths": [
+        "./backend/apps"
+    ],
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        // 行长度
+        "--line-length",
+        "160"
+        // 跳过格式化引号
+        // "--skip-string-normalization",
+    ],
+}

@@ -1,0 +1,20 @@
+wheel
+uwsgi
+django-ninja
+django-extensions
+django
+arrow
+PyJWT
+django-cors-headers
+mysqlclient
+cryptography==37.0.4
+requests
+redis
+# django-crontab
+# django-rq
+# django-print-sql
+# hashids
+# multiavatar
+# Pillow
+# qrcode
+# python-magic

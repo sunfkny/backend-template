@@ -1,0 +1,9 @@
+*.log
+*.pyc
+venv/
+*.pid
+*.ini
+dist/
+media/*
+!media/default_avatar.svg
+run.sh
