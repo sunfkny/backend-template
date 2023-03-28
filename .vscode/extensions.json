@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "ms-ceintl.vscode-language-pack-zh-hans",
+        "formulahendry.code-runner",
+        "visualstudioexptteam.vscodeintellicode",
+        "visualstudioexptteam.intellicode-api-usage-examples",
+        "visualstudioexptteam.vscodeintellicode-completions",
+        "ahmadalli.vscode-nginx-conf",
+        "teclado.vscode-nginx-format",
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "vscode-icons-team.vscode-icons"
+    ]
+}
