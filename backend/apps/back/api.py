@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from ninja import Form, Query, Router
 
 from backend.utils.auth import auth_admin
-from backend.utils.types import *
+from backend.utils.types import Response
 
 router = Router(tags=["后台"])
 logger = logging.getLogger("django")
@@ -25,9 +25,9 @@ def admin_user_login(
         data = {
             "token": token,
         }
-        return Response(data=data)
+        return Response.data(data=data)
 
-    return ErrorResponse(msg="帐号或密码错误")
+    return Response.error(msg="帐号或密码错误")
 
 
 @router.post("password", auth=auth_admin.get_auth(), summary="后台修改密码")
@@ -38,11 +38,11 @@ def admin_password(
 ):
     user = auth_admin.get_login_user(request)
     if not check_password(old_password, user.password):
-        return ErrorResponse(msg="密码错误")
+        return Response.error(msg="密码错误")
 
     user.password = make_password(new_password)
     user.save()
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.post("password/reset", auth=auth_admin.get_auth(), summary="超级管理员后台重置密码")
@@ -52,15 +52,15 @@ def admin_password_reset(
 ):
     user = auth_admin.get_login_user(request)
     if not user.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     user = AdminUser.objects.filter(mobile=mobile).first()
     if not user:
-        return ErrorResponse(msg="用户不存在")
+        return Response.error(msg="用户不存在")
 
     user.password = make_password(user.username)
     user.save()
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.get("user/info", auth=auth_admin.get_auth(), summary="后台用户信息")
@@ -76,7 +76,7 @@ def admin_user_info(
         "avatar": user.avatar,
         "nickname": user.nickname,
     }
-    return Response(data=data)
+    return Response.data(data=data)
 
 
 @router.post("user/info/edit", auth=auth_admin.get_auth(), summary="后台用户信息修改")
@@ -91,13 +91,13 @@ def admin_user_info_edit(
     if admin_user.is_admin and admin_user_id:
         admin_user = AdminUser.objects.filter(id=admin_user_id).first()
         if not admin_user:
-            return ErrorResponse(msg="后台用户不存在")
+            return Response.error(msg="后台用户不存在")
 
     admin_user.summary = summary
     admin_user.nickname = nickname
     admin_user.avatar = avatar
     admin_user.save()
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.get("user/info/detail", auth=auth_admin.get_auth(), summary="后台用户信息详情")
@@ -109,14 +109,14 @@ def admin_user_info_detail(
     if admin_user.is_admin and admin_user_id:
         admin_user = AdminUser.objects.filter(id=admin_user_id).first()
         if not admin_user:
-            return ErrorResponse(msg="后台用户不存在")
+            return Response.error(msg="后台用户不存在")
 
     data = {
         "id": admin_user.pk,
         "nickname": admin_user.nickname,
         "summary": admin_user.summary,
     }
-    return Response(data=data)
+    return Response.data(data=data)
 
 
 @router.get("user/info/list", auth=auth_admin.get_auth(), summary="后台用户列表")
@@ -137,7 +137,7 @@ def admin_user_info_list(
     try:
         page_business = paginator.page(page)
     except InvalidPage:
-        return ErrorResponse(msg="页数错误")
+        return Response.error(msg="页数错误")
     data = [
         {
             "id": i.pk,
@@ -149,7 +149,7 @@ def admin_user_info_list(
         }
         for i in page_business
     ]
-    return PageResponse(data=data, total_page=paginator.num_pages, total=paginator.count)
+    return Response.page_list(data=data, total_page=paginator.num_pages, total=paginator.count)
 
 
 @router.get("admin/permission/list", auth=auth_admin.get_auth(), summary="权限列表")
@@ -160,13 +160,13 @@ def admin_permission_list(
 ):
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     queryset = Permission.objects.all().order_by("id")
     try:
         page_permission = Paginator(queryset, size).page(page)
     except InvalidPage:
-        return ErrorResponse(msg="页数错误")
+        return Response.error(msg="页数错误")
     data = []
     for i in page_permission:
         data.append(
@@ -178,7 +178,7 @@ def admin_permission_list(
             }
         )
 
-    return PageResponse(
+    return Response.page_list(
         data=data,
         total_page=page_permission.paginator.num_pages,
         total=page_permission.paginator.count,
@@ -195,17 +195,17 @@ def admin_permission_edit(
 ):
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     permission = Permission.objects.filter(id=permission_id).first()
     if not permission:
-        return ErrorResponse(msg="权限不存在")
+        return Response.error(msg="权限不存在")
 
     # permission.key = key
     permission.name = name
     permission.description = description
     permission.save()
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.get("admin/role/list", auth=auth_admin.get_auth(), summary="角色列表")
@@ -216,13 +216,13 @@ def admin_role_list(
 ):
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     queryset = Role.objects.order_by("id")
     try:
         page_role = Paginator(queryset, size).page(page)
     except InvalidPage:
-        return ErrorResponse(msg="页数错误")
+        return Response.error(msg="页数错误")
     data = []
     for i in page_role:
         data.append(
@@ -233,7 +233,7 @@ def admin_role_list(
             }
         )
 
-    return PageResponse(
+    return Response.page_list(
         data=data,
         total_page=page_role.paginator.num_pages,
         total=page_role.paginator.count,
@@ -249,16 +249,16 @@ def admin_role_edit(
 ):
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     role = Role.objects.filter(id=role_id).first()
     if not role:
-        return ErrorResponse(msg="角色不存在")
+        return Response.error(msg="角色不存在")
 
     role.name = name
     role.description = description
     role.save()
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.post("admin/role/add", auth=auth_admin.get_auth(), summary="角色添加")
@@ -269,13 +269,13 @@ def admin_role_add(
 ):
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     role = Role.objects.filter(name=name).first()
     if role:
-        return ErrorResponse(msg="角色已存在")
+        return Response.error(msg="角色已存在")
     Role.objects.create(name=name, description=description)
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.get("admin/role/permission/list", auth=auth_admin.get_auth(), summary="角色权限列表")
@@ -285,11 +285,11 @@ def admin_role_permission_list(
 ):
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     role = Role.objects.filter(id=role_id).first()
     if not role:
-        return ErrorResponse(msg="角色不存在")
+        return Response.error(msg="角色不存在")
 
     permissions = []
     if role.permission:
@@ -311,7 +311,7 @@ def admin_role_permission_list(
         },
         "permissions": permissions,
     }
-    return Response(data=data)
+    return Response.data(data=data)
 
 
 @router.post("admin/role/permission/add", auth=auth_admin.get_auth(), summary="角色权限增加")
@@ -323,18 +323,18 @@ def admin_role_permission_add(
 
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     role = Role.objects.filter(id=role_id).first()
     if not role:
-        return ErrorResponse(msg="角色不存在")
+        return Response.error(msg="角色不存在")
 
     permission = Permission.objects.filter(id=permission_id).first()
     if not permission:
-        return ErrorResponse(msg="权限不存在")
+        return Response.error(msg="权限不存在")
 
     role.permission.add(permission)
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.post("admin/role/permission/remove", auth=auth_admin.get_auth(), summary="角色权限移除")
@@ -346,18 +346,18 @@ def admin_role_permission_remove(
 
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     role = Role.objects.filter(id=role_id).first()
     if not role:
-        return ErrorResponse(msg="角色不存在")
+        return Response.error(msg="角色不存在")
 
     permission = Permission.objects.filter(id=permission_id).first()
     if not permission:
-        return ErrorResponse(msg="权限不存在")
+        return Response.error(msg="权限不存在")
 
     role.permission.remove(permission)
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.post("admin/user/add", auth=auth_admin.get_auth(), summary="后台用户创建")
@@ -371,14 +371,14 @@ def admin_user_add(
 
     business = auth_admin.get_login_user(request)
     if not business.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     role = Role.objects.filter(id=role_id).first()
     if not role:
-        return ErrorResponse(msg="角色不存在")
+        return Response.error(msg="角色不存在")
 
     if AdminUser.objects.filter(mobile=mobile).first():
-        return ErrorResponse(msg="后台用户已存在")
+        return Response.error(msg="后台用户已存在")
 
     AdminUser.objects.create(
         name=name,
@@ -386,7 +386,7 @@ def admin_user_add(
         password=make_password(password),
         role=role,
     )
-    return BaseResponse()
+    return Response.ok()
 
 
 @router.get("dropdown/role", summary="角色选择下拉")
@@ -394,7 +394,7 @@ def dropdown_role(
     request: HttpRequest,
 ):
     data = list(Role.objects.values("id", "name"))
-    return ListResponse(data=data)
+    return Response.list(data=data)
 
 
 @router.get("dropdown/permission", summary="权限选择下拉")
@@ -402,7 +402,7 @@ def dropdown_permission(
     request: HttpRequest,
 ):
     data = list(Permission.objects.values("id", "name", "key"))
-    return ListResponse(data=data)
+    return Response.list(data=data)
 
 
 @router.post("back/admin/edit", auth=auth_admin.get_auth(), summary="后台管理员角色修改")
@@ -414,17 +414,17 @@ def back_admin_edit(
 
     login_user = auth_admin.get_login_user(request)
     if not login_user.is_admin:
-        return ErrorResponse(msg="没有权限")
+        return Response.error(msg="没有权限")
 
     role = Role.objects.filter(id=role_id).first()
     if not role:
-        return ErrorResponse(msg="角色不存在")
+        return Response.error(msg="角色不存在")
 
     change_user = AdminUser.objects.filter(id=admin_user_id).first()
     if not change_user:
-        return ErrorResponse(msg="用户不存在")
+        return Response.error(msg="用户不存在")
 
     change_user.role = role
     change_user.save()
 
-    return BaseResponse()
+    return Response.ok()
