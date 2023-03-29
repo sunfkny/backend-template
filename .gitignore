@@ -7,3 +7,4 @@ dist/
 media/*
 !media/default_avatar.svg
 run.sh
+typings
