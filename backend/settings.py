@@ -82,6 +82,8 @@ INSTALLED_APPS = [
     "ninja",
     "django_extensions",
     # "django_crontab",
+    "back",
+    "user",
 ]
 
 MIDDLEWARE = [
