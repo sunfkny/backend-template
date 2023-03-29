@@ -41,7 +41,11 @@ class CustomJsonEncoder(NinjaJSONEncoder):
             return o.strftime("%Y-%m-%d %H:%M:%S")
         if isinstance(o, datetime.date):
             return o.strftime("%Y.%m.%d")
-        return super().default(o)
+        try:
+            return super().default(o)
+        except TypeError:
+            logger.error((f"Object of type {o.__class__.__name__} {repr(o)} is not JSON serializable"))
+            return {"type": o.__class__.__name__, "repr": repr(o)}
 
 
 class CustomJSONRenderer(JSONRenderer):
@@ -60,72 +64,41 @@ api_back = NinjaAPI(
 )
 
 
-# 自定义 django ninja 登录失效响应
-@api.exception_handler(AuthenticationError)
-def authentication_exception_handler(request: HttpRequest, exc: AuthenticationError):
+def create_exception_response(api: NinjaAPI, request: HttpRequest, exc: Exception):
+    # 登录失效响应
+    if isinstance(exc, AuthenticationError):
+        return api.create_response(
+            request,
+            {"code": 401, "msg": "未登录"},
+            status=401,
+        )
+    # 参数错误响应
+    if isinstance(exc, ValidationError):
+        logger.warning(exc.errors)
+        if request.method == "POST":
+            logger.warning(request.body)
+        return api.create_response(
+            request,
+            {"code": 422, "msg": "参数错误", "data": exc.errors},
+            status=422,
+        )
+
+    logger.exception(exc)
     return api.create_response(
         request,
-        {"code": 401, "msg": "未登录"},
-        status=401,
+        {"code": 500, "msg": "内部错误", "data": str(exc)},
+        status=500,
     )
 
 
-# 自定义 django ninja 参数错误响应
-@api.exception_handler(ValidationError)
-def validation_exception_handler(request: HttpRequest, exc: ValidationError):
-    logger.warning(exc.errors)
-    if request.method == "POST":
-        logger.warning(request.body)
-    return api.create_response(
-        request,
-        {"code": 422, "msg": "参数错误", "data": exc.errors},
-        status=422,
-    )
-
-
-# 自定义 django ninja 500错误响应
 @api.exception_handler(Exception)
 def exception_handler(request: HttpRequest, exc: Exception):
-    logger.exception(exc)
-    return api.create_response(
-        request,
-        {"code": 500, "msg": "内部错误", "data": str(exc)},
-        status=500,
-    )
+    return create_exception_response(api=api, request=request, exc=exc)
 
 
-# 自定义 django ninja 登录失效响应
-@api_back.exception_handler(AuthenticationError)
-def authentication_exception_handler_back(request: HttpRequest, exc: AuthenticationError):
-    return api.create_response(
-        request,
-        {"code": 401, "msg": "未登录"},
-        status=401,
-    )
-
-
-# 自定义 django ninja 参数错误响应
-@api_back.exception_handler(ValidationError)
-def validation_exception_handler_back(request: HttpRequest, exc: ValidationError):
-    logger.warning(exc.errors)
-    if request.method == "POST":
-        logger.warning(request.body)
-    return api.create_response(
-        request,
-        {"code": 422, "msg": "参数错误", "data": exc.errors},
-        status=422,
-    )
-
-
-# 自定义 django ninja 500错误响应
 @api_back.exception_handler(Exception)
 def exception_handler_back(request: HttpRequest, exc: Exception):
-    logger.exception(exc)
-    return api.create_response(
-        request,
-        {"code": 500, "msg": "内部错误", "data": str(exc)},
-        status=500,
-    )
+    return create_exception_response(api=api_back, request=request, exc=exc)
 
 
 from back.api import router as back_router
@@ -135,5 +108,5 @@ api_back.add_router("/", back_router)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", api.urls),
-    path("api/back", api_back.urls),
+    path("api/back/", api_back.urls),
 ]

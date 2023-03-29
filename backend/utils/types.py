@@ -33,7 +33,3 @@ class Response:
     @staticmethod
     def page_list(data: List | Iterable, total: int, total_page: int):
         return {"code": 200, "msg": "OK", "data": data, "total": total, "total_page": total_page}
-
-    @staticmethod
-    def http_error(message: str, status_code=400) -> NoReturn:
-        raise HttpError(status_code=status_code, message=message)
