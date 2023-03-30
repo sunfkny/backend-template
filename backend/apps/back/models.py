@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
 from typing_extensions import Self, TypeAlias
 from typing import List, Optional
@@ -75,6 +76,15 @@ class AdminUser(models.Model):
 
     def has_permission(self, permission: Permission.Keys) -> bool:
         return permission in self.permissions
+
+    def make_password(self, password):
+        self.password = make_password(password)
+        self.save(update_fields=["password"])
+
+    def check_password(self, password) -> bool:
+        if self.password is None:
+            return False
+        return check_password(password=password, encoded=self.password)
 
     @property
     def is_admin(self) -> bool:
