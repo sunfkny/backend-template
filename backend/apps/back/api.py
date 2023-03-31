@@ -153,7 +153,7 @@ def admin_user_info_list(
         }
         for i in page_business
     ]
-    return Response.page_list.data(data, total_page=paginator.num_pages, total=paginator.count)
+    return Response.page_list(data, total_page=paginator.num_pages, total=paginator.count)
 
 
 @router.get("admin/permission/list", auth=auth_admin.get_auth(), summary="权限列表")
