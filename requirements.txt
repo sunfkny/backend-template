@@ -10,6 +10,7 @@ mysqlclient
 cryptography==37.0.4
 requests
 redis
+loguru
 # django-crontab
 # django-rq
 # django-print-sql
