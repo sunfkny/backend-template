@@ -11,20 +11,31 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import sys
 import warnings
+import logging
 from pathlib import Path
 from urllib.parse import urljoin
 
 import redis
+from loguru import logger
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 APPS_DIR = Path(__file__).resolve().parent / "apps"
+
+LOG_DIR = BASE_DIR / "logs"
+LOG_FILE_PATH = LOG_DIR / "run.log"
+DIST_ROOT = BASE_DIR / "dist"
+STATIC_ROOT = DIST_ROOT / "static"
+MEDIA_ROOT = BASE_DIR / "media"
+
+for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT, APPS_DIR]:
+    if not path.exists():
+        path.mkdir(parents=True)
 
 DOMAIN_NAME = ""
 BASE_URL = f"http://{DOMAIN_NAME}"
 
 UWSGI_INI_FILE_NAME = DOMAIN_NAME  # uwsgi配置文件名
-
-CRONTAB_COMMENT = "" # django-crontab 注释, 区分不同项目
+CRONTAB_COMMENT = ""  # django-crontab 注释, 区分不同项目
 DB_PREFIX = ""  # 数据库表名前缀
 REDIS_PREFIX = ""  # redis前缀
 DEFAULT_AVATAR = urljoin(BASE_URL, "media/default_avatar.svg")
@@ -41,15 +52,37 @@ def get_redis_connection() -> redis.Redis:
     return redis_conn
 
 
-LOG_DIR = BASE_DIR / "logs"
-LOG_FILE_PATH = LOG_DIR / "run.log"
-DIST_ROOT = BASE_DIR / "dist"
-STATIC_ROOT = DIST_ROOT / "static"
-MEDIA_ROOT = BASE_DIR / "media"
+# https://github.com/Delgan/loguru#suitable-for-scripts-and-libraries
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        # Get corresponding Loguru level if it exists.
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
 
-for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT, APPS_DIR]:
-    if not path.exists():
-        path.mkdir(parents=True)
+        # Find caller from where originated the logged message.
+        frame, depth = sys._getframe(6), 6
+        while frame and frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
+
+        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+
+
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+
+
+# https://github.com/Delgan/loguru/issues/208#issuecomment-581002215
+logger.remove()  # 删除默认处理程序,避免重复日志
+logger.add(
+    LOG_FILE_PATH,
+    backtrace=False,
+    rotation="100 MB",
+    compression="tar.gz",
+    retention=7,
+)
+
 
 sys.path.insert(0, str(APPS_DIR))
 
@@ -141,46 +174,6 @@ DATABASES = {
 #     },
 # }
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,  # 是否禁用已经存在的日志器
-    "formatters": {  # 日志信息显示的格式
-        # "verbose": {"format": "%(levelname)s %(asctime)s %(module)s %(lineno)d %(message)s"},
-        "verbose": {
-            "format": "%(asctime)s - %(levelname)s %(message)s %(module)s:%(lineno)d",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
-        "simple": {"format": "%(levelname)s %(module)s %(lineno)d %(message)s"},
-    },
-    "filters": {  # 对日志进行过滤
-        "require_debug_true": {  # django在debug模式下才输出日志
-            "()": "django.utils.log.RequireDebugTrue",
-        },
-    },
-    "handlers": {  # 日志处理方法
-        "console": {  # 向终端中输出日志
-            "level": "INFO",
-            "filters": ["require_debug_true"],
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
-        "file": {  # 向文件中输出日志
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOG_FILE_PATH,  # 日志文件的位置
-            "maxBytes": 300 * 1024 * 1024,
-            "backupCount": 10,
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {  # 日志器
-        "django": {  # 定义了一个名为django的日志器
-            "handlers": ["file"],  # 可以同时向终端与文件中输出日志
-            "propagate": False,  # 是否继续传递日志信息
-            "level": "INFO",  # 日志器接收的最低日志级别
-        },
-    },
-}
 
 # 跨域增加忽略
 CORS_ALLOW_CREDENTIALS = True
