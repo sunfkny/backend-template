@@ -64,8 +64,8 @@ daemonize=logs/run.log
 # 日志格式
 log-format-strftime = true
 log-date = %%Y-%%m-%%d %%H:%%M:%%S
-logformat=%(ftime) - %(addr) (%(proto) %(status)) %(method) %(uri) => generated %(size) bytes in %(msecs) msecs
-# => generated %(size) bytes in %(msecs) msecs process 1 worker %(wid) core %(core)
+# logformat=%(ftime) - %(addr) (%(proto) %(status)) %(method) %(uri) => generated %(size) bytes in %(msecs) msecs
+logformat=%(ftime)     | INFO     | backend.wsgi:application %(addr) (%(proto) %(status)) %(method) %(uri) => generated %(size) bytes in %(msecs) msecs
 # uwsgi日志中不再显示错误信息
 ignore-sigpipe=true
 ignore-write-errors=true

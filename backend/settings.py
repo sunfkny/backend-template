@@ -9,12 +9,13 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import logging
 import sys
 import warnings
-import logging
 from pathlib import Path
 from urllib.parse import urljoin
 
+import loguru
 import redis
 from loguru import logger
 
@@ -70,17 +71,39 @@ class InterceptHandler(logging.Handler):
         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
-logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+if sys.version_info >= (3, 8):
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+else:
+    logging.basicConfig(handlers=[InterceptHandler()], level=0)
+
+request_logger = logging.getLogger("django.request")
+request_logger.handlers = [InterceptHandler()]
+request_logger.setLevel("INFO")
 
 
-# https://github.com/Delgan/loguru/issues/208#issuecomment-581002215
-logger.remove()  # 删除默认处理程序,避免重复日志
+def info_filter(record: "loguru.Record") -> bool:
+    return record["level"].no >= logging.INFO
+
+
+def debug_filter(record: "loguru.Record") -> bool:
+    return record["level"].no != logging.INFO
+
+
+logger.remove()
 logger.add(
-    LOG_FILE_PATH,
+    LOG_DIR / "run.log",
+    filter=info_filter,
     backtrace=False,
-    rotation="100 MB",
+    rotation="1 day",
     compression="tar.gz",
     retention=7,
+)
+logger.add(
+    LOG_DIR / "debug.log",
+    filter=debug_filter,
+    backtrace=False,
+    rotation="2 MB",
+    retention=1,
 )
 
 
