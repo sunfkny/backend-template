@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import logging
 import sys
-import warnings
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -94,7 +93,7 @@ logger.add(
     LOG_DIR / "run.log",
     filter=info_filter,
     backtrace=False,
-    rotation="1 day",
+    rotation="00:00",
     compression="tar.gz",
     retention=7,
 )
@@ -102,8 +101,9 @@ logger.add(
     LOG_DIR / "debug.log",
     filter=debug_filter,
     backtrace=False,
-    rotation="2 MB",
-    retention=1,
+    rotation="00:00",
+    compression="tar.gz",
+    retention=7,
 )
 
 
@@ -115,7 +115,7 @@ sys.path.insert(0, str(APPS_DIR))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure"
 if "django-insecure" in SECRET_KEY:
-    warnings.warn("SECRET_KEY is insecure! Please run `python manage.py generate_secret_key` to generate a new one.")
+    logger.warning("SECRET_KEY is insecure! Please run `python manage.py generate_secret_key` to generate a new one.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

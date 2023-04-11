@@ -104,8 +104,8 @@ class AuthBearerHelper(Generic[_T]):
         try:
             data = jwt.decode(token, self.secret_key, algorithms=["HS256"])
             return data
-        except InvalidTokenError:
-            raise AuthenticationError()
+        except InvalidTokenError as e:
+            raise AuthenticationError() from e
 
     def get_auth(self):
         """获取认证类"""

@@ -13,24 +13,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
-
 import datetime
 import logging
-import traceback
-from urllib.parse import urljoin
 
 from django.contrib import admin
 from django.db.models.fields.files import FieldFile
-from django.urls import path, include
 from django.http import HttpRequest, HttpResponse
+from django.urls import include, path
 from ninja import NinjaAPI
+from ninja.errors import AuthenticationError, ValidationError
 from ninja.renderers import JSONRenderer
 from ninja.responses import NinjaJSONEncoder
-from ninja.errors import ValidationError, AuthenticationError
-from pydantic import BaseModel
-import uuid
 
 logger = logging.getLogger("django")
 
