@@ -33,7 +33,7 @@ class AuthBearerHelper(Generic[_T]):
         user_model: 用户模型
         project_name: 项目名称
         cache_token_expires: 缓存token的过期时间(秒)
-        resdis_conn: redis连接
+        redis_conn: redis连接
         secret_key: jwt加密的密钥
         """
         self.user_model = user_model

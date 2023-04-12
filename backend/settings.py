@@ -95,7 +95,7 @@ logger.add(
     backtrace=False,
     rotation="00:00",
     compression="tar.gz",
-    retention=7,
+    retention="7 days",
 )
 logger.add(
     LOG_DIR / "debug.log",
@@ -103,7 +103,7 @@ logger.add(
     backtrace=False,
     rotation="00:00",
     compression="tar.gz",
-    retention=7,
+    retention="7 days",
 )
 
 
