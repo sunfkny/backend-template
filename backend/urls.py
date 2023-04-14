@@ -14,9 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import datetime
+from functools import partial
 import logging
+from typing import Type, TypeAlias, Union
 
 from django.contrib import admin
+from django.core.paginator import InvalidPage
 from django.db.models.fields.files import FieldFile
 from django.http import HttpRequest, HttpResponse
 from django.urls import include, path
@@ -57,16 +60,17 @@ api_back = NinjaAPI(
 )
 
 
-def create_exception_response(api: NinjaAPI, request: HttpRequest, exc: Exception):
-    # 登录失效响应
-    if isinstance(exc, AuthenticationError):
+def set_exception_handlers(api: NinjaAPI):
+    @api.exception_handler(AuthenticationError)
+    def authentication_error_handler(request: HttpRequest, exc: AuthenticationError) -> HttpResponse:
         return api.create_response(
             request,
-            {"code": 401, "msg": "未登录"},
+            {"code": 401, "msg": "登录失效"},
             status=401,
         )
-    # 参数错误响应
-    if isinstance(exc, ValidationError):
+
+    @api.exception_handler(ValidationError)
+    def validation_error_handler(request: HttpRequest, exc: ValidationError) -> HttpResponse:
         logger.warning(exc.errors)
         if request.method == "POST":
             logger.warning(request.body)
@@ -76,23 +80,32 @@ def create_exception_response(api: NinjaAPI, request: HttpRequest, exc: Exceptio
             status=422,
         )
 
-    logger.exception(exc)
-    return api.create_response(
-        request,
-        {"code": 500, "msg": "内部错误", "data": str(exc)},
-        status=500,
+    @api.exception_handler(InvalidPage)
+    def invalid_page_handler(request: HttpRequest, exc: InvalidPage) -> HttpResponse:
+        return api.create_response(
+            request,
+            {"code": 400, "msg": f"页码错误: {exc}"},
+            status=400,
+        )
+
+    @api.exception_handler(Exception)
+    def exception_handler(request: HttpRequest, exc: Exception) -> HttpResponse:
+        return api.create_response(
+            request,
+            {"code": 500, "msg": f"内部错误: {exc}"},
+            status=500,
+        )
+
+    return (
+        authentication_error_handler,
+        validation_error_handler,
+        invalid_page_handler,
+        exception_handler,
     )
 
 
-@api.exception_handler(Exception)
-def exception_handler(request: HttpRequest, exc: Exception):
-    return create_exception_response(api=api, request=request, exc=exc)
-
-
-@api_back.exception_handler(Exception)
-def exception_handler_back(request: HttpRequest, exc: Exception):
-    return create_exception_response(api=api_back, request=request, exc=exc)
-
+set_exception_handlers(api)
+set_exception_handlers(api_back)
 
 from back.api import router as back_router
 
