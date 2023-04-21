@@ -61,6 +61,8 @@ socket-timeout=30
 post-buffering=8192
 # 设置日志目录
 daemonize=logs/run.log
+# 触发日志重新打开
+touch-logreopen=logs/run.log.logreopen
 # 日志格式
 log-format-strftime = true
 log-date = %%Y-%%m-%%d %%H:%%M:%%S
@@ -77,6 +79,8 @@ if not (DIST_ROOT / MEDIA_URL).exists():
 
 print(
     f"""# ================== nginx config ==================
+# /usr/local/nginx/conf/vhost/{DOMAIN_NAME}.conf
+
 server {{
     listen 80;
     # listen 443 ssl http2;
@@ -99,6 +103,27 @@ server {{
     location / {{
         alias $base/dist/;
     }}
+}}
+"""
+)
+
+print(
+    f"""
+# ================== logrotate ==================
+# /etc/logrotate.d/{DOMAIN_NAME}
+
+{BASE_DIR / 'logs/run.log'} {{
+    daily
+    rotate 5
+    missingok
+    dateext
+    compress
+    notifempty
+    sharedscripts
+    # 执行完毕 rotate 之后，通知 uWSGI 重新打开日志
+    postrotate
+      touch {BASE_DIR / 'logs/run.log.logreopen'}
+    endscript
 }}
 """
 )

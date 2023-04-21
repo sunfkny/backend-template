@@ -93,14 +93,15 @@ logger.add(
     LOG_DIR / "run.log",
     filter=info_filter,
     backtrace=False,
-    rotation="00:00",
-    compression="tar.gz",
-    retention="7 days",
+    enqueue=True,
+    watch=True,
 )
 logger.add(
     LOG_DIR / "debug.log",
     filter=debug_filter,
     backtrace=False,
+    enqueue=True,
+    watch=True,
     rotation="00:00",
     compression="tar.gz",
     retention="7 days",
