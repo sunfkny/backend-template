@@ -382,7 +382,6 @@ def admin_user_add(
         return Response.error(msg="后台用户已存在")
 
     AdminUser.objects.create(
-        name=name,
         username=username,
         password=make_password(password),
         role=role,
