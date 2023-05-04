@@ -365,7 +365,7 @@ def admin_role_permission_remove(
 @router.post("admin/user/add", auth=auth_admin.get_auth(), summary="后台用户创建")
 def admin_user_add(
     request: HttpRequest,
-    name: str = Form(..., description="后台用户名称"),
+    nickname: str = Form(..., description="后台用户名称"),
     username: str = Form(..., description="后台用户名"),
     password: str = Form(..., description="后台用户密码"),
     role_id: int = Form(..., description="角色id"),
@@ -383,6 +383,7 @@ def admin_user_add(
 
     AdminUser.objects.create(
         username=username,
+        nickname=nickname,
         password=make_password(password),
         role=role,
     )
