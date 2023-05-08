@@ -147,6 +147,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -258,6 +259,20 @@ TIME_ZONE = "Asia/Shanghai"
 DATETIME_FORMAT = "Y-m-d H:i:s"
 
 USE_I18N = True
+
+
+# 国际化翻译
+# https://docs.djangoproject.com/zh-hans/4.2/topics/i18n/translation/
+# 添加django.middleware.locale.LocaleMiddleware
+# https://docs.djangoproject.com/zh-hans/4.2/topics/i18n/translation/#how-django-discovers-language-preference
+# 创建语言文件
+# https://docs.djangoproject.com/zh-hans/4.2/topics/i18n/translation/#localization-how-to-create-language-files
+# python manage.py makemessages -l en -l es -l fr -l ko -l ja -l pt -l zh_Hans -l zh_Hant --ignore=venv/*
+# python manage.py compilemessages --ignore=venv/*
+
+# LOCALE_PATHS = [
+#     BASE_DIR / "locale",
+# ]
 
 USE_L10N = True
 
