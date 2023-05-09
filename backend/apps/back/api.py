@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from ninja import Form, Query, Router
 
 from backend.utils.auth import auth_admin
-from backend.utils.types import Response
+from backend.utils.response_types import Response
 from backend.settings import get_redis_connection, REDIS_PREFIX
 
 router = Router(tags=["后台"])
