@@ -90,6 +90,7 @@ def set_exception_handlers(api: NinjaAPI):
 
     @api.exception_handler(Exception)
     def exception_handler(request: HttpRequest, exc: Exception) -> HttpResponse:
+        logger.exception(exc)
         return api.create_response(
             request,
             {"code": 500, "msg": f"内部错误: {exc}"},
