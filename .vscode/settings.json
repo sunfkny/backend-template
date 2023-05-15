@@ -2,6 +2,7 @@
     "python.analysis.extraPaths": [
         "./backend/apps"
     ],
+    "nginx-conf-hint.syntax": "sublime",
     "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "basic",
     "python.formatting.provider": "black",
@@ -11,5 +12,11 @@
         "160"
         // 跳过格式化引号
         // "--skip-string-normalization",
+    ],
+    "python.analysis.gotoDefinitionInStringLiteral": true,
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.pylanceLspClientEnabled": true,
+    "jupyter.jupyterCommandLineArguments": [
+        "--allow-root"
     ],
 }
