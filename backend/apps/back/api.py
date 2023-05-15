@@ -1,6 +1,6 @@
 import logging
 
-from back.models import AdminUser, Permission, Role
+from back.models import AdminUser, AdminPermission, Role
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.paginator import InvalidPage, Paginator
 from django.http import HttpRequest
@@ -166,7 +166,7 @@ def admin_permission_list(
     if not admin_user.is_admin:
         return Response.error(msg="没有权限")
 
-    queryset = Permission.objects.all().order_by("id")
+    queryset = AdminPermission.objects.all().order_by("id")
     try:
         page_permission = Paginator(queryset, size).page(page)
     except InvalidPage:
@@ -201,7 +201,7 @@ def admin_permission_edit(
     if not admin_user.is_admin:
         return Response.error(msg="没有权限")
 
-    permission = Permission.objects.filter(id=permission_id).first()
+    permission = AdminPermission.objects.filter(id=permission_id).first()
     if not permission:
         return Response.error(msg="权限不存在")
 
@@ -332,7 +332,7 @@ def admin_role_permission_add(
     if not role:
         return Response.error(msg="角色不存在")
 
-    permission = Permission.objects.filter(id=permission_id).first()
+    permission = AdminPermission.objects.filter(id=permission_id).first()
     if not permission:
         return Response.error(msg="权限不存在")
 
@@ -354,7 +354,7 @@ def admin_role_permission_remove(
     if not role:
         return Response.error(msg="角色不存在")
 
-    permission = Permission.objects.filter(id=permission_id).first()
+    permission = AdminPermission.objects.filter(id=permission_id).first()
     if not permission:
         return Response.error(msg="权限不存在")
 
@@ -402,7 +402,7 @@ def dropdown_role(
 def dropdown_permission(
     request: HttpRequest,
 ):
-    data = list(Permission.objects.values("id", "name", "key"))
+    data = list(AdminPermission.objects.values("id", "name", "key"))
     return Response.list(data)
 
 

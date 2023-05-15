@@ -5,7 +5,7 @@ from typing import List, Optional
 from backend.settings import DB_PREFIX, DEFAULT_AVATAR_BACK
 
 
-class Permission(models.Model):
+class AdminPermission(models.Model):
     class Keys(models.TextChoices):
         Admin = "Admin"
 
@@ -15,7 +15,7 @@ class Permission(models.Model):
 
     @property
     def is_admin(self) -> bool:
-        return Permission.Keys.Admin == self.key
+        return AdminPermission.Keys.Admin == self.key
 
     class Meta:
         db_table = f"{DB_PREFIX}_permission"
@@ -24,10 +24,10 @@ class Permission(models.Model):
 
 
 class Role(models.Model):
-    PermissionM2M: TypeAlias = "models.ManyToManyField[Permission, Self]"
+    PermissionM2M: TypeAlias = "models.ManyToManyField[AdminPermission, Self]"
     name = models.CharField(max_length=255, verbose_name="角色名称")
     description = models.CharField(default="", max_length=255, verbose_name="角色描述")
-    permission: PermissionM2M = models.ManyToManyField(Permission, db_table="gmeta_role_permission", verbose_name="权限")
+    permission: PermissionM2M = models.ManyToManyField(AdminPermission, db_table="gmeta_role_permission", verbose_name="权限")
 
     @property
     def permission_list(self):
@@ -35,7 +35,7 @@ class Role(models.Model):
 
     @property
     def is_admin(self) -> bool:
-        return Permission.Keys.Admin in self.permission_list
+        return AdminPermission.Keys.Admin in self.permission_list
 
     class Meta:
         db_table = f"{DB_PREFIX}_role"
@@ -48,7 +48,7 @@ class AdminUser(models.Model):
     update_time = models.DateTimeField(auto_now=True, verbose_name="修改时间")
 
     SelfForeignKey: TypeAlias = "models.ForeignKey[Optional[Self]]"
-    PermissionM2M: TypeAlias = "models.ManyToManyField[Permission, Self]"
+    PermissionM2M: TypeAlias = "models.ManyToManyField[AdminPermission, Self]"
 
     nickname = models.CharField(max_length=20, verbose_name="显示名称")
     username = models.CharField(unique=True, max_length=255, verbose_name="帐号")
@@ -70,11 +70,11 @@ class AdminUser(models.Model):
     @property
     def permissions(self) -> List[str]:
         permission_list = self.role.permission_list if self.role else []
-        if self.is_superadmin and Permission.Keys.Admin not in permission_list:
-            permission_list.append(Permission.Keys.Admin)
+        if self.is_superadmin and AdminPermission.Keys.Admin not in permission_list:
+            permission_list.append(AdminPermission.Keys.Admin)
         return permission_list
 
-    def has_permission(self, permission: Permission.Keys) -> bool:
+    def has_permission(self, permission: AdminPermission.Keys) -> bool:
         return permission in self.permissions
 
     def make_password(self, password):
@@ -88,7 +88,7 @@ class AdminUser(models.Model):
 
     @property
     def is_admin(self) -> bool:
-        return self.is_superadmin or self.has_permission(Permission.Keys.Admin)
+        return self.is_superadmin or self.has_permission(AdminPermission.Keys.Admin)
 
     def __str__(self):
         return self.username
