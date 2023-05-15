@@ -95,6 +95,9 @@ logger.add(
     backtrace=False,
     enqueue=True,
     watch=True,
+    rotation="00:00",
+    compression="tar.gz",
+    retention="7 days",
 )
 logger.add(
     LOG_DIR / "debug.log",
