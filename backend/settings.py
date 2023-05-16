@@ -84,8 +84,8 @@ def info_filter(record: "loguru.Record") -> bool:
     return record["level"].no >= logging.INFO
 
 
-def debug_filter(record: "loguru.Record") -> bool:
-    return record["level"].no != logging.INFO
+# def debug_filter(record: "loguru.Record") -> bool:
+#     return record["level"].no != logging.INFO
 
 
 logger.remove()
@@ -95,20 +95,17 @@ logger.add(
     backtrace=False,
     enqueue=True,
     watch=True,
-    rotation="00:00",
-    compression="tar.gz",
-    retention="7 days",
 )
-logger.add(
-    LOG_DIR / "debug.log",
-    filter=debug_filter,
-    backtrace=False,
-    enqueue=True,
-    watch=True,
-    rotation="00:00",
-    compression="tar.gz",
-    retention="7 days",
-)
+# logger.add(
+#     LOG_DIR / "debug.log",
+#     filter=debug_filter,
+#     backtrace=False,
+#     enqueue=True,
+#     watch=True,
+#     rotation="00:00",
+#     compression="tar.gz",
+#     retention="7 days",
+# )
 
 
 sys.path.insert(0, str(APPS_DIR))
