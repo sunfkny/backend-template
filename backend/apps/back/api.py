@@ -189,13 +189,13 @@ def admin_permission_list(
     )
 
 
-@router.get("admin/permission/edit", auth=auth_admin.get_auth(), summary="权限修改")
+@router.post("admin/permission/edit", auth=auth_admin.get_auth(), summary="权限修改")
 def admin_permission_edit(
     request: HttpRequest,
-    permission_id: int = Query(..., description="权限id", alias="id"),
-    # key: str = Query(..., description="权限标识"),
-    name: str = Query(..., description="权限名称"),
-    description: str = Query(..., description="权限描述"),
+    permission_id: int = Form(..., description="权限id", alias="id"),
+    # key: str = Form(..., description="权限标识"),
+    name: str = Form(..., description="权限名称"),
+    description: str = Form(..., description="权限描述"),
 ):
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
