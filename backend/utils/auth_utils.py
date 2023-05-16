@@ -1,7 +1,6 @@
 import logging
 import time
-from typing import Generic, Optional, TYPE_CHECKING, cast
-
+from typing import Any, Callable, Generic, Optional, TYPE_CHECKING, cast
 import jwt
 from django.conf import settings
 from django.db.models.base import Model
@@ -16,8 +15,16 @@ from typing_extensions import Type, TypeVar
 
 logger = logging.getLogger("django")
 
-
 _T = TypeVar("_T", bound=Model)
+
+
+class AuthBearer(HttpBearer):
+    def __init__(self, authenticate: Callable[[HttpRequest, str], Any]) -> None:
+        self._authenticate = authenticate
+        super().__init__()
+
+    def authenticate(self, request: HttpRequest, token: str):
+        return self._authenticate(request, token)
 
 
 class AuthBearerHelper(Generic[_T]):
@@ -41,6 +48,7 @@ class AuthBearerHelper(Generic[_T]):
         self.cache_token_expires = cache_token_expires
         self.secret_key = secret_key
         self.redis_conn = redis_conn
+        self.auth = AuthBearer(authenticate=self.authenticate)
 
     def set_token(self, user_id: int, token: str):
         """设置token"""
@@ -107,21 +115,16 @@ class AuthBearerHelper(Generic[_T]):
         except InvalidTokenError as e:
             raise AuthenticationError() from e
 
-    def get_auth(self):
+    def authenticate(self, request: HttpRequest, token: str):
+        data = self.decode_token(token)
+        user_id = data.get("user_id", 0)
+        if self.token_check(user_id, token):
+            # 续期
+            self.set_token(user_id, token)
+            return user_id
+        else:
+            return None
+
+    def get_auth(self) -> AuthBearer:
         """获取认证类"""
-
-        def _authenticate(request: HttpRequest, token):
-            data = self.decode_token(token)
-            user_id = data.get("user_id", 0)
-            if self.token_check(user_id, token):
-                # 续期
-                self.set_token(user_id, token)
-                return user_id
-            else:
-                return None
-
-        class AuthBearer(HttpBearer):
-            def authenticate(self, request: HttpRequest, token):
-                return _authenticate(request, token)
-
-        return AuthBearer()
+        return self.auth
