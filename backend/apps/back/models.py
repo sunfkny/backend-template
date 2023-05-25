@@ -27,7 +27,7 @@ class Role(models.Model):
     PermissionM2M: TypeAlias = "models.ManyToManyField[AdminPermission, Self]"
     name = models.CharField(max_length=255, verbose_name="角色名称")
     description = models.CharField(default="", max_length=255, verbose_name="角色描述")
-    permission: PermissionM2M = models.ManyToManyField(AdminPermission, db_table="gmeta_role_permission", verbose_name="权限")
+    permission: PermissionM2M = models.ManyToManyField(AdminPermission, db_table=f"{DB_PREFIX}_role_permission", verbose_name="权限")
 
     @property
     def permission_list(self):
