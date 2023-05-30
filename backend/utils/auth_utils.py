@@ -67,6 +67,18 @@ class AuthBearerHelper(Generic[_T]):
         """检查token"""
         return self.get_token(user_id) == token
 
+    def get_login_uid_optional(self, request: HttpRequest) -> Optional[int]:
+        """可选获取登录用户id, 未登录返回 None"""
+        return self.auth(request)
+
+    def get_login_user_optional(self, request: HttpRequest) -> Optional[_T]:
+        """可选获取登录用户, 未登录返回 None"""
+        user_id = self.get_login_uid_optional(request)
+        user = self.user_model.objects.filter(id=user_id).first()
+        if TYPE_CHECKING:
+            user = cast(Optional[_T], user)
+        return user
+
     def get_login_uid(self, request: HttpRequest) -> int:
         """获取登录用户id"""
         user_id = getattr(request, "auth", None)
