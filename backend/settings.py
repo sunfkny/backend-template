@@ -10,16 +10,22 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import logging
+import os
 import sys
 from pathlib import Path
+from typing import Dict
 from urllib.parse import urljoin
 
-import loguru
 import redis
-from loguru import logger
+
+os.environ["LOGURU_AUTOINIT"] = "0"
+os.environ["LOGURU_LEVEL"] = "INFO"
+
+import loguru
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 APPS_DIR = Path(__file__).resolve().parent / "apps"
+sys.path.insert(0, str(APPS_DIR))
 
 LOG_DIR = BASE_DIR / "logs"
 LOG_FILE_PATH = LOG_DIR / "run.log"
@@ -57,7 +63,7 @@ class InterceptHandler(logging.Handler):
     def emit(self, record):
         # Get corresponding Loguru level if it exists.
         try:
-            level = logger.level(record.levelname).name
+            level = loguru.logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
 
@@ -67,7 +73,7 @@ class InterceptHandler(logging.Handler):
             frame = frame.f_back
             depth += 1
 
-        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+        loguru.logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
 if sys.version_info >= (3, 8):
@@ -79,36 +85,33 @@ request_logger = logging.getLogger("django.request")
 request_logger.handlers = [InterceptHandler()]
 request_logger.setLevel("INFO")
 
-
-def info_filter(record: "loguru.Record") -> bool:
-    return record["level"].no >= logging.INFO
-
-
-# def debug_filter(record: "loguru.Record") -> bool:
-#     return record["level"].no != logging.INFO
-
-
-logger.remove()
-logger.add(
+loguru.logger.add(
     LOG_DIR / "run.log",
-    filter=info_filter,
     backtrace=False,
-    enqueue=True,
     watch=True,
 )
-# logger.add(
-#     LOG_DIR / "debug.log",
-#     filter=debug_filter,
-#     backtrace=False,
-#     enqueue=True,
-#     watch=True,
-#     rotation="00:00",
-#     compression="tar.gz",
-#     retention="7 days",
-# )
+
+LOGURU_LOGGERS_CACHE: Dict[str, "loguru.Logger"] = {}
 
 
-sys.path.insert(0, str(APPS_DIR))
+def get_logger(name: str | None = None):
+    if name is None:
+        return loguru.logger
+    if name in LOGURU_LOGGERS_CACHE:
+        return LOGURU_LOGGERS_CACHE[name]
+
+    bind_logger = loguru.logger.bind(name=name)
+    bind_logger.add(
+        LOG_DIR / f"{name}.log",
+        filter=lambda record: record["extra"].get("name") == name,
+        backtrace=False,
+        watch=True,
+        retention=7,
+    )
+
+    LOGURU_LOGGERS_CACHE[name] = bind_logger
+    return bind_logger
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -116,7 +119,7 @@ sys.path.insert(0, str(APPS_DIR))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure"
 if "django-insecure" in SECRET_KEY:
-    logger.warning("SECRET_KEY is insecure! Please run `python manage.py generate_secret_key` to generate a new one.")
+    loguru.logger.warning("SECRET_KEY is insecure! Please run `python manage.py generate_secret_key` to generate a new one.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

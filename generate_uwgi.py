@@ -112,7 +112,7 @@ print(
 # ================== logrotate ==================
 # /etc/logrotate.d/{DOMAIN_NAME}
 
-{BASE_DIR / 'logs/run.log'} {{
+{BASE_DIR / 'logs/*.log'} {{
     daily
     rotate 5
     missingok
