@@ -13,7 +13,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 from urllib.parse import urljoin
 
 import redis
@@ -94,7 +94,7 @@ loguru.logger.add(
 LOGURU_LOGGERS_CACHE: Dict[str, "loguru.Logger"] = {}
 
 
-def get_logger(name: str | None = None):
+def get_logger(name: Optional[str] = None):
     if name is None:
         return loguru.logger
     if name in LOGURU_LOGGERS_CACHE:
