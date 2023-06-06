@@ -7,11 +7,19 @@ from backend.settings import DB_PREFIX, DEFAULT_AVATAR_BACK
 
 class AdminPermission(models.Model):
     class Keys(models.TextChoices):
-        Admin = "Admin"
+        Admin = "Admin", "超级管理员"
 
     key = models.CharField(unique=True, max_length=255, verbose_name="权限标识")
     name = models.CharField(max_length=255, verbose_name="权限名称")
     description = models.CharField(default="", max_length=255, verbose_name="权限描述")
+
+    @staticmethod
+    def sync_data():
+        for i in AdminPermission.Keys:
+            if not AdminPermission.objects.filter(key=i.value).exists():
+                AdminPermission.objects.create(key=i.value, name=i.label)
+            else:
+                AdminPermission.objects.filter(key=i.value).update(name=i.label)
 
     @property
     def is_admin(self) -> bool:
