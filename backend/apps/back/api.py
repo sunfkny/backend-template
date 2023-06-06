@@ -293,18 +293,16 @@ def admin_role_permission_list(
     if not role:
         return Response.error(msg="角色不存在")
 
-    permissions = []
-    if role.permission:
-        role_permission = role.permission.all()
-        permissions = [
-            {
-                "id": i.pk,
-                "key": i.key,
-                "name": i.name,
-                "description": i.description,
-            }
-            for i in role_permission
-        ]
+    role_permission = role.permission.all()
+    permissions = [
+        {
+            "id": i.pk,
+            "key": i.key,
+            "name": i.name,
+            "description": i.description,
+        }
+        for i in role_permission
+    ]
 
     data = {
         "role": {

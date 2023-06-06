@@ -23,11 +23,20 @@ class AdminPermission(models.Model):
         verbose_name_plural = verbose_name
 
 
+class RolePermission(models.Model):
+    role: models.ForeignKey["Role"] = models.ForeignKey("Role", on_delete=models.PROTECT, verbose_name="角色")
+    permission = models.ForeignKey(AdminPermission, on_delete=models.PROTECT, verbose_name="权限")
+
+    class Meta:
+        db_table = f"{DB_PREFIX}_role_permission"
+        verbose_name = "角色权限表"
+        verbose_name_plural = verbose_name
+
+
 class Role(models.Model):
-    PermissionM2M: TypeAlias = "models.ManyToManyField[AdminPermission, Self]"
     name = models.CharField(max_length=255, verbose_name="角色名称")
     description = models.CharField(default="", max_length=255, verbose_name="角色描述")
-    permission: PermissionM2M = models.ManyToManyField(AdminPermission, db_table=f"{DB_PREFIX}_role_permission", verbose_name="权限")
+    permission = models.ManyToManyField(AdminPermission, through=RolePermission, verbose_name="权限")
 
     @property
     def permission_list(self):
@@ -46,10 +55,6 @@ class Role(models.Model):
 class AdminUser(models.Model):
     create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     update_time = models.DateTimeField(auto_now=True, verbose_name="修改时间")
-
-    SelfForeignKey: TypeAlias = "models.ForeignKey[Optional[Self]]"
-    PermissionM2M: TypeAlias = "models.ManyToManyField[AdminPermission, Self]"
-
     nickname = models.CharField(max_length=20, verbose_name="显示名称")
     username = models.CharField(unique=True, max_length=255, verbose_name="帐号")
     password = models.CharField(max_length=255, verbose_name="密码")
