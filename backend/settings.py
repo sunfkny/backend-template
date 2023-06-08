@@ -83,10 +83,11 @@ else:
 
 request_logger = logging.getLogger("django.request")
 request_logger.handlers = [InterceptHandler()]
-request_logger.setLevel("INFO")
+request_logger.setLevel(logging.INFO)
 
 loguru.logger.add(
     LOG_DIR / "run.log",
+    filter=lambda record: record["extra"].get("name") is None,
     backtrace=False,
     watch=True,
 )
@@ -106,7 +107,6 @@ def get_logger(name: Optional[str] = None):
         filter=lambda record: record["extra"].get("name") == name,
         backtrace=False,
         watch=True,
-        retention=7,
     )
 
     LOGURU_LOGGERS_CACHE[name] = bind_logger
