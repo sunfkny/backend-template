@@ -86,7 +86,7 @@ server {{
     # listen 443 ssl http2;
     server_name {DOMAIN_NAME};
 
-    # access_log /data/wwwlogs/{DOMAIN_NAME}.log combined;
+    # access_log /data/wwwlogs/{DOMAIN_NAME}_nginx.log combined;
     # ssl_certificate /usr/local/nginx/cert/{DOMAIN_NAME}.pem;
     # ssl_certificate_key /usr/local/nginx/cert/{DOMAIN_NAME}.key;
 
