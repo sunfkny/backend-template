@@ -37,17 +37,35 @@ python ../../manage.py startapp <app_name>
 <summary>展开查看</summary>
 
 ```
-cd /root
-wget https://registry.npmmirror.com/-/binary/python/3.10.11/Python-3.10.11.tgz
-tar -xzf Python-3.10.11.tgz
+#!/bin/bash
+set -e
+PYTHON_VERSION="3.10.12"
+PYTHON_MINOR_VERSION="$(echo $PYTHON_VERSION | cut -d'.' -f 2)"
+PYTHON_BUILD_VERSION="$(echo $PYTHON_VERSION | cut -d'.' -f 3)"
+
 yum -y install epel-release
-yum -y install gcc zlib zlib-devel libffi libffi-devel readline-devel openssl-devel openssl11 openssl11-devel mysql-devel
-export CFLAGS=$(pkg-config --cflags openssl11)
-export LDFLAGS=$(pkg-config --libs openssl11)
-cd /root/Python-3.10.11
-./configure --with-ssl
+yum -y install gcc zlib zlib-devel libffi libffi-devel readline-devel mysql-devel sqlite-devel
+yum -y install wget
+
+if [[ "$(rpm -E %{rhel})" == "7" ]]; then
+    yum -y install openssl11 openssl11-devel
+    export CFLAGS=$(pkg-config --cflags openssl11)
+    export LDFLAGS=$(pkg-config --libs openssl11)
+elif [[ "$(rpm -E %{rhel})" == "8" ]]; then
+    yum -y install openssl openssl-devel
+    export LD_LIBRARY_PATH=/usr/lib64
+else
+    echo "Unsupported CentOS version"
+    exit 1
+fi
+
+cd /root
+wget https://registry.npmmirror.com/-/binary/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz -O Python-$PYTHON_VERSION.tgz
+tar -xzf Python-$PYTHON_VERSION.tgz
+cd /root/Python-$PYTHON_VERSION
+./configure --with-ssl --enable-loadable-sqlite-extensions
 make -j$(nproc) && make altinstall
-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.10 0
+alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.$PYTHON_MINOR_VERSION 0
 python3 -V
 ```
 
