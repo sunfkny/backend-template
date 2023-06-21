@@ -1,21 +1,7 @@
 __doc__ = """
 ```shell
 # 配置跨域
-aliyun.exe configure --mode AK
-aliyun oss cors oss://<OSS_BUCKET_NAME> --method put oss_cors.xml
-```
-oss_cors.xml
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<CORSConfiguration>
-    <CORSRule>
-      <AllowedOrigin>*</AllowedOrigin>
-      <AllowedMethod>GET</AllowedMethod>
-      <AllowedMethod>POST</AllowedMethod>
-      <AllowedMethod>HEAD</AllowedMethod>
-      <AllowedHeader>*</AllowedHeader>
-    </CORSRule>
-</CORSConfiguration>
+python.exe manage.py put_bucket_cors oss
 ```
 使用方法
 ```python
@@ -27,22 +13,24 @@ def post_upload_params(
     # [PostObject](https://help.aliyun.com/document_detail/31988.html)
     return Response.data(get_oss_upload_params(ext))
 
-@router.post("oss/callback", summary="OSS 上传回调", include_in_schema=False)
-def post_oss_callback(request: HttpRequest):
-    logger.info(f"oss_callback {request.body.decode()}")
-    return HttpResponse(request.body.decode())
+@router.post("post/object/callback", summary="上传回调", include_in_schema=False)
+def post_object_callback(request: HttpRequest):
+    body = request.body.decode()
+    logger.info(body)
+    return HttpResponse(body)
 ```
 """
 
 import uuid
 
-from django.conf import settings
 from pydantic import BaseModel
 
-OSS_ACCESS_KEY_ID: str = settings.OSS_ACCESS_KEY_ID
-OSS_ACCESS_KEY_SECRET: str = settings.OSS_ACCESS_KEY_SECRET
-OSS_ENDPOINT: str = settings.OSS_ENDPOINT
-OSS_BUCKET_NAME: str = settings.OSS_BUCKET_NAME
+from backend.settings import (
+    OSS_ACCESS_KEY_ID,
+    OSS_ACCESS_KEY_SECRET,
+    OSS_ENDPOINT,
+    OSS_BUCKET_NAME,
+)
 
 
 class Oss(BaseModel):
@@ -57,7 +45,7 @@ class Oss(BaseModel):
 class OssUploadData(BaseModel):
     host: str
     url: str
-    max_file_size: int = 20971520
+    max_file_size: int = 20 * 1024 * 1024
     oss: Oss
 
 
@@ -101,6 +89,7 @@ def get_oss_upload_params(ext: str, expire: int = 600, max_file_size: int = 10 *
     policy_dict = {
         "expiration": get_expiration(expire),
         "conditions": [
+            {"bucket": OSS_BUCKET_NAME},
             ["eq", "$key", key],
             ["content-length-range", 1, max_file_size],
         ],
@@ -119,9 +108,9 @@ def get_oss_upload_params(ext: str, expire: int = 600, max_file_size: int = 10 *
         OSSAccessKeyId=OSS_ACCESS_KEY_ID,
         key=key,
         policy=policy,
-        # callback="",
+        # callback=callback,
         # success_action_status="204",
         signature=signature,
     )
-    data = OssUploadData(oss=oss, host=host, url=url)
+    data = OssUploadData(oss=oss, host=host, url=url, max_file_size=max_file_size)
     return data
