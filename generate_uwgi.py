@@ -29,26 +29,26 @@ UWSGI_INI_FILE_PATH.write_text(
     f"""# uwsgi使用配置文件启动
 [uwsgi]
 # 指定项目的根目录
-root={BASE_DIR}
+chdir={BASE_DIR}
 # 指定依赖的虚拟环境
-virtualenv=venv
+venv=venv
 # 指定项目的application
 module=backend.wsgi:application
-# 指定sock的文件路径
-socket=uwsgi.sock
+# uwsgi 协议
+uwsgi-socket=uwsgi.sock
+# http 协议
+# http-socket=0.0.0.0:8011
 # 进程个数
 workers=2
 pidfile=uwsgi.pid
-# 指定IP端口
-# http=0.0.0.0:8011
 # 启动uwsgi的用户名和用户组
 uid=root
 gid=root
 # 启用主进程
 master=true
-# 自动移除unix Socket和pid文件当服务停止的时候
+# 退出时尝试删除所有生成的socket和pid文件
 vacuum=true
-# 序列化接受的内容，如果可能的话
+# 加锁串行化接收, 避免多进程惊群问题
 thunder-lock=true
 # 启用线程
 threads=1
@@ -61,14 +61,17 @@ socket-timeout=30
 post-buffering=8192
 # 设置日志目录
 daemonize=logs/run.log
-# 触发日志重新打开
+# touch触发重新打开日志
 touch-logreopen=logs/run.log.logreopen
+# touch触发重启
+touch-reload=uwsgi.reload
+# 禁用请求日志
+# disable-logging = true
 # 日志格式
 log-format-strftime = true
-log-date = %%Y-%%m-%%d %%H:%%M:%%S
-# logformat=%(ftime) - %(addr) (%(proto) %(status)) %(method) %(uri) => generated %(size) bytes in %(msecs) msecs
-logformat=%(ftime)     | INFO     | backend.wsgi:application %(addr) (%(proto) %(status)) %(method) %(uri) => generated %(size) bytes in %(msecs) msecs
-# uwsgi日志中不再显示错误信息
+log-date=%%Y-%%m-%%d %%H:%%M:%%S
+logformat=%(ftime)     | INFO     | %(addr) (%(proto) %(status)) %(method) %(uri) => generated %(size) bytes in %(msecs) msecs
+# uwsgi日志中不显示错误信息
 ignore-sigpipe=true
 ignore-write-errors=true
 disable-write-exception=true
