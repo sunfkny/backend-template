@@ -1,39 +1,63 @@
 #!./venv/bin/python
 import os
+import pathlib
+import shlex
+
 from pick import pick
 
-title = "Please choose the log to watch:"
-options = []
 
+def is_log_file(p: pathlib.Path):
+    return p.is_file() and p.suffix == ".log"
+
+
+log_dir = pathlib.Path("./logs")
+options = [str(i) for i in log_dir.iterdir() if is_log_file(i)]
+
+title = "Please choose the log to watch:"
 file, index = pick(options, title)
-# print(index, option)
+
 
 BLACK, RED, GREEN, YELLOW, BLUE, PURPLE, CYAN, WHITE = (
-    r"\e[1;30m${}\e[0m",
-    r"\e[1;31m${}\e[0m",
-    r"\e[1;32m${}\e[0m",
-    r"\e[1;33m${}\e[0m",
-    r"\e[1;34m${}\e[0m",
-    r"\e[1;35m${}\e[0m",
-    r"\e[1;36m${}\e[0m",
-    r"\e[1;37m${}\e[0m",
+    r"\o033[1;30m&\o033[0m",
+    r"\o033[1;31m&\o033[0m",
+    r"\o033[1;32m&\o033[0m",
+    r"\o033[1;33m&\o033[0m",
+    r"\o033[1;34m&\o033[0m",
+    r"\o033[1;35m&\o033[0m",
+    r"\o033[1;36m&\o033[0m",
+    r"\o033[1;37m&\o033[0m",
 )
+color_matchs = {
+    r"INFO": GREEN,
+    r"WARNING": YELLOW,
+    r"ERROR": RED,
+    r"DEBUG": BLUE,
+    **{
+        rf"HTTP\/[1-2]\.[0-1] {status}[0-9][0-9]": color
+        for status, color in (
+            {
+                "2": GREEN,
+                "3": BLUE,
+                "4": YELLOW,
+                "5": RED,
+            }
+        ).items()
+    },
+}
 
 
 def get_cmd(file):
-    log_colors = [GREEN, YELLOW, RED]
-    log_matchs = [f"({level})" for level in ["INFO", "WARNING", "ERROR"]]
-    http_colors = [GREEN, YELLOW, RED]
-    http_matchs = [r"(HTTP\/[1-2]\.[0-2] {}[0-9][0-9])".format(i) for i in ["[2-3]", "4", "5"]]
+    cmd_tail = ["tail", "-F", file]
 
-    matchs = "|".join(log_matchs + http_matchs)
-    colors = "".join([v.format(i + 1) for i, v in enumerate(log_colors + http_colors)])
+    cmd_sed = ["sed"]
+    for k, v in color_matchs.items():
+        cmd_sed.extend(["-e", f"s/{k}/{v}/g"])
 
-    regex = f"s/{matchs}/{colors}/g"
-    cmd = f"tail -F {file} | perl -pe'{regex}'"
-    return cmd
+    commands = [cmd_tail, cmd_sed]
+    return " | ".join(shlex.join(i) for i in commands)
 
 
-cmd = get_cmd(file)
-print(cmd)
-os.system(cmd)
+if __name__ == "__main__":
+    cmd = get_cmd(file)
+    print(cmd)
+    os.system(cmd)
