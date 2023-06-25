@@ -58,7 +58,7 @@ class Command(BaseCommand):
             print("create new cors rule")
             rule = oss2.models.CorsRule(
                 allowed_origins=["*"],
-                allowed_methods=["GET", "POST", "HEAD"],
+                allowed_methods=["GET", "POST", "HEAD", "PUT", "DELETE"],
                 allowed_headers=["*"],
             )
             resp = bucket.put_bucket_cors(oss2.models.BucketCors([rule]))
@@ -112,8 +112,9 @@ class Command(BaseCommand):
                     "CORSRule": [
                         {
                             "AllowedOrigin": ["*"],
-                            "AllowedMethod": ["GET", "POST", "HEAD"],
+                            "AllowedMethod": ["GET", "POST", "HEAD", "PUT", "DELETE"],
                             "AllowedHeader": ["*"],
+                            "ExposeHeader": ["Content-Length", "ETag", "x-cos-meta-author"],
                         }
                     ]
                 },
