@@ -43,10 +43,11 @@ set -e
 PYTHON_VERSION="3.10.12"
 PYTHON_MINOR_VERSION="$(echo $PYTHON_VERSION | cut -d'.' -f 2)"
 PYTHON_BUILD_VERSION="$(echo $PYTHON_VERSION | cut -d'.' -f 3)"
+DOWNLOAD_PREFIX=https://registry.npmmirror.com/-/binary/python/$PYTHON_VERSION
+# DOWNLOAD_PREFIX=https://www.python.org/ftp/python/$PYTHON_VERSION
 
 yum -y install epel-release
-yum -y install gcc zlib zlib-devel libffi libffi-devel readline-devel mysql-devel sqlite-devel
-yum -y install wget
+yum -y install wget gcc zlib zlib-devel libffi libffi-devel readline-devel mysql-devel sqlite-devel
 
 if [[ "$(rpm -E %{rhel})" == "7" ]]; then
     yum -y install openssl11 openssl11-devel
@@ -61,7 +62,7 @@ else
 fi
 
 cd /root
-wget https://registry.npmmirror.com/-/binary/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz -O Python-$PYTHON_VERSION.tgz
+wget $DOWNLOAD_PREFIX/Python-$PYTHON_VERSION.tgz -O Python-$PYTHON_VERSION.tgz
 tar -xzf Python-$PYTHON_VERSION.tgz
 cd /root/Python-$PYTHON_VERSION
 ./configure --with-ssl --enable-loadable-sqlite-extensions
@@ -160,6 +161,20 @@ ln -s /usr/local/bin/sqlite3   /usr/bin/sqlite3
 echo "/usr/local/lib" > /etc/ld.so.conf.d/sqlite3.conf
 ldconfig
 sqlite3 -version
+```
+
+</details>
+
+## 升级 git
+<details>
+<summary>展开查看</summary>
+
+```
+yum install -y centos-release-scl
+yum install -y rh-git227
+echo '. /opt/rh/rh-git227/enable' >> ~/.bashrc
+source ~/.bashrc
+git --version  # git version 2.27.0
 ```
 
 </details>
