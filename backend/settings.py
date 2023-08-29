@@ -102,12 +102,9 @@ if sys.version_info >= (3, 8):
 else:
     logging.basicConfig(handlers=[InterceptHandler()], level=0)
 
-request_logger = logging.getLogger("django.request")
-request_logger.handlers = [InterceptHandler()]
-request_logger.setLevel(logging.INFO)
-
 loguru.logger.add(
     LOG_DIR / "run.log",
+    level=logging.INFO,
     filter=lambda record: record["extra"].get("name") is None,
     backtrace=False,
     watch=True,
@@ -125,6 +122,7 @@ def get_logger(name: Optional[str] = None):
     bind_logger = loguru.logger.bind(name=name)
     bind_logger.add(
         LOG_DIR / f"{name}.log",
+        level=logging.INFO,
         filter=lambda record: record["extra"].get("name") == name,
         backtrace=False,
         watch=True,

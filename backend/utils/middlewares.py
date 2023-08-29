@@ -36,18 +36,18 @@ class ApiLoggingMiddleware(MiddlewareMixin):
     def process_response(self, request: HttpRequest, response: HttpResponse):
         data = ApiLoggingMiddleware._get_request_params(request)
         request_content_type = request.headers.get("Content-Type", "")
-        logger.debug(f"{request.method} {request.path} {response.status_code} {response.reason_phrase}")
+        logger.info(f"{request.method} {request.path} {response.status_code} {response.reason_phrase}")
         if data:
-            logger.debug(f"{request_content_type} {data}")
+            logger.info(f"{request_content_type} {data}")
 
         response_content_type = response.headers.get("Content-Type", "")
         if "application/json" in response_content_type and not request.path.endswith("openapi.json"):
-            logger.debug("{} {}", response_content_type, response.content.decode("unicode_escape").replace("\n", " "))
+            logger.info("{} {}", response_content_type, response.content.decode("unicode_escape").replace("\n", " "))
         elif "text/html" in response_content_type or "text/javascript" in response_content_type:
-            logger.debug(response_content_type)
+            logger.info(response_content_type)
         elif "utf-8" in response_content_type:
-            logger.debug("{} {}", response_content_type, response.content.decode().replace("\n", " "))
+            logger.info("{} {}", response_content_type, response.content.decode().replace("\n", " "))
         else:
-            logger.debug(response_content_type, response.content[:32])
+            logger.info(response_content_type, response.content[:32])
 
         return response
