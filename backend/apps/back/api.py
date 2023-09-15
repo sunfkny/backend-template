@@ -13,8 +13,8 @@ redis_conn = get_redis_connection()
 logger = get_logger()
 
 
-@router.post("login", summary="后台登录")
-def admin_user_login(
+@router.post("admin/login", summary="后台登录")
+def post_admin_login(
     request: HttpRequest,
     username: str = Form(..., description="账号"),
     password: str = Form(..., description="密码"),
@@ -30,8 +30,8 @@ def admin_user_login(
     return Response.error(msg="帐号或密码错误")
 
 
-@router.post("password", auth=auth_admin.get_auth(), summary="后台修改密码")
-def admin_password(
+@router.post("admin/password", auth=auth_admin.get_auth(), summary="后台修改密码")
+def post_admin_password(
     request: HttpRequest,
     old_password: str = Form(..., description="旧密码"),
     new_password: str = Form(..., description="新密码"),
@@ -44,8 +44,8 @@ def admin_password(
     return Response.ok()
 
 
-@router.post("password/reset", auth=auth_admin.get_auth(), summary="超级管理员后台重置密码")
-def admin_password_reset(
+@router.post("admin/password/reset", auth=auth_admin.get_auth(), summary="超级管理员后台重置密码")
+def post_admin_password_reset(
     request: HttpRequest,
     username: str = Form(..., description="用户名"),
 ):
@@ -62,8 +62,8 @@ def admin_password_reset(
     return Response.ok()
 
 
-@router.get("user/info", auth=auth_admin.get_auth(), summary="后台用户信息")
-def admin_user_info(
+@router.get("admin/user/info", auth=auth_admin.get_auth(), summary="后台用户信息")
+def get_admin_user_info(
     request: HttpRequest,
 ):
     user = auth_admin.get_login_user(request)
@@ -78,8 +78,8 @@ def admin_user_info(
     return Response.data(data)
 
 
-@router.post("user/info/edit", auth=auth_admin.get_auth(), summary="后台用户信息修改")
-def admin_user_info_edit(
+@router.post("admin/user/info/edit", auth=auth_admin.get_auth(), summary="后台用户信息修改")
+def post_admin_user_info_edit(
     request: HttpRequest,
     admin_user_id: int = Form(0, alias="id", description="后台用户id(Admin权限)"),
     summary: str = Form(..., description="简介"),
@@ -99,8 +99,8 @@ def admin_user_info_edit(
     return Response.ok()
 
 
-@router.get("user/info/detail", auth=auth_admin.get_auth(), summary="后台用户信息详情")
-def admin_user_info_detail(
+@router.get("admin/user/info/detail", auth=auth_admin.get_auth(), summary="后台用户信息详情")
+def get_admin_user_info_detail(
     request: HttpRequest,
     admin_user_id: int = Query(0, alias="id", description="后台用户id(Admin权限)"),
 ):
@@ -118,8 +118,8 @@ def admin_user_info_detail(
     return Response.data(data)
 
 
-@router.get("user/info/list", auth=auth_admin.get_auth(), summary="后台用户列表")
-def admin_user_info_list(
+@router.get("admin/user/info/list", auth=auth_admin.get_auth(), summary="后台用户列表")
+def get_admin_user_info_list(
     request: HttpRequest,
     page: int = Query(1, description="页码"),
     size: int = Query(10, description="每页数量"),
@@ -155,7 +155,7 @@ def admin_user_info_list(
 
 
 @router.get("admin/permission/list", auth=auth_admin.get_auth(), summary="权限列表")
-def admin_permission_list(
+def get_admin_permission_list(
     request: HttpRequest,
     page: int = Query(..., description="页数"),
     size: int = Query(..., description="每页数量"),
@@ -188,7 +188,7 @@ def admin_permission_list(
 
 
 @router.post("admin/permission/edit", auth=auth_admin.get_auth(), summary="权限修改")
-def admin_permission_edit(
+def post_admin_permission_edit(
     request: HttpRequest,
     permission_id: int = Form(..., description="权限id", alias="id"),
     # key: str = Form(..., description="权限标识"),
@@ -211,7 +211,7 @@ def admin_permission_edit(
 
 
 @router.get("admin/role/list", auth=auth_admin.get_auth(), summary="角色列表")
-def admin_role_list(
+def get_admin_role_list(
     request: HttpRequest,
     page: int = Query(1, description="页数"),
     size: int = Query(10, description="每页数量"),
@@ -243,7 +243,7 @@ def admin_role_list(
 
 
 @router.post("admin/role/edit", auth=auth_admin.get_auth(), summary="角色修改")
-def admin_role_edit(
+def post_admin_role_edit(
     request: HttpRequest,
     role_id: int = Form(..., description="角色id", alias="id"),
     name: str = Form(..., description="角色名称"),
@@ -264,7 +264,7 @@ def admin_role_edit(
 
 
 @router.post("admin/role/add", auth=auth_admin.get_auth(), summary="角色添加")
-def admin_role_add(
+def post_admin_role_add(
     request: HttpRequest,
     name: str = Form(..., description="角色名称"),
     description: str = Form(..., description="角色描述"),
@@ -281,7 +281,7 @@ def admin_role_add(
 
 
 @router.get("admin/role/permission/list", auth=auth_admin.get_auth(), summary="角色权限列表")
-def admin_role_permission_list(
+def get_admin_role_permission_list(
     request: HttpRequest,
     role_id: int = Query(..., description="角色id", alias="id"),
 ):
@@ -315,7 +315,7 @@ def admin_role_permission_list(
 
 
 @router.post("admin/role/permission/add", auth=auth_admin.get_auth(), summary="角色权限增加")
-def admin_role_permission_add(
+def post_admin_role_permission_add(
     request: HttpRequest,
     role_id: int = Form(..., description="角色id"),
     permission_id: int = Form(..., description="权限id"),
@@ -337,7 +337,7 @@ def admin_role_permission_add(
 
 
 @router.post("admin/role/permission/remove", auth=auth_admin.get_auth(), summary="角色权限移除")
-def admin_role_permission_remove(
+def post_admin_role_permission_remove(
     request: HttpRequest,
     role_id: int = Form(..., description="角色id"),
     permission_id: int = Form(..., description="权限id"),
@@ -359,7 +359,7 @@ def admin_role_permission_remove(
 
 
 @router.post("admin/user/add", auth=auth_admin.get_auth(), summary="后台用户创建")
-def admin_user_add(
+def post_admin_user_add(
     request: HttpRequest,
     nickname: str = Form(..., description="后台用户名称"),
     username: str = Form(..., description="后台用户名"),
@@ -386,24 +386,24 @@ def admin_user_add(
     return Response.ok()
 
 
-@router.get("dropdown/role", summary="角色选择下拉")
-def dropdown_role(
+@router.get("admin/dropdown/role", summary="角色选择下拉")
+def get_admin_dropdown_role(
     request: HttpRequest,
 ):
     data = list(Role.objects.values("id", "name"))
     return Response.list(data)
 
 
-@router.get("dropdown/permission", summary="权限选择下拉")
-def dropdown_permission(
+@router.get("admin/dropdown/permission", summary="权限选择下拉")
+def get_admin_dropdown_permission(
     request: HttpRequest,
 ):
     data = list(AdminPermission.objects.values("id", "name", "key"))
     return Response.list(data)
 
 
-@router.post("back/admin/edit", auth=auth_admin.get_auth(), summary="后台管理员角色修改")
-def back_admin_edit(
+@router.post("admin/user/role/edit", auth=auth_admin.get_auth(), summary="后台管理员角色修改")
+def post_admin_user_role_edit(
     request: HttpRequest,
     admin_user_id: int = Form(..., description="后台用户id"),
     role_id: int = Form(..., description="角色id"),
