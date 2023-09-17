@@ -64,7 +64,12 @@ daemonize=logs/run.log
 # touch触发重新打开日志
 touch-logreopen=logs/run.log.logreopen
 # touch触发重启
-touch-reload=uwsgi.reload
+# touch-reload=uwsgi.reload
+# touch触发优雅链式重启
+lazy-apps=true
+touch-chain-reload=uwsgi.reload
+# 使用 x-forwarded-for 记录ip
+# log-x-forwarded-for=true
 # 禁用请求日志
 # disable-logging = true
 # 日志格式
@@ -105,6 +110,7 @@ server {{
     }}
     location / {{
         alias $base/dist/;
+        # try_files $uri $uri/ /index.html;
     }}
 }}
 """
