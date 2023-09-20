@@ -113,7 +113,10 @@ def get_admin_user_info_detail(
     data = {
         "id": admin_user.pk,
         "nickname": admin_user.nickname,
+        "avatar": admin_user.avatar,
         "summary": admin_user.summary,
+        "role_id": admin_user.role.pk if admin_user.role else 0,
+        "role_name": admin_user.role_name,
     }
     return Response.data(data)
 
@@ -143,6 +146,7 @@ def get_admin_user_info_list(
     data = [
         {
             "id": i.pk,
+            "avatar": i.avatar,
             "nickname": i.nickname,
             "summary": i.summary,
             "username": i.username,

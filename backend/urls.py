@@ -108,11 +108,11 @@ def set_exception_handlers(api: NinjaAPI):
 set_exception_handlers(api)
 set_exception_handlers(api_back)
 
-from back.api import router as back_router
 from user.api import router as user_router
+from back.api_back import router as back_back_router
 
 api.add_router("/", user_router)
-api_back.add_router("/", back_router)
+api_back.add_router("/", back_back_router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
