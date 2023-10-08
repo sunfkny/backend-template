@@ -132,6 +132,18 @@ def get_logger(name: Optional[str] = None):
     return bind_logger
 
 
+def redirect_default_logger(name: str, keep_default: bool):
+    if not keep_default:
+        loguru.logger.remove()
+
+    loguru.logger.add(
+        LOG_DIR / f"{name}.log",
+        backtrace=False,
+        watch=True,
+    )
+    return loguru.logger
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
