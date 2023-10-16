@@ -14,8 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import datetime
-from functools import partial
 import logging
+from functools import partial
 from typing import Type, TypeAlias, Union
 
 from django.contrib import admin
@@ -28,20 +28,20 @@ from ninja.errors import AuthenticationError, ValidationError
 from ninja.renderers import JSONRenderer
 from ninja.responses import NinjaJSONEncoder
 
+from backend.settings import USE_TZ
+
 logger = logging.getLogger("django")
 
 
 class CustomJsonEncoder(NinjaJSONEncoder):
     def default(self, o):
-        if isinstance(o, datetime.datetime):
+        if not USE_TZ and isinstance(o, datetime.datetime):
             return o.strftime("%Y-%m-%d %H:%M:%S")
-        if isinstance(o, datetime.date):
-            return o.strftime("%Y.%m.%d")
         try:
             return super().default(o)
         except TypeError:
             logger.error((f"Object of type {o.__class__.__name__} {repr(o)} is not JSON serializable"))
-            return {"type": o.__class__.__name__, "repr": repr(o)}
+            return repr(o)
 
 
 class CustomJSONRenderer(JSONRenderer):
@@ -108,8 +108,8 @@ def set_exception_handlers(api: NinjaAPI):
 set_exception_handlers(api)
 set_exception_handlers(api_back)
 
-from user.api import router as user_router
 from back.api_back import router as back_back_router
+from user.api import router as user_router
 
 api.add_router("/", user_router)
 api_back.add_router("/", back_back_router)
