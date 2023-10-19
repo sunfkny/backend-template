@@ -33,6 +33,13 @@ uwsgi --ini $procedure_name
 )
 run_file.chmod(0o755)
 
+
+reload_file = BASE_DIR / "reload.sh"
+
+reload_file.write_text(f"""touch uwsgi.reload\n""")
+reload_file.chmod(0o755)
+
+
 UWSGI_INI_FILE_PATH.write_text(
     f"""# uwsgi使用配置文件启动
 [uwsgi]
