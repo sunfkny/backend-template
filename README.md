@@ -68,6 +68,7 @@ cd /root/Python-$PYTHON_VERSION
 ./configure --with-ssl --enable-loadable-sqlite-extensions
 make -j$(nproc) && make altinstall
 alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.$PYTHON_MINOR_VERSION 0
+alternatives --config python3
 python3 -V
 ```
 
