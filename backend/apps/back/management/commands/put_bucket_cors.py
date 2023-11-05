@@ -33,18 +33,14 @@ class Command(BaseCommand):
 
     def handle_oss(self, force: bool):
         try:
-            import oss2
+            import oss2  # type: ignore
         except ImportError:
             raise CommandError("oss2 is not installed")
 
-        OSS_ACCESS_KEY_ID = str(getattr(settings, "OSS_ACCESS_KEY_ID", ""))
-        OSS_ACCESS_KEY_SECRET = str(getattr(settings, "OSS_ACCESS_KEY_SECRET", ""))
-        OSS_ENDPOINT = str(getattr(settings, "OSS_ENDPOINT", ""))
-        OSS_BUCKET_NAME = str(getattr(settings, "OSS_BUCKET_NAME", ""))
-        assert OSS_ACCESS_KEY_ID
-        assert OSS_ACCESS_KEY_SECRET
-        assert OSS_ENDPOINT
-        assert OSS_BUCKET_NAME
+        OSS_ACCESS_KEY_ID = str(settings.OSS_ACCESS_KEY_ID)
+        OSS_ACCESS_KEY_SECRET = str(settings.OSS_ACCESS_KEY_SECRET)
+        OSS_ENDPOINT = str(settings.OSS_ENDPOINT)
+        OSS_BUCKET_NAME = str(settings.OSS_BUCKET_NAME)
 
         auth = oss2.Auth(OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET)
         bucket = oss2.Bucket(auth, OSS_ENDPOINT, OSS_BUCKET_NAME)
@@ -79,20 +75,16 @@ class Command(BaseCommand):
 
     def handle_cos(self, force: bool):
         try:
-            from qcloud_cos import CosConfig
-            from qcloud_cos import CosS3Client
-            from qcloud_cos.cos_exception import CosException, CosServiceError
+            from qcloud_cos import CosConfig  # type: ignore
+            from qcloud_cos import CosS3Client  # type: ignore
+            from qcloud_cos.cos_exception import CosServiceError  # type: ignore
         except ImportError:
             raise CommandError("qcloud_cos is not installed")
 
-        COS_SECRET_ID = str(getattr(settings, "COS_SECRET_ID", ""))
-        COS_SECRET_KEY = str(getattr(settings, "COS_SECRET_KEY", ""))
-        COS_BUCKET_APPID = str(getattr(settings, "COS_BUCKET_APPID", ""))
-        COS_REGION = str(getattr(settings, "COS_REGION", ""))
-        assert COS_SECRET_ID
-        assert COS_SECRET_KEY
-        assert COS_BUCKET_APPID
-        assert COS_REGION
+        COS_SECRET_ID = str(settings.COS_SECRET_ID)
+        COS_SECRET_KEY = str(settings.COS_SECRET_KEY)
+        COS_BUCKET_APPID = str(settings.COS_BUCKET_APPID)
+        COS_REGION = str(settings.COS_REGION)
 
         config = CosConfig(Region=COS_REGION, SecretId=COS_SECRET_ID, SecretKey=COS_SECRET_KEY)
         client = CosS3Client(config)
