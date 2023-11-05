@@ -15,15 +15,20 @@ def post_upload_params(
 ```
 """
 
+import base64
+import datetime
+import hashlib
+import hmac
+import json
 import uuid
+
 from pydantic import BaseModel
 
 from backend.settings import (
-    COS_SECRET_ID,
-    COS_SECRET_KEY,
     COS_BUCKET_APPID,
     COS_ENDPOINT,
-    COS_BUCKET_APPID,
+    COS_SECRET_ID,
+    COS_SECRET_KEY,
 )
 
 
@@ -51,13 +56,6 @@ class CosUploadData(BaseModel):
     url: str
     max_file_size: int = 20 * 1024 * 1024
     cos: dict
-
-
-import base64
-import datetime
-import hashlib
-import hmac
-import json
 
 
 def md5_encode(data: str):

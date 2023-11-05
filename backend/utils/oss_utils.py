@@ -21,6 +21,11 @@ def post_object_callback(request: HttpRequest):
 ```
 """
 
+import base64
+import datetime
+import hashlib
+import hmac
+import json
 import uuid
 
 from pydantic import BaseModel
@@ -28,8 +33,8 @@ from pydantic import BaseModel
 from backend.settings import (
     OSS_ACCESS_KEY_ID,
     OSS_ACCESS_KEY_SECRET,
-    OSS_ENDPOINT,
     OSS_BUCKET_NAME,
+    OSS_ENDPOINT,
 )
 
 
@@ -47,13 +52,6 @@ class OssUploadData(BaseModel):
     url: str
     max_file_size: int = 20 * 1024 * 1024
     oss: Oss
-
-
-import base64
-import datetime
-import hashlib
-import hmac
-import json
 
 
 def md5_encode(data: str):
