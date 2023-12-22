@@ -3,7 +3,7 @@
 uwsgi; platform_system != "Windows"
 pick
 ipython
-django-ninja
+django-ninja~=0.22
 django-extensions
 django
 arrow
