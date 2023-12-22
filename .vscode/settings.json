@@ -1,21 +1,42 @@
 {
-    "python.analysis.extraPaths": [
-        "./backend/apps"
-    ],
-    "nginx-conf-hint.syntax": "sublime",
-    "python.languageServer": "Pylance",
-    "python.analysis.typeCheckingMode": "basic",
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "black-formatter.args": [
         // 行长度
         "--line-length",
         "160"
         // 跳过格式化引号
         // "--skip-string-normalization",
     ],
+    "isort.args": [
+        "--profile",
+        "black",
+        "--line-length",
+        "160"
+    ],
+    "python.analysis.extraPaths": [
+        "./backend/apps"
+    ],
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "basic",
     "python.analysis.gotoDefinitionInStringLiteral": true,
     "python.analysis.autoFormatStrings": true,
-    "python.analysis.pylanceLspClientEnabled": true,
+    "python.analysis.ignore": [
+        "venv"
+    ],
+    "python.analysis.exclude": [
+        "typings"
+    ],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportPrivateImportUsage": "information",
+        "reportUnnecessaryIsInstance": "information",
+        "reportDuplicateImport": "information",
+        "reportImportCycles": "warning",
+        "reportConstantRedefinition": "warning",
+        "reportImplicitStringConcatenation": "warning",
+        "reportMatchNotExhaustive": "warning",
+    },
     "jupyter.jupyterCommandLineArguments": [
         "--allow-root"
     ],
