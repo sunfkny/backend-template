@@ -34,11 +34,19 @@ python ../../manage.py startapp <app_name>
 </details>
 
 ## Ubuntu 安装依赖
+<details>
+<summary>展开查看</summary>
+
 ```
 apt install -y build-essential python3-venv default-libmysqlclient-dev pkg-config nginx redis
 ```
 
+</details>
+
 ## https 证书
+<details>
+<summary>展开查看</summary>
+
 安装 [acme.sh](https://github.com/acmesh-official/acme.sh/)
 ```bash
 curl https://get.acme.sh | sh -s email=my@example.com
@@ -64,6 +72,8 @@ acme.sh --install-cert -d www.example.com \
 --fullchain-file /usr/local/nginx/cert/www.example.com.pem \
 --reloadcmd "service nginx force-reload"
 ```
+
+</details>
 
 ## 安装 python
 <details>
