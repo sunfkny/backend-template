@@ -1,16 +1,21 @@
-from back.models import AdminPermission, AdminUser, Role
-from django.contrib.auth.hashers import check_password, make_password
-from django.core.paginator import InvalidPage, Paginator
-from django.http import HttpRequest
-from ninja import Form, Query, Router
+from urllib.parse import urljoin
 
-from backend.settings import REDIS_PREFIX, get_logger, get_redis_connection
+from back.models import AdminPermission, AdminUser, Role
+from django.contrib.auth.hashers import make_password
+from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator
+from django.http import HttpRequest
+from ninja import File, Form, Query, Router
+from ninja.files import UploadedFile
+
+from backend.settings import MEDIA_BASE_URL, get_logger, get_redis_connection
 from backend.utils.auth import auth_admin
 from backend.utils.response_types import Response
 
 router = Router(tags=["后台"])
 redis_conn = get_redis_connection()
 logger = get_logger()
+file_system_storage = FileSystemStorage()
 
 
 @router.post("admin/login", summary="后台登录")
@@ -19,6 +24,15 @@ def post_admin_login(
     username: str = Form(..., description="账号"),
     password: str = Form(..., description="密码"),
 ):
+    exists_admin_user = AdminUser.objects.exists()
+    if not exists_admin_user:
+        AdminUser.objects.create(
+            nickname=username,
+            username=username,
+            password=make_password(password),
+            is_superadmin=True,
+        )
+
     user = AdminUser.objects.filter(username=username).first()
     if user and user.check_password(password):
         token = auth_admin.generate_token(user.pk)
@@ -139,10 +153,7 @@ def get_admin_user_info_list(
         queryset = queryset.filter(username__icontains=username)
 
     paginator = Paginator(queryset, size)
-    try:
-        page_business = paginator.page(page)
-    except InvalidPage:
-        return Response.error(msg="页数错误")
+    page_business = paginator.page(page)
     data = [
         {
             "id": i.pk,
@@ -169,10 +180,7 @@ def get_admin_permission_list(
         return Response.error(msg="没有权限")
 
     queryset = AdminPermission.objects.all().order_by("id")
-    try:
-        page_permission = Paginator(queryset, size).page(page)
-    except InvalidPage:
-        return Response.error(msg="页数错误")
+    page_permission = Paginator(queryset, size).page(page)
     data = []
     for i in page_permission:
         data.append(
@@ -225,10 +233,7 @@ def get_admin_role_list(
         return Response.error(msg="没有权限")
 
     queryset = Role.objects.order_by("id")
-    try:
-        page_role = Paginator(queryset, size).page(page)
-    except InvalidPage:
-        return Response.error(msg="页数错误")
+    page_role = Paginator(queryset, size).page(page)
     data = []
     for i in page_role:
         data.append(
@@ -428,3 +433,13 @@ def post_admin_user_role_edit(
     change_user.save()
 
     return Response.ok()
+
+
+@router.post("admin/upload/media", auth=auth_admin.get_auth(), summary="后台用户上传文件")
+def post_admin_upload_media(
+    request: HttpRequest,
+    file: UploadedFile = File(..., description="文件"),
+):
+    name = file_system_storage.save(file.name, file)
+    url = urljoin(MEDIA_BASE_URL, name)
+    return Response.data({"url": url})
