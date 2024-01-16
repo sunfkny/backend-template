@@ -30,7 +30,7 @@ from ninja.renderers import JSONRenderer
 from ninja.responses import NinjaJSONEncoder
 from requests import RequestException
 
-from backend.settings import MEDIA_BASE_URL, USE_TZ
+from backend.settings import DEBUG
 
 logger = logging.getLogger("django")
 
@@ -161,3 +161,12 @@ urlpatterns = [
     path("api/", api.urls),
     path("api/back/", api_back.urls),
 ]
+
+
+if DEBUG:
+    from backend.settings import DIST_ROOT, MEDIA_BASE_URL, MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL, USE_TZ
+    from django.conf.urls.static import static
+
+    urlpatterns += static(STATIC_URL, document_root=STATIC_ROOT)
+    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
+    urlpatterns += static("/", document_root=DIST_ROOT)
