@@ -102,10 +102,17 @@ if sys.version_info >= (3, 8):
 else:
     logging.basicConfig(handlers=[InterceptHandler()], level=0)
 
+
+def run_log_filter(record: "loguru.Record") -> bool:
+    if record["extra"].get("name") is not None:
+        return False
+    return True
+
+
 loguru.logger.add(
     LOG_DIR / "run.log",
     level=logging.INFO,
-    filter=lambda record: record["extra"].get("name") is None,
+    filter=run_log_filter,
     backtrace=False,
     watch=True,
 )
@@ -156,7 +163,7 @@ if "django-insecure" in SECRET_KEY:
 DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
-
+CSRF_TRUSTED_ORIGINS = [BASE_URL]
 
 # Application definition
 
@@ -334,6 +341,7 @@ CRONJOBS = [
 STATIC_URL = "static/"
 
 MEDIA_URL = "media/"
+MEDIA_BASE_URL = urljoin(BASE_URL, MEDIA_URL)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
