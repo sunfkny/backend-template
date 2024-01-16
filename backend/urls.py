@@ -15,11 +15,11 @@ Including another URLconf
 """
 import datetime
 import logging
-from functools import partial
-from typing import Type, TypeAlias, Union
+from urllib.parse import urljoin
 
 from django.contrib import admin
 from django.core.paginator import InvalidPage
+from django.db import models
 from django.db.models.fields.files import FieldFile
 from django.db.utils import DatabaseError
 from django.http import HttpRequest, HttpResponse
@@ -30,13 +30,17 @@ from ninja.renderers import JSONRenderer
 from ninja.responses import NinjaJSONEncoder
 from requests import RequestException
 
-from backend.settings import USE_TZ
+from backend.settings import MEDIA_BASE_URL, USE_TZ
 
 logger = logging.getLogger("django")
 
 
 class CustomJsonEncoder(NinjaJSONEncoder):
     def default(self, o):
+        if isinstance(o, FieldFile):
+            return urljoin(MEDIA_BASE_URL, o.name)
+        if isinstance(o, models.Model):
+            return str(o)
         if not USE_TZ and isinstance(o, datetime.datetime):
             return o.strftime("%Y-%m-%d %H:%M:%S")
         try:
