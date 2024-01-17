@@ -13,7 +13,8 @@ mysqlclient
 # cryptography==37.0.4
 cryptography
 requests
-redis
+redis==4.6.0
+types-redis~=4.6.0
 loguru
 # django-crontab
 # django-rq

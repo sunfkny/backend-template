@@ -1,17 +1,18 @@
 import logging
 import time
-from typing import Any, Callable, Generic, Optional, TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, cast
+
 import jwt
 from django.conf import settings
 from django.db.models.base import Model
-
 from django.http.request import HttpRequest
-from backend.settings import get_redis_connection
 from jwt.exceptions import InvalidTokenError
 from ninja.errors import AuthenticationError
 from ninja.security import HttpBearer
 from redis import Redis
 from typing_extensions import Type, TypeVar
+
+from backend.settings import get_redis_connection
 
 logger = logging.getLogger("django")
 
@@ -83,7 +84,7 @@ class AuthBearerHelper(Generic[_T]):
         """获取登录用户id"""
         user_id = getattr(request, "auth", None)
         if not user_id:
-            raise AuthenticationError()
+            raise AuthenticationError("not auth")
         return user_id
 
     def get_login_user(self, request: HttpRequest) -> _T:
@@ -91,7 +92,7 @@ class AuthBearerHelper(Generic[_T]):
         user_id = self.get_login_uid(request)
         user = self.user_model.objects.filter(id=user_id).first()
         if not user:
-            raise AuthenticationError()
+            raise AuthenticationError("user_id not found")
         if TYPE_CHECKING:
             user = cast(_T, user)
         return user
@@ -101,7 +102,7 @@ class AuthBearerHelper(Generic[_T]):
         user_id = self.get_login_uid(request)
         user = self.user_model.objects.select_for_update().filter(id=user_id).first()
         if not user:
-            raise AuthenticationError()
+            raise AuthenticationError("user_id not found")
         if TYPE_CHECKING:
             user = cast(_T, user)
         return user
@@ -122,10 +123,10 @@ class AuthBearerHelper(Generic[_T]):
     def decode_token(self, token: str):
         """解析token"""
         try:
-            data = jwt.decode(token, self.secret_key, algorithms=["HS256"])
+            data: dict = jwt.decode(token, self.secret_key, algorithms=["HS256"])
             return data
         except InvalidTokenError as e:
-            raise AuthenticationError() from e
+            raise AuthenticationError(f"{e.__class__} {e}")
 
     def authenticate(self, request: HttpRequest, token: str):
         data = self.decode_token(token)
