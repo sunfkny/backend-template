@@ -1,13 +1,13 @@
 # backend-template
 ```
-git clone https://ghproxy.com/https://github.com/sunfkny/backend-template.git
+git clone https://mirror.ghproxy.com/https://github.com/sunfkny/backend-template.git
 cd backend-template
 python3 -m venv venv
 source venv/bin/activate
 python -m pip install -U pip
 pip install -U wheel setuptools
 pip install -r requirements.txt
-git clone https://ghproxy.com/https://github.com/sunfkny/typings.git
+git clone https://mirror.ghproxy.com/https://github.com/sunfkny/typings.git
 ```
 ## 新增 apps
 ```
@@ -38,7 +38,8 @@ python ../../manage.py startapp <app_name>
 <summary>展开查看</summary>
 
 ```
-apt install -y build-essential python3-venv default-libmysqlclient-dev pkg-config nginx redis
+apt install -y build-essential python3-venv default-libmysqlclient-dev pkg-config redis
+# nginx packages https://nginx.org/en/linux_packages.html
 ```
 
 </details>
@@ -279,8 +280,8 @@ log_format myjson
 
 
 log_format mycombined
-  '$time_iso8601 - $remote_addr $server_protocol $status'
-  '$request_method $request_uri sent $body_bytes_sent in $request_time'
+  '$time_iso8601 - $remote_addr $server_protocol $status '
+  '$request_method $request_uri sent $body_bytes_sent in $request_time '
   '"$http_referer" "$http_user_agent" "$http_authorization"';
 
 ```
