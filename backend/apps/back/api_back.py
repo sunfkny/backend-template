@@ -32,6 +32,7 @@ def post_admin_login(
             password=make_password(password),
             is_superadmin=True,
         )
+        AdminPermission.sync_data()
 
     user = AdminUser.objects.filter(username=username).first()
     if user and user.check_password(password):
