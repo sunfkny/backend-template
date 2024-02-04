@@ -123,8 +123,14 @@ server {{
         include uwsgi_params;
         uwsgi_pass unix:$base/uwsgi.sock;
     }}
+
+	# location ~ /media/.*\\.(jpg|jpeg|png|gif)$ {{
+	# 	add_header Content-Disposition 'attachment';
+	# 	add_header Access-Control-Allow-Origin *;
+	# 	root $base/dist/;
+	# }}
     location / {{
-        alias $base/dist/;
+        root $base/dist/;
         # try_files $uri $uri/ /index.html;
     }}
 }}
