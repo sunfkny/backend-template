@@ -8,9 +8,6 @@ from django.db.models import Manager, Model, QuerySet
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields import Field
 
-if TYPE_CHECKING:
-    from django.db.models.query import ValuesQuerySet
-
 __all__ = [
     "get_queryset_fields",
     "dunder_to_nest",
@@ -18,7 +15,7 @@ __all__ = [
 ]
 
 JsonDict = dict[str, Any]
-SequenceOrValuesJsonDict: TypeAlias = Sequence[JsonDict] | "ValuesQuerySet"
+SequenceOrValuesJsonDict: TypeAlias = Sequence[JsonDict] | Sequence[dict]
 SelectMask: TypeAlias = dict[Field, "SelectMask"]
 FieldDict: TypeAlias = dict[str, "FieldDict"]
 
@@ -232,9 +229,6 @@ def model_to_json(
     model: Model | Sequence[Model],
     fields: list[str],
 ) -> JsonDict | Sequence[JsonDict]:
-    if isinstance(model, (QuerySet, Manager)):
-        return list(model.values(*fields))
-
     if isinstance(model, Sequence):
         return [model_to_json(i, fields) for i in model]
 
