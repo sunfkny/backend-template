@@ -15,9 +15,6 @@
         "--line-length",
         "160"
     ],
-    "python.analysis.extraPaths": [
-        "./backend/apps"
-    ],
     "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.gotoDefinitionInStringLiteral": true,
@@ -29,12 +26,10 @@
         "typings"
     ],
     "python.analysis.diagnosticSeverityOverrides": {
-        "reportPrivateImportUsage": "information",
         "reportUnnecessaryIsInstance": "information",
         "reportDuplicateImport": "information",
         "reportImportCycles": "warning",
         "reportConstantRedefinition": "warning",
-        "reportImplicitStringConcatenation": "warning",
         "reportMatchNotExhaustive": "warning",
     },
     "jupyter.jupyterCommandLineArguments": [

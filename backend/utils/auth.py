@@ -1,7 +1,7 @@
 from .auth_utils import AuthBearerHelper
 from backend.settings import REDIS_PREFIX
-from back.models import AdminUser
-from user.models import User
+from backend.apps.back.models import AdminUser
+from backend.apps.user.models import User
 
 # 后台登录验证
 auth_admin = AuthBearerHelper(

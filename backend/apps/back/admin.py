@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from back.models import AdminPermission, AdminUser, Role, RolePermission
+from backend.apps.back.models import AdminPermission, AdminUser, Role, RolePermission
 
 
 @admin.register(AdminPermission)

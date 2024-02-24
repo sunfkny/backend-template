@@ -1,0 +1,9 @@
+from django.http import HttpRequest
+from ninja import Form, Header, Query, Body, Router
+
+from backend.settings import get_logger
+from backend.utils.response_types import Response
+
+router = Router(tags=["{{ app_name }}"])
+
+logger = get_logger()

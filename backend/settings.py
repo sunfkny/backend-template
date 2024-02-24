@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+
 import logging
 import os
 import sys
@@ -24,9 +25,6 @@ os.environ["LOGURU_LEVEL"] = "INFO"
 import loguru
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-APPS_DIR = Path(__file__).resolve().parent / "apps"
-sys.path.insert(0, str(APPS_DIR))
-
 LOG_DIR = BASE_DIR / "logs"
 LOG_FILE_PATH = LOG_DIR / "run.log"
 DIST_ROOT = BASE_DIR / "dist"
@@ -54,7 +52,7 @@ COS_APPID = ""
 COS_BUCKET_APPID = f"{COS_BUCKET}-{COS_APPID}"
 
 
-for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT, APPS_DIR]:
+for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
     if not path.exists():
         path.mkdir(parents=True)
 
@@ -180,8 +178,8 @@ INSTALLED_APPS = [
     "ninja",
     "django_extensions",
     # "django_crontab",
-    "back",
-    "user",
+    "backend.apps.back",
+    "backend.apps.user",
 ]
 
 MIDDLEWARE = [

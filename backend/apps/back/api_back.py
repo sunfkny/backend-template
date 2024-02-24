@@ -1,6 +1,5 @@
 from urllib.parse import urljoin
 
-from back.models import AdminPermission, AdminUser, Role
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
@@ -11,6 +10,7 @@ from ninja.files import UploadedFile
 from backend.settings import MEDIA_BASE_URL, get_logger, get_redis_connection
 from backend.utils.auth import auth_admin
 from backend.utils.response_types import Response
+from backend.apps.back.models import AdminPermission, AdminUser, Role
 
 router = Router(tags=["后台"])
 redis_conn = get_redis_connection()

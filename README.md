@@ -12,7 +12,8 @@ git clone https://mirror.ghproxy.com/https://github.com/sunfkny/typings.git
 ## 新增 apps
 ```
 cd backend/apps
-python ../../manage.py startapp <app_name>
+django-admin startapp --template app_template <app_name>
+cd ../..
 ```
 ## 可选依赖
 <details>
