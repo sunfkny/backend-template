@@ -8,3 +8,5 @@ media/*
 !media/default_avatar.svg
 run.sh
 typings
+logs
+db.sqlite3
