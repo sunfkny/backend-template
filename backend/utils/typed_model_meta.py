@@ -1,11 +1,9 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import ClassVar, List, Literal, Sequence, Tuple, Union
+    from typing import Any, ClassVar, List, Literal, Sequence, Tuple, Union
 
     from django.db.models import BaseConstraint, Index
-
-    from django_stubs_ext import StrOrPromise
 
     class TypedModelMeta:
         """
@@ -37,8 +35,8 @@ if TYPE_CHECKING:
         unique_together: ClassVar[Union[Sequence[Sequence[str]], Sequence[str]]]
         index_together: ClassVar[Union[Sequence[Sequence[str]], Sequence[str]]]  # Deprecated in Django 4.2
         constraints: ClassVar[List[BaseConstraint]]
-        verbose_name: ClassVar[StrOrPromise]
-        verbose_name_plural: ClassVar[StrOrPromise]
+        verbose_name: ClassVar[str | Any]
+        verbose_name_plural: ClassVar[str | Any]
 
 else:
     TypedModelMeta = object
