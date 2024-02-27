@@ -13,10 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 import datetime
 import logging
 from urllib.parse import urljoin
 
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.core.paginator import InvalidPage
 from django.db import models
@@ -30,7 +32,7 @@ from ninja.renderers import JSONRenderer
 from ninja.responses import NinjaJSONEncoder
 from requests import RequestException
 
-from backend.settings import DEBUG
+from backend.settings import DEBUG, DIST_ROOT, MEDIA_BASE_URL, MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL, USE_TZ
 
 logger = logging.getLogger("django")
 
@@ -164,9 +166,6 @@ urlpatterns = [
 
 
 if DEBUG:
-    from backend.settings import DIST_ROOT, MEDIA_BASE_URL, MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL, USE_TZ
-    from django.conf.urls.static import static
-
     urlpatterns += static(STATIC_URL, document_root=STATIC_ROOT)
     urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
     urlpatterns += static("/", document_root=DIST_ROOT)
