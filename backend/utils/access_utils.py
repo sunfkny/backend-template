@@ -34,7 +34,7 @@ def getitem_reduce(obj: Any, names: Iterable[Any], default: Any = NOT_SET):
     for name in names:
         try:
             obj = obj[name]
-        except KeyError:
+        except (KeyError, IndexError):
             if default is NOT_SET:
                 raise
             return default
