@@ -3,12 +3,11 @@ import re
 from typing import Any
 from urllib.parse import quote
 
+from django import VERSION
 from django.http import HttpResponse, StreamingHttpResponse
 
 LINE_SEP_EXPR = re.compile(r"\r\n|\r|\n")
 
-
-from django import VERSION
 
 if VERSION >= (4, 2):
     from django.utils.http import content_disposition_header

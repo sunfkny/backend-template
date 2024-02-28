@@ -1,10 +1,12 @@
 import json
 import logging
 from typing import Dict
-from backend.settings import get_logger
+
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
+
+from backend.settings import get_logger
 
 logger = get_logger("request")
 
@@ -17,7 +19,7 @@ class ApiLoggingMiddleware(MiddlewareMixin):
             if not isinstance(data, dict):
                 data = {"__root__": data}
             return data
-        except:
+        except Exception:
             return {}
 
     @staticmethod

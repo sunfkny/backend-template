@@ -8,7 +8,7 @@
         "hangxingliu.vscode-nginx-conf-hint",
         "ms-python.vscode-pylance",
         "ms-python.python",
-        "ms-python.black-formatter",
+        "charliermarsh.ruff",
         "vscode-icons-team.vscode-icons"
     ]
 }

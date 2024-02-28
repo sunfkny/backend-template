@@ -1,4 +1,4 @@
-from backend.utils.snowflake import Snowflake, InvalidSystemClock
+from backend.utils.snowflake import InvalidSystemClock, Snowflake
 
 snowflake = Snowflake()
 

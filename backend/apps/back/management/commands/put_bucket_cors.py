@@ -1,5 +1,5 @@
-from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
@@ -75,8 +75,10 @@ class Command(BaseCommand):
 
     def handle_cos(self, force: bool):
         try:
-            from qcloud_cos import CosConfig  # type: ignore
-            from qcloud_cos import CosS3Client  # type: ignore
+            from qcloud_cos import (
+                CosConfig,  # type: ignore
+                CosS3Client,  # type: ignore
+            )
             from qcloud_cos.cos_exception import CosServiceError  # type: ignore
         except ImportError:
             raise CommandError("qcloud_cos is not installed")

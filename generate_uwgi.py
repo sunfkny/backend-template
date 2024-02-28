@@ -1,8 +1,10 @@
 #!venv/bin/python
 import os
-from backend.settings import MEDIA_URL, UWSGI_INI_FILE_NAME, BASE_DIR, DOMAIN_NAME, MEDIA_ROOT, DIST_ROOT
-from django.core.management.utils import get_random_secret_key
 import pathlib
+
+from django.core.management.utils import get_random_secret_key
+
+from backend.settings import BASE_DIR, DIST_ROOT, DOMAIN_NAME, MEDIA_ROOT, MEDIA_URL, UWSGI_INI_FILE_NAME
 
 secret_key = get_random_secret_key()
 source = pathlib.Path("./backend/settings.py").read_text()
@@ -36,7 +38,7 @@ run_file.chmod(0o755)
 
 reload_file = BASE_DIR / "reload.sh"
 
-reload_file.write_text(f"""touch uwsgi.reload\n""")
+reload_file.write_text("touch uwsgi.reload\n")
 reload_file.chmod(0o755)
 
 

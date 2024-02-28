@@ -1,20 +1,7 @@
 {
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "editor.defaultFormatter": "charliermarsh.ruff"
     },
-    "black-formatter.args": [
-        // 行长度
-        "--line-length",
-        "160"
-        // 跳过格式化引号
-        // "--skip-string-normalization",
-    ],
-    "isort.args": [
-        "--profile",
-        "black",
-        "--line-length",
-        "160"
-    ],
     "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.gotoDefinitionInStringLiteral": true,

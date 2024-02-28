@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
 from typing import Dict, Iterable, List, Union
-from typing_extensions import TypedDict
+
 from django.core.paginator import Page, Paginator
+from pydantic import BaseModel
+from typing_extensions import TypedDict
 
 DataType = Union[Dict, TypedDict, BaseModel]
 
