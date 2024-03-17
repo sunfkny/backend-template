@@ -2,24 +2,28 @@
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff"
     },
-    "python.languageServer": "Pylance",
-    "python.analysis.typeCheckingMode": "basic",
-    "python.analysis.gotoDefinitionInStringLiteral": true,
-    "python.analysis.autoFormatStrings": true,
-    "python.analysis.ignore": [
-        "venv"
-    ],
-    "python.analysis.exclude": [
-        "typings"
-    ],
-    "python.analysis.diagnosticSeverityOverrides": {
-        "reportUnnecessaryIsInstance": "information",
-        "reportDuplicateImport": "information",
-        "reportImportCycles": "warning",
-        "reportConstantRedefinition": "warning",
-        "reportMatchNotExhaustive": "warning",
-    },
     "jupyter.jupyterCommandLineArguments": [
         "--allow-root"
     ],
+    "python.analysis.addImport.exactMatchOnly": true,
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportImplicitStringConcatenation": "information",
+        "reportMatchNotExhaustive": "error",
+        "reportMissingTypeArgument": "error",
+        "reportShadowedImports": "warning"
+    },
+    "python.analysis.exclude": [
+        "typings"
+    ],
+    "python.analysis.gotoDefinitionInStringLiteral": true,
+    "python.analysis.ignore": [
+        "venv"
+    ],
+    "python.analysis.typeCheckingMode": "standard",
+    "python.languageServer": "Pylance",
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "ruff.codeAction.disableRuleComment": {
+        "enable": false
+    }
 }
