@@ -1,10 +1,9 @@
 #!venv/bin/python
-import os
 import pathlib
 
 from django.core.management.utils import get_random_secret_key
 
-from backend.settings import BASE_DIR, DIST_ROOT, DOMAIN_NAME, MEDIA_ROOT, MEDIA_URL, UWSGI_INI_FILE_NAME
+from backend.settings import BASE_DIR, DOMAIN_NAME, UWSGI_INI_FILE_NAME
 
 secret_key = get_random_secret_key()
 source = pathlib.Path("./backend/settings.py").read_text()
@@ -99,21 +98,19 @@ ignore-write-errors=true
 disable-write-exception=true
 """
 )
-if not (DIST_ROOT / MEDIA_URL).exists():
-    os.symlink(MEDIA_ROOT, DIST_ROOT / MEDIA_URL)
 
 print(
     f"""# ================== nginx config ==================
-# /usr/local/nginx/conf/vhost/{DOMAIN_NAME}.conf
+# /etc/nginx/conf.d/{DOMAIN_NAME}.conf
 
 server {{
     listen 80;
     # listen 443 ssl http2;
     server_name {DOMAIN_NAME};
 
-    # access_log /data/wwwlogs/{DOMAIN_NAME}_nginx.log combined;
-    # ssl_certificate /usr/local/nginx/cert/{DOMAIN_NAME}.pem;
-    # ssl_certificate_key /usr/local/nginx/cert/{DOMAIN_NAME}.key;
+    access_log /var/log/nginx/{DOMAIN_NAME}_nginx.log combined;
+    # ssl_certificate /etc/nginx/ssl/{DOMAIN_NAME}.pem;
+    # ssl_certificate_key /etc/nginx/ssl/{DOMAIN_NAME}.key;
 
     set $base {BASE_DIR};
 
@@ -125,12 +122,9 @@ server {{
         include uwsgi_params;
         uwsgi_pass unix:$base/uwsgi.sock;
     }}
-
-	# location ~ /media/.*\\.(jpg|jpeg|png|gif)$ {{
-	# 	add_header Content-Disposition 'attachment';
-	# 	add_header Access-Control-Allow-Origin *;
-	# 	root $base/dist/;
-	# }}
+    location /media/ {{
+        alias $base/media/;
+    }}
     location / {{
         root $base/dist/;
         # try_files $uri $uri/ /index.html;
