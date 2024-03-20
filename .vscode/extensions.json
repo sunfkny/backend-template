@@ -2,13 +2,14 @@
     "recommendations": [
         "ms-ceintl.vscode-language-pack-zh-hans",
         "formulahendry.code-runner",
-        "visualstudioexptteam.vscodeintellicode",
-        "visualstudioexptteam.intellicode-api-usage-examples",
-        "visualstudioexptteam.vscodeintellicode-completions",
+        // "visualstudioexptteam.vscodeintellicode",
+        // "visualstudioexptteam.intellicode-api-usage-examples",
+        // "visualstudioexptteam.vscodeintellicode-completions",
         "hangxingliu.vscode-nginx-conf-hint",
         "ms-python.vscode-pylance",
         "ms-python.python",
         "charliermarsh.ruff",
-        "vscode-icons-team.vscode-icons"
+        "vscode-icons-team.vscode-icons",
+        "Gruntfuggly.todo-tree",
     ]
 }
