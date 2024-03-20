@@ -32,26 +32,6 @@ STATIC_ROOT = DIST_ROOT / "static"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-# 阿里云 OSS
-OSS_ACCESS_KEY_ID = ""
-OSS_ACCESS_KEY_SECRET = ""
-# https://help.aliyun.com/document_detail/31837.html
-OSS_REGION = "oss-cn-hangzhou"
-OSS_ENDPOINT = f"{OSS_REGION}.aliyuncs.com"
-OSS_BUCKET_NAME = ""
-
-
-# 腾讯云 COS
-COS_SECRET_ID = ""
-COS_SECRET_KEY = ""
-# https://cloud.tencent.com/document/product/436/6224
-COS_REGION = "ap-shanghai"
-COS_ENDPOINT = f"cos.{COS_REGION}.myqcloud.com"
-COS_BUCKET = ""
-COS_APPID = ""
-COS_BUCKET_APPID = f"{COS_BUCKET}-{COS_APPID}"
-
-
 for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
     if not path.exists():
         path.mkdir(parents=True)

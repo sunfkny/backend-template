@@ -68,7 +68,9 @@ from pydantic import BaseModel
 
 OSS_ACCESS_KEY_ID = "..."
 OSS_ACCESS_KEY_SECRET = "..."
-OSS_ENDPOINT = "..."
+# https://help.aliyun.com/document_detail/31837.html
+OSS_REGION = "oss-cn-hangzhou"
+OSS_ENDPOINT = f"{OSS_REGION}.aliyuncs.com"
 OSS_BUCKET_NAME = "..."
 
 

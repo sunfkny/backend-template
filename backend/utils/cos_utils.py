@@ -64,9 +64,12 @@ from pydantic import BaseModel
 
 COS_SECRET_ID = "..."
 COS_SECRET_KEY = "..."
-COS_BUCKET_APPID = "..."
-COS_REGION = "..."
-COS_ENDPOINT = "..."
+# https://cloud.tencent.com/document/product/436/6224
+COS_BUCKET = "..."
+COS_APPID = "..."
+COS_BUCKET_APPID = f"{COS_BUCKET}-{COS_APPID}"
+COS_REGION = "ap-shanghai"
+COS_ENDPOINT = f"cos.{COS_REGION}.myqcloud.com"
 
 
 class Cos(BaseModel):
