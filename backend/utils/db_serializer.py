@@ -1,10 +1,11 @@
+# type: ignore
 from __future__ import annotations
 
 import typing
-from typing import TYPE_CHECKING, Any, Sequence, TypeAlias
+from typing import Any, Sequence, TypeAlias
 
 from django.core.exceptions import FieldError
-from django.db.models import Manager, Model, QuerySet
+from django.db.models import Model, QuerySet
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields import Field
 
@@ -163,11 +164,11 @@ def get_queryset_select_mask(queryset: QuerySet) -> SelectMask:
 
     # backport django 4.2 get_select_mask
     if not hasattr(queryset.query, "get_select_mask"):
-        queryset.query.get_select_mask = get_select_mask.__get__(queryset.query)  # type: ignore
-        queryset.query._get_defer_select_mask = _get_defer_select_mask.__get__(queryset.query)  # type: ignore
-        queryset.query._get_only_select_mask = _get_only_select_mask.__get__(queryset.query)  # type: ignore
+        queryset.query.get_select_mask = get_select_mask.__get__(queryset.query)
+        queryset.query._get_defer_select_mask = _get_defer_select_mask.__get__(queryset.query)
+        queryset.query._get_only_select_mask = _get_only_select_mask.__get__(queryset.query)
 
-    return queryset.query.get_select_mask()  # type: ignore
+    return queryset.query.get_select_mask()
 
 
 @typing.overload

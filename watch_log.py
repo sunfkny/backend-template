@@ -47,9 +47,9 @@ color_matchs = {
 
 
 def get_cmd(file):
-    cmd_tail = ["tail", "-F", file]
+    cmd_tail: list[str] = ["tail", "-F", file]
 
-    cmd_sed = ["sed"]
+    cmd_sed: list[str] = ["sed"]
     for k, v in color_matchs.items():
         cmd_sed.extend(["-e", f"s/{k}/{v}/g"])
 

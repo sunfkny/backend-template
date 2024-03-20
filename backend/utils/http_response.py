@@ -10,10 +10,10 @@ LINE_SEP_EXPR = re.compile(r"\r\n|\r|\n")
 
 
 if VERSION >= (4, 2):
-    from django.utils.http import content_disposition_header
+    from django.utils.http import content_disposition_header  # type: ignore
 else:
 
-    def content_disposition_header(as_attachment, filename: str):
+    def content_disposition_header(as_attachment: bool, filename: str):
         """
         Construct a Content-Disposition HTTP header value from the given filename
         as specified by RFC 6266.
@@ -33,14 +33,14 @@ else:
 
 
 class AttachmentResponse(HttpResponse):
-    def __init__(self, content: Any = b"", filename: str = "attachment.bin", *args, **kwargs) -> None:
+    def __init__(self, content: Any = b"", filename: str = "attachment.bin", *args: Any, **kwargs: Any) -> None:
         super().__init__(content=content, *args, **kwargs)
         if content_disposition := content_disposition_header(as_attachment=True, filename=filename):
             self.headers["Content-Disposition"] = content_disposition
 
 
 class ExcelResponse(AttachmentResponse):
-    def __init__(self, content: Any = b"", filename: str = "attachment.xlsx", *args, **kwargs) -> None:
+    def __init__(self, content: Any = b"", filename: str = "attachment.xlsx", *args: Any, **kwargs: Any) -> None:
         super().__init__(content=content, filename=filename, *args, **kwargs)
         self.headers["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 

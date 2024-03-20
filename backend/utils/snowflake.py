@@ -60,7 +60,7 @@ class Snowflake:
 
         # 时钟回拨
         if timestamp < self.last_timestamp:
-            raise InvalidSystemClock("Clock is moving backwards, rejecting requests until {}".format(self.last_timestamp))
+            raise InvalidSystemClock(f"Clock is moving backwards, rejecting requests until {self.last_timestamp}")
 
         if timestamp == self.last_timestamp:
             self.sequence = (self.sequence + 1) & self.SEQUENCE_MASK

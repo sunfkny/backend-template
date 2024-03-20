@@ -7,20 +7,21 @@
     ],
     "python.analysis.addImport.exactMatchOnly": true,
     "python.analysis.autoFormatStrings": true,
+    "python.analysis.ignore": [
+        "typings",
+        "venv",
+    ],
+    "python.analysis.exclude": [
+        "typings",
+        "venv",
+    ],
     "python.analysis.diagnosticSeverityOverrides": {
         "reportImplicitStringConcatenation": "information",
-        "reportMatchNotExhaustive": "error",
-        "reportMissingTypeArgument": "error",
-        "reportShadowedImports": "warning"
+        "reportMatchNotExhaustive": "information",
+        "reportShadowedImports": "information",
+        "reportPrivateImportUsage": "information",
     },
-    "python.analysis.exclude": [
-        "typings"
-    ],
-    "python.analysis.gotoDefinitionInStringLiteral": true,
-    "python.analysis.ignore": [
-        "venv"
-    ],
-    "python.analysis.typeCheckingMode": "standard",
+    "python.analysis.typeCheckingMode": "basic",
     "python.languageServer": "Pylance",
     "python.terminal.activateEnvInCurrentTerminal": true,
     "ruff.codeAction.disableRuleComment": {

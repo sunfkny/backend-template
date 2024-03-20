@@ -1,6 +1,5 @@
 import json
-import logging
-from typing import Dict
+from typing import Any
 
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -13,7 +12,7 @@ logger = get_logger("request")
 
 class ApiLoggingMiddleware(MiddlewareMixin):
     @staticmethod
-    def _safe_loads_dict(body) -> Dict:
+    def _safe_loads_dict(body: Any) -> dict:
         try:
             data = json.loads(body)
             if not isinstance(data, dict):
@@ -23,7 +22,7 @@ class ApiLoggingMiddleware(MiddlewareMixin):
             return {}
 
     @staticmethod
-    def _get_request_params(request: HttpRequest) -> Dict:
+    def _get_request_params(request: HttpRequest) -> dict:
         data = {}
         if request.method == "GET":
             data.update(request.GET.dict())
