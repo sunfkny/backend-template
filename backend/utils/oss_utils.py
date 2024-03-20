@@ -1,8 +1,4 @@
 __doc__ = """
-```shell
-# 配置跨域
-python.exe manage.py put_bucket_cors oss
-```
 使用方法
 ```python
 @router.post("upload/params", summary="获取 PostObject 上传参数")
@@ -19,6 +15,46 @@ def post_object_callback(request: HttpRequest):
     logger.info(body)
     return HttpResponse(body)
 ```
+配置跨域
+```python
+import oss2
+
+OSS_ACCESS_KEY_ID = "..."
+OSS_ACCESS_KEY_SECRET = "..."
+OSS_ENDPOINT = "..."
+OSS_BUCKET_NAME = "..."
+FORCE = False
+
+auth = oss2.Auth(OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET)
+bucket = oss2.Bucket(auth, OSS_ENDPOINT, OSS_BUCKET_NAME)
+
+if FORCE:
+    bucket.delete_bucket_cors()
+try:
+    cors: oss2.models.GetBucketCorsResult = bucket.get_bucket_cors()
+except oss2.exceptions.NoSuchCors:
+    print("create new cors rule")
+    rule = oss2.models.CorsRule(
+        allowed_origins=["*"],
+        allowed_methods=["GET", "POST", "HEAD", "PUT", "DELETE"],
+        allowed_headers=["*"],
+    )
+    resp = bucket.put_bucket_cors(oss2.models.BucketCors([rule]))
+    print("put_bucket_cors", resp.status)
+else:
+    rules: list[oss2.models.CorsRule] = cors.rules
+    print(
+        [
+            {
+                "AllowedOrigins": rule.allowed_origins,
+                "AllowedMethods": rule.allowed_methods,
+                "AllowedHeaders": rule.allowed_headers,
+            }
+            for rule in rules
+        ]
+    )
+    raise Exception("cors rule already exists")
+```
 """
 
 import base64
@@ -30,12 +66,10 @@ import uuid
 
 from pydantic import BaseModel
 
-from backend.settings import (
-    OSS_ACCESS_KEY_ID,
-    OSS_ACCESS_KEY_SECRET,
-    OSS_BUCKET_NAME,
-    OSS_ENDPOINT,
-)
+OSS_ACCESS_KEY_ID = "..."
+OSS_ACCESS_KEY_SECRET = "..."
+OSS_ENDPOINT = "..."
+OSS_BUCKET_NAME = "..."
 
 
 class Oss(BaseModel):
@@ -77,7 +111,11 @@ def get_expiration(expire: int):
     return expire_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def get_oss_upload_params(ext: str, expire: int = 600, max_file_size: int = 10 * 1024 * 1024):
+def get_oss_upload_params(
+    ext: str,
+    expire: int = 600,
+    max_file_size: int = 10 * 1024 * 1024,
+):
     host = f"https://{OSS_BUCKET_NAME}.{OSS_ENDPOINT}"
     yymmdd = datetime.datetime.now().strftime("%Y%m%d")
     file_name = uuid.uuid4().hex
@@ -110,5 +148,10 @@ def get_oss_upload_params(ext: str, expire: int = 600, max_file_size: int = 10 *
         # success_action_status="204",
         signature=signature,
     )
-    data = OssUploadData(oss=oss, host=host, url=url, max_file_size=max_file_size)
+    data = OssUploadData(
+        oss=oss,
+        host=host,
+        url=url,
+        max_file_size=max_file_size,
+    )
     return data

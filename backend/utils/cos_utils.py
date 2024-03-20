@@ -1,8 +1,4 @@
 __doc__ = """
-```shell
-# 配置跨域
-python.exe manage.py put_bucket_cors cos
-```
 使用方法
 ```python
 @router.post("upload/params", summary="获取 POST Object 上传参数")
@@ -12,6 +8,48 @@ def post_upload_params(
 ):
     # [POST Object](https://cloud.tencent.com/document/product/436/14690)
     return Response.data(get_cos_upload_params(ext))
+```
+配置跨域
+```python
+from qcloud_cos import CosConfig, CosS3Client
+from qcloud_cos.cos_exception import CosServiceError
+
+
+COS_SECRET_ID = "..."
+COS_SECRET_KEY = "..."
+COS_BUCKET_APPID = "..."
+COS_REGION = "..."
+FORCE = False
+
+config = CosConfig(Region=COS_REGION, SecretId=COS_SECRET_ID, SecretKey=COS_SECRET_KEY)
+client = CosS3Client(config)
+
+if FORCE:
+    client.delete_bucket_cors(Bucket=COS_BUCKET_APPID)
+
+try:
+    cors = client.get_bucket_cors(Bucket=COS_BUCKET_APPID)
+except CosServiceError as e:
+    if not e.get_error_code() == "NoSuchCORSConfiguration":
+        raise
+    print("create new cors rule")
+    client.put_bucket_cors(
+        Bucket=COS_BUCKET_APPID,
+        CORSConfiguration={
+            "CORSRule": [
+                {
+                    "AllowedOrigin": ["*"],
+                    "AllowedMethod": ["GET", "POST", "HEAD", "PUT", "DELETE"],
+                    "AllowedHeader": ["*"],
+                    "ExposeHeader": ["Content-Length", "ETag", "x-cos-meta-author"],
+                }
+            ]
+        },
+    )
+    print("put_bucket_cors success")
+else:
+    print(cors["CORSRule"])
+    raise Exception("cors rule already exists")
 ```
 """
 
@@ -24,12 +62,11 @@ import uuid
 
 from pydantic import BaseModel
 
-from backend.settings import (
-    COS_BUCKET_APPID,
-    COS_ENDPOINT,
-    COS_SECRET_ID,
-    COS_SECRET_KEY,
-)
+COS_SECRET_ID = "..."
+COS_SECRET_KEY = "..."
+COS_BUCKET_APPID = "..."
+COS_REGION = "..."
+COS_ENDPOINT = "..."
 
 
 class Cos(BaseModel):
@@ -40,7 +77,7 @@ class Cos(BaseModel):
     key_time: str
     signature: str
 
-    def dict(self):
+    def to_dict(self):
         return {
             "key": self.key,
             "policy": self.policy,
@@ -85,7 +122,11 @@ def get_expiration(expire: int):
     return expire_time
 
 
-def get_cos_upload_params(ext: str, expire: int = 600, max_file_size: int = 10 * 1024 * 1024):
+def get_cos_upload_params(
+    ext: str,
+    expire: int = 600,
+    max_file_size: int = 10 * 1024 * 1024,
+):
     host = f"https://{COS_BUCKET_APPID}.{COS_ENDPOINT}"
     now = datetime.datetime.now()
     yymmdd = now.strftime("%Y%m%d")
@@ -122,5 +163,10 @@ def get_cos_upload_params(ext: str, expire: int = 600, max_file_size: int = 10 *
         secret_id=COS_SECRET_ID,
         key_time=key_time,
     )
-    data = CosUploadData(cos=cos.dict(), host=host, url=url, max_file_size=max_file_size)
+    data = CosUploadData(
+        cos=cos.to_dict(),
+        host=host,
+        url=url,
+        max_file_size=max_file_size,
+    )
     return data
