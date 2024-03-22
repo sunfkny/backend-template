@@ -7,7 +7,7 @@
     ],
     "python.analysis.addImport.exactMatchOnly": true,
     "python.analysis.autoFormatStrings": true,
-    "python.analysis.diagnosticMode": "openFilesOnly",
+    "python.analysis.diagnosticMode": "workspace",
     "python.analysis.ignore": [
         "typings",
         "venv",
@@ -20,7 +20,7 @@
         "reportImplicitStringConcatenation": "information",
         "reportMatchNotExhaustive": "information",
         "reportShadowedImports": "information",
-        "reportPrivateImportUsage": "information",
+        "reportPrivateImportUsage": "none",
     },
     "python.analysis.typeCheckingMode": "basic",
     "python.languageServer": "Pylance",
