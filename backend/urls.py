@@ -15,6 +15,7 @@ Including another URLconf
 """
 
 import datetime
+import decimal
 import logging
 from urllib.parse import urljoin
 
@@ -43,6 +44,8 @@ class CustomJsonEncoder(NinjaJSONEncoder):
             return urljoin(MEDIA_BASE_URL, o.name)
         if isinstance(o, models.Model):
             return str(o)
+        if isinstance(o, decimal.Decimal):
+            return f"{o:f}"
         if not USE_TZ and isinstance(o, datetime.datetime):
             return o.strftime("%Y-%m-%d %H:%M:%S")
         try:
