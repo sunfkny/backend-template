@@ -214,8 +214,11 @@ DATABASES = {
 #         "USER": "root",
 #         "PASSWORD": "password",
 #         "NAME": "database",
-#         "OPTIONS": {"charset": "utf8mb4"},
-#         "CONN_MAX_AGE": 720,
+#         "CONN_MAX_AGE": 600,
+#         "OPTIONS": {
+#             "charset": "utf8mb4",
+#             "connect_timeout": 2,
+#         },
 #     },
 # }
 
