@@ -11,10 +11,7 @@
     "python.analysis.ignore": [
         "typings",
         "venv",
-    ],
-    "python.analysis.exclude": [
-        "typings",
-        "venv",
+        "backend/apps/*/migrations",
     ],
     "python.analysis.diagnosticSeverityOverrides": {
         "reportImplicitStringConcatenation": "information",
