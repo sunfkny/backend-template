@@ -2,6 +2,7 @@
 # https://stackoverflow.com/questions/29222269
 uwsgi; platform_system != "Windows"
 pick
+rich
 ipython
 django-ninja~=0.22
 django-extensions

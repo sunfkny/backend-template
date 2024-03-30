@@ -1,9 +1,50 @@
 #!./venv/bin/python
-import os
 import pathlib
-import shlex
+import subprocess
 
 from pick import pick
+from rich.console import Console
+from rich.highlighter import RegexHighlighter
+from rich.theme import Theme
+
+
+class LogHighlighter(RegexHighlighter):
+    base_style = "log."
+    highlights = [
+        r"(?P<debug>DEBUG)",
+        r"(?P<info>INFO)",
+        r"(?P<warning>WARNING)",
+        r"(?P<error>ERROR)",
+        r"(?P<http2xx>HTTP\/[1-2].[0-1] 2[0-9][0-9])",
+        r"(?P<http3xx>HTTP\/[1-2].[0-1] 3[0-9][0-9])",
+        r"(?P<http4xx>HTTP\/[1-2].[0-1] 4[0-9][0-9])",
+        r"(?P<http5xx>HTTP\/[1-2].[0-1] 5[0-9][0-9])",
+        r"[:\s](?P<numbers>(:?-?[0-9]+|0x[0-9a-fA-F]+))[\s,]",
+        r"(?P<strings>[\'\"](.*?)[\'\"])",
+        r"(?P<dots>([0-9a-zA-Z_]+\.){2,}[0-9a-zA-Z_]+)",
+        r"(?P<function>([a-zA-Z_][0-9a-zA-Z_]*\.){1,}[a-zA-Z_][0-9a-zA-Z_]*:[a-zA-Z_][0-9a-zA-Z_]*:[1-9][0-9]*)",
+        r"(?P<datetime>(?P<year>[0-9]{4})-(?P<month>1[0-2]|0[1-9])-(?P<day>3[01]|0[1-9]|[12][0-9]) (?P<hour>2[0-3]|[01][0-9]):(?P<minute>[0-5][0-9]):(?P<second>[0-5][0-9])(?P<miliseconds>\.[0-9]{3,6})?)",
+    ]
+
+
+theme = Theme(
+    {
+        "log.debug": "blue",
+        "log.info": "green",
+        "log.warning": "yellow",
+        "log.error": "red",
+        "log.http2xx": "green",
+        "log.http3xx": "blue",
+        "log.http4xx": "yellow",
+        "log.http5xx": "red",
+        "log.numbers": "bright_blue",
+        "log.strings": "orange3",
+        "log.dots": "bright_blue",
+        "log.function": "bright_blue",
+        "log.datetime": "dark_green",
+    }
+)
+console = Console(highlighter=LogHighlighter(), theme=theme)
 
 
 def is_log_file(p: pathlib.Path):
@@ -16,48 +57,11 @@ options = [str(i) for i in log_dir.iterdir() if is_log_file(i)]
 title = "Please choose the log to watch:"
 file, index = pick(options, title)
 
-
-BLACK, RED, GREEN, YELLOW, BLUE, PURPLE, CYAN, WHITE = (
-    r"\o033[1;30m&\o033[0m",
-    r"\o033[1;31m&\o033[0m",
-    r"\o033[1;32m&\o033[0m",
-    r"\o033[1;33m&\o033[0m",
-    r"\o033[1;34m&\o033[0m",
-    r"\o033[1;35m&\o033[0m",
-    r"\o033[1;36m&\o033[0m",
-    r"\o033[1;37m&\o033[0m",
+process = subprocess.Popen(
+    ["tail", "-F", str(file)],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
 )
-color_matchs = {
-    r"INFO": GREEN,
-    r"WARNING": YELLOW,
-    r"ERROR": RED,
-    r"DEBUG": BLUE,
-    **{
-        rf"HTTP\/[1-2]\.[0-1] {status}[0-9][0-9]": color
-        for status, color in (
-            {
-                "2": GREEN,
-                "3": BLUE,
-                "4": YELLOW,
-                "5": RED,
-            }
-        ).items()
-    },
-}
-
-
-def get_cmd(file):
-    cmd_tail: list[str] = ["tail", "-F", file]
-
-    cmd_sed: list[str] = ["sed"]
-    for k, v in color_matchs.items():
-        cmd_sed.extend(["-e", f"s/{k}/{v}/g"])
-
-    commands = [cmd_tail, cmd_sed]
-    return " | ".join(shlex.join(i) for i in commands)
-
-
-if __name__ == "__main__":
-    cmd = get_cmd(file)
-    print(cmd)
-    os.system(cmd)
+assert process.stdout
+for line in process.stdout:
+    console.print(line.decode(), end="")
