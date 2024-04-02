@@ -67,4 +67,4 @@ process = subprocess.Popen(
 )
 assert process.stdout
 for line in process.stdout:
-    console.print(line.decode(), end="", markup=False)
+    console.print(line.decode(), end="", markup=False, soft_wrap=True)
