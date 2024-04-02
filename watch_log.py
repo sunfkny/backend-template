@@ -15,15 +15,17 @@ class LogHighlighter(RegexHighlighter):
         r"(?P<info>INFO)",
         r"(?P<warning>WARNING)",
         r"(?P<error>ERROR)",
+        r"(?P<constant>\b(:?[0-9]+|0x[0-9a-fA-F]+|true|false|null)\b)",
         r"(?P<http2xx>HTTP\/[1-2].[0-1] 2[0-9][0-9])",
         r"(?P<http3xx>HTTP\/[1-2].[0-1] 3[0-9][0-9])",
         r"(?P<http4xx>HTTP\/[1-2].[0-1] 4[0-9][0-9])",
         r"(?P<http5xx>HTTP\/[1-2].[0-1] 5[0-9][0-9])",
-        r"[:\s](?P<numbers>(:?-?[0-9]+|0x[0-9a-fA-F]+))[\s,]",
-        r"(?P<strings>[\'\"](.*?)[\'\"])",
         r"(?P<dots>([0-9a-zA-Z_]+\.){2,}[0-9a-zA-Z_]+)",
+        r"(?P<ipv6>\b([0-9a-fA-F]{2,}:){3,}(:?[0-9a-fA-F]{2,})+\b)",
         r"(?P<function>([a-zA-Z_][0-9a-zA-Z_]*\.){1,}[a-zA-Z_][0-9a-zA-Z_]*:[a-zA-Z_][0-9a-zA-Z_]*:[1-9][0-9]*)",
-        r"(?P<datetime>(?P<year>[0-9]{4})-(?P<month>1[0-2]|0[1-9])-(?P<day>3[01]|0[1-9]|[12][0-9]) (?P<hour>2[0-3]|[01][0-9]):(?P<minute>[0-5][0-9]):(?P<second>[0-5][0-9])(?P<miliseconds>\.[0-9]{3,6})?)",
+        r"(?P<datetime>(?P<year>[0-9]{4})-(?P<month>1[0-2]|0[1-9])-(?P<day>3[01]|0[1-9]|[12][0-9])[ T](?P<hour>2[0-3]|[01][0-9]):(?P<minute>[0-5][0-9]):(?P<second>[0-5][0-9])(?P<miliseconds>\.[0-9]{3,6})?(:?[Z+ ][0-2][0-9]:[0-5][0-9])?)",
+        r"(?P<strings>\"[^\"]*\")",
+        r"(?P<strings>\'[^\']*\')",
     ]
 
 
@@ -37,9 +39,10 @@ theme = Theme(
         "log.http3xx": "blue",
         "log.http4xx": "yellow",
         "log.http5xx": "red",
-        "log.numbers": "bright_blue",
+        "log.constant": "bright_blue",
         "log.strings": "orange3",
         "log.dots": "bright_blue",
+        "log.ipv6": "bright_blue",
         "log.function": "bright_blue",
         "log.datetime": "dark_green",
     }
@@ -64,4 +67,4 @@ process = subprocess.Popen(
 )
 assert process.stdout
 for line in process.stdout:
-    console.print(line.decode(), end="")
+    console.print(line.decode(), end="", markup=False)
