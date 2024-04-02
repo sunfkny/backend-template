@@ -22,13 +22,11 @@ run_file.write_text(
     f"""source ./venv/bin/activate
 
 procedure_name="{UWSGI_INI_FILE_NAME}.ini"
-PROCESS=`ps -ef | grep $procedure_name | grep -v grep | awk '{{print $2}}'`
 
-for i in $PROCESS
-do
-    kill -9 $i
-done
-sleep 0.5
+if [ -f uwsgi.pid ]; then
+    kill -9 `cat uwsgi.pid` || rm uwsgi.pid
+fi
+
 uwsgi --ini $procedure_name
 """
 )
