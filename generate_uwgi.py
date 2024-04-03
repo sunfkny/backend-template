@@ -138,7 +138,9 @@ print(
 
 {BASE_DIR / 'logs/*.log'} {{
     daily
-    rotate 5
+    rotate 14
+    createolddir
+    olddir old
     missingok
     dateext
     compress
