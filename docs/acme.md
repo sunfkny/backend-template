@@ -19,7 +19,7 @@ acme.sh --issue -d www.example.com --nginx /usr/local/nginx/conf/vhost/www.examp
 安装证书
 ```bash
 acme.sh --install-cert -d www.example.com \
---key-file /usr/local/nginx/cert/www.example.com.key \
---fullchain-file /usr/local/nginx/cert/www.example.com.pem \
+--key-file /etc/nginx/ssl/www.example.com.key \
+--fullchain-file /etc/nginx/ssl/www.example.com.pem \
 --reloadcmd "service nginx force-reload"
 ```
