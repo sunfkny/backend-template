@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, Generic, cast
 
 import jwt
 from django.conf import settings
@@ -56,7 +56,7 @@ class AuthBearerHelper(Generic[_T]):
         key = self.cache_token_key + str(user_id)
         self.redis_conn.set(name=key, value=token, ex=self.cache_token_expires)
 
-    def get_token(self, user_id: int) -> Optional[str]:
+    def get_token(self, user_id: int) -> str | None:
         """获取token"""
         key = self.cache_token_key + str(user_id)
         token = self.redis_conn.get(key)
@@ -68,16 +68,16 @@ class AuthBearerHelper(Generic[_T]):
         """检查token"""
         return self.get_token(user_id) == token
 
-    def get_login_uid_optional(self, request: HttpRequest) -> Optional[int]:
+    def get_login_uid_optional(self, request: HttpRequest) -> int | None:
         """可选获取登录用户id, 未登录返回 None"""
         return self.auth(request)
 
-    def get_login_user_optional(self, request: HttpRequest) -> Optional[_T]:
+    def get_login_user_optional(self, request: HttpRequest) -> _T | None:
         """可选获取登录用户, 未登录返回 None"""
         user_id = self.get_login_uid_optional(request)
         user = self.user_model.objects.filter(id=user_id).first()
         if TYPE_CHECKING:
-            user = cast(Optional[_T], user)
+            user = cast(_T | None, user)
         return user
 
     def get_login_uid(self, request: HttpRequest) -> int:

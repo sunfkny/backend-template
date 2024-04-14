@@ -1,7 +1,6 @@
 import os
 import time
 import uuid
-from typing import Optional
 
 
 class InvalidSystemClock(Exception):
@@ -33,7 +32,7 @@ class Snowflake:
     # Twitter元年时间戳
     TWEPOCH = 1288834974657
 
-    def __init__(self, datacenter_id: Optional[int] = None, worker_id: Optional[int] = None):
+    def __init__(self, datacenter_id: int | None = None, worker_id: int | None = None):
         if worker_id is None:
             worker_id = os.getpid() % (2**self.WORKER_ID_BITS)
         if datacenter_id is None:

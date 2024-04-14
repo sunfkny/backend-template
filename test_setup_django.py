@@ -15,7 +15,7 @@ import django
 django.setup()
 
 
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Tuple, Union
 
 from django.db.models import Avg, Count, F, Max, Min, Q, QuerySet, Sum, Value
 
