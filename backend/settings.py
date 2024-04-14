@@ -38,13 +38,8 @@ for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
 
 DOMAIN_NAME = ""
 BASE_URL = f"http://{DOMAIN_NAME}"
-
-UWSGI_INI_FILE_NAME = DOMAIN_NAME  # uwsgi配置文件名
-CRONTAB_COMMENT = ""  # django-crontab 注释, 区分不同项目
 DB_PREFIX = ""  # 数据库表名前缀
 REDIS_PREFIX = ""  # redis前缀
-DEFAULT_AVATAR = urljoin(BASE_URL, "media/default_avatar.svg")
-DEFAULT_AVATAR_BACK = urljoin(BASE_URL, "media/default_avatar.svg")
 
 
 def get_redis_connection() -> redis.Redis:
@@ -311,6 +306,7 @@ USE_TZ = False
 # 显示定时任务
 # python manage.py crontab show
 
+CRONTAB_COMMENT = ""  # django-crontab 注释, 区分不同项目
 CRONJOBS = [
     # ("0 0 * * *", "backend.utils.mail.send_email"),
     # ("0 0 * * *", "backend.utils.mail.check_email", ">> logs/crontab.log"),

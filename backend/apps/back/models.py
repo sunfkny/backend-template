@@ -1,7 +1,11 @@
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
+from urllib.parse import urljoin
+from backend.settings import DB_PREFIX, BASE_URL
 
-from backend.settings import DB_PREFIX, DEFAULT_AVATAR_BACK
+
+def get_default_avatar():
+    return urljoin(BASE_URL, "media/default_avatar.svg")
 
 
 class AdminPermission(models.Model):
@@ -75,7 +79,7 @@ class AdminUser(models.Model):
     nickname = models.CharField(max_length=20, verbose_name="显示名称")
     username = models.CharField(unique=True, max_length=255, verbose_name="帐号")
     password = models.CharField(max_length=255, verbose_name="密码")
-    avatar = models.CharField(default=DEFAULT_AVATAR_BACK, max_length=255, verbose_name="头像")
+    avatar = models.CharField(default=get_default_avatar, max_length=255, verbose_name="头像")
     summary = models.CharField(default="", max_length=512, verbose_name="简介")
     is_superadmin = models.BooleanField(default=False, verbose_name="是否超级管理员")
     role = models.ForeignKey(Role, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="角色")
