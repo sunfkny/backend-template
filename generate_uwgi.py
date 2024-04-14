@@ -1,9 +1,12 @@
-#!venv/bin/python
 import pathlib
+import shlex
 
 from django.core.management.utils import get_random_secret_key
 
-from backend.settings import BASE_DIR, DOMAIN_NAME, UWSGI_INI_FILE_NAME
+from backend.settings import BASE_DIR, DOMAIN_NAME
+
+if not DOMAIN_NAME:
+    raise Exception("backend.settings.DOMAIN_NAME is not set")
 
 secret_key = get_random_secret_key()
 source = pathlib.Path("./backend/settings.py").read_text()
@@ -11,33 +14,29 @@ if 'SECRET_KEY = "django-insecure"' in source:
     source = source.replace('SECRET_KEY = "django-insecure"', f'SECRET_KEY = "{secret_key}"')
     pathlib.Path("./backend/settings.py").write_text(source)
 
-if not UWSGI_INI_FILE_NAME:
-    raise Exception("backend.settings.UWSGI_INI_FILE_NAME is not set")
+UWSGI_INI_FILE_NAME = f"{DOMAIN_NAME}.ini"
+UWSGI_INI_FILE_PATH = BASE_DIR / UWSGI_INI_FILE_NAME
 
-UWSGI_INI_FILE_PATH = BASE_DIR / f"{UWSGI_INI_FILE_NAME}.ini"
+if UWSGI_INI_FILE_PATH.exists():
+    raise Exception(f"{UWSGI_INI_FILE_PATH} already exists")
 
 run_file = BASE_DIR / "run.sh"
-
 run_file.write_text(
     f"""source ./venv/bin/activate
-
-procedure_name="{UWSGI_INI_FILE_NAME}.ini"
 
 if [ -f uwsgi.pid ]; then
     kill -9 `cat uwsgi.pid` || rm uwsgi.pid
 fi
 
-uwsgi --ini $procedure_name
+uwsgi --ini {shlex.quote(str(UWSGI_INI_FILE_PATH))}
 """
 )
 run_file.chmod(0o755)
 
 
 reload_file = BASE_DIR / "reload.sh"
-
 reload_file.write_text("touch uwsgi.reload\n")
 reload_file.chmod(0o755)
-
 
 UWSGI_INI_FILE_PATH.write_text(
     f"""# uwsgi使用配置文件启动
@@ -146,7 +145,6 @@ print(
     compress
     notifempty
     sharedscripts
-    # 执行完毕 rotate 之后，通知 uWSGI 重新打开日志
     postrotate
       touch {BASE_DIR / 'logs/run.log.logreopen'}
     endscript
