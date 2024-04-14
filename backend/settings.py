@@ -14,6 +14,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import Protocol
 from urllib.parse import urljoin
 
 import redis
@@ -37,18 +38,38 @@ for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
 
 DOMAIN_NAME = ""
 BASE_URL = f"http://{DOMAIN_NAME}"
-DB_PREFIX = ""  # 数据库表名前缀
+DB_PREFIX = "t"  # 数据库表名前缀
 REDIS_PREFIX = ""  # redis前缀
+REDIS_URL = "redis://127.0.0.1:6379/0"
 
 
 def get_redis_connection() -> redis.Redis:
-    redis_conn = redis.Redis(
-        host="127.0.0.1",
-        port=6379,
-        db=1,
+    redis_conn = redis.from_url(
+        REDIS_URL,
         decode_responses=True,
     )
     return redis_conn
+
+
+CONSTANCE_REDIS_CONNECTION = REDIS_URL
+CONSTANCE_REDIS_PREFIX = f"{REDIS_PREFIX}:constance:"
+
+# https://django-constance.readthedocs.io/
+CONSTANCE_CONFIG = {
+    # "THE_ANSWER": (42, "Answer to the Ultimate Question of Life, The Universe, and Everything"),
+}
+
+
+class ConstanceConfigProtocol(Protocol):
+    """typed config"""
+
+    # THE_ANSWER: int
+
+
+def get_constance_config() -> ConstanceConfigProtocol:
+    from constance import config
+
+    return config
 
 
 # https://github.com/Delgan/loguru#suitable-for-scripts-and-libraries
@@ -146,10 +167,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "constance",  # django-constance
     "corsheaders",
-    # 增加 ninja 后不用cdn, 使用静态资源
-    # 需要python manage.py collectstatic
-    "ninja",
+    "ninja",  # https://github.com/vitalik/django-ninja/commit/5bdcc43
     "django_extensions",
     # "django_crontab",
     "backend.apps.back",
