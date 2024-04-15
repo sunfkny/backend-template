@@ -1,4 +1,3 @@
-import logging
 import time
 from typing import TYPE_CHECKING, Generic, cast
 
@@ -13,8 +12,6 @@ from redis import Redis
 from typing_extensions import Type, TypeVar
 
 from backend.settings import get_redis_connection
-
-logger = logging.getLogger("django")
 
 _T = TypeVar("_T", bound=Model)
 
