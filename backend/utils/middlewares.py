@@ -49,6 +49,6 @@ class ApiLoggingMiddleware(MiddlewareMixin):
         elif "utf-8" in response_content_type:
             logger.info("{} {}", response_content_type, response.content.decode().replace("\n", " "))
         else:
-            logger.info(response_content_type, response.content[:32])
+            logger.info(f"{response_content_type} {response}")
 
         return response
