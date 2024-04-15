@@ -12,6 +12,7 @@ secret_key = get_random_secret_key()
 source = pathlib.Path("./backend/settings.py").read_text()
 if 'SECRET_KEY = "django-insecure"' in source:
     source = source.replace('SECRET_KEY = "django-insecure"', f'SECRET_KEY = "{secret_key}"')
+    source = source.replace('DEBUG = True', 'DEBUG = False')
     pathlib.Path("./backend/settings.py").write_text(source)
 
 UWSGI_INI_FILE_NAME = f"{DOMAIN_NAME}.ini"
