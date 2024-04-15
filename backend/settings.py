@@ -17,12 +17,11 @@ from pathlib import Path
 from typing import Protocol
 from urllib.parse import urljoin
 
+import loguru
 import redis
 
-os.environ["LOGURU_AUTOINIT"] = "0"
-os.environ["LOGURU_LEVEL"] = "INFO"
+loguru.logger.remove()
 
-import loguru
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOG_DIR = BASE_DIR / "logs"
@@ -30,7 +29,6 @@ LOG_FILE_PATH = LOG_DIR / "run.log"
 DIST_ROOT = BASE_DIR / "dist"
 STATIC_ROOT = DIST_ROOT / "static"
 MEDIA_ROOT = BASE_DIR / "media"
-
 
 for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
     if not path.exists():
@@ -53,7 +51,6 @@ def get_redis_connection() -> redis.Redis:
 
 CONSTANCE_REDIS_CONNECTION = REDIS_URL
 CONSTANCE_REDIS_PREFIX = f"{REDIS_PREFIX}:constance:"
-
 # https://django-constance.readthedocs.io/
 CONSTANCE_CONFIG = {
     # "THE_ANSWER": (42, "Answer to the Ultimate Question of Life, The Universe, and Everything"),
@@ -90,10 +87,7 @@ class InterceptHandler(logging.Handler):
         loguru.logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
-if sys.version_info >= (3, 8):
-    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-else:
-    logging.basicConfig(handlers=[InterceptHandler()], level=0)
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
 def run_log_filter(record: "loguru.Record") -> bool:
@@ -109,6 +103,7 @@ loguru.logger.add(
     backtrace=False,
     watch=True,
 )
+
 
 LOGURU_LOGGERS_CACHE: dict[str, "loguru.Logger"] = {}
 
