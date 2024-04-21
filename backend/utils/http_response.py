@@ -1,48 +1,42 @@
 import io
 import re
-from typing import Any
-from urllib.parse import quote
+from typing import Any, BinaryIO
 
-from django import VERSION
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import FileResponse, StreamingHttpResponse
 
 LINE_SEP_EXPR = re.compile(r"\r\n|\r|\n")
 
 
-if VERSION >= (4, 2):
-    from django.utils.http import content_disposition_header  # type: ignore
-else:
-
-    def content_disposition_header(as_attachment: bool, filename: str):
-        """
-        Construct a Content-Disposition HTTP header value from the given filename
-        as specified by RFC 6266.
-        """
-        if filename:
-            disposition = "attachment" if as_attachment else "inline"
-            try:
-                filename.encode("ascii")
-                file_expr = 'filename="{}"'.format(filename.replace("\\", "\\\\").replace('"', r"\""))
-            except UnicodeEncodeError:
-                file_expr = "filename*=utf-8''{}".format(quote(filename))
-            return f"{disposition}; {file_expr}"
-        elif as_attachment:
-            return "attachment"
-        else:
-            return None
-
-
-class AttachmentResponse(HttpResponse):
-    def __init__(self, content: Any = b"", filename: str = "attachment.bin", *args: Any, **kwargs: Any) -> None:
-        super().__init__(content=content, *args, **kwargs)
-        if content_disposition := content_disposition_header(as_attachment=True, filename=filename):
-            self.headers["Content-Disposition"] = content_disposition
+class AttachmentResponse(FileResponse):
+    def __init__(
+        self,
+        streaming_content: BinaryIO,
+        *args,
+        as_attachment: bool = True,
+        filename: str = "",
+        **kwargs,
+    ) -> None:
+        return super().__init__(
+            streaming_content=streaming_content,
+            *args,
+            as_attachment=as_attachment,
+            filename=filename,
+            **kwargs,
+        )
 
 
 class ExcelResponse(AttachmentResponse):
-    def __init__(self, content: Any = b"", filename: str = "attachment.xlsx", *args: Any, **kwargs: Any) -> None:
-        super().__init__(content=content, filename=filename, *args, **kwargs)
-        self.headers["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    def __init__(
+        self,
+        streaming_content: BinaryIO,
+        *args,
+        filename: str = "",
+        **kwargs,
+    ) -> None:
+        filename = getattr(streaming_content, "name", filename)
+        if not filename.endswith(".xlsx"):
+            filename += ".xlsx"
+        super().__init__(streaming_content, filename=filename, *args, **kwargs)
 
 
 class ServerSentEvent:
