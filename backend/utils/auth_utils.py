@@ -1,5 +1,5 @@
 import time
-from typing import TYPE_CHECKING, Generic, cast
+from typing import Generic
 
 import jwt
 from django.conf import settings
@@ -96,8 +96,6 @@ class AuthBearer(HttpBearer, Generic[_T]):
                 self.uid_field: uid,
             }
         ).first()
-        if TYPE_CHECKING:
-            user = cast(_T | None, user)
         return user
 
     def get_login_uid(self, request: HttpRequest) -> int | str:
@@ -112,8 +110,6 @@ class AuthBearer(HttpBearer, Generic[_T]):
         user = self.get_login_user_optional(request)
         if not user:
             raise AuthenticationError("uid not found")
-        if TYPE_CHECKING:
-            user = cast(_T, user)
         return user
 
     def generate_token(self, uid: int | str) -> str:
