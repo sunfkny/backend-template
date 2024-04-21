@@ -1,16 +1,16 @@
 from typing import Any, Iterable
 
 __all__ = [
-    "getattr_reduce",
+    "getattr_recursive",
     "getitem",
-    "getitem_reduce",
+    "getitem_recursive",
 ]
 
 
 NOT_SET = object()
 
 
-def getattr_reduce(obj: Any, names: Iterable[str], default: Any = NOT_SET):
+def getattr_recursive(obj: Any, names: Iterable[str], default: Any = NOT_SET):
     for name in names:
         try:
             obj = getattr(obj, name)
@@ -30,7 +30,7 @@ def getitem(obj: Any, name: Any, default: Any = NOT_SET) -> Any:
         return default
 
 
-def getitem_reduce(obj: Any, names: Iterable[Any], default: Any = NOT_SET):
+def getitem_recursive(obj: Any, names: Iterable[Any], default: Any = NOT_SET):
     for name in names:
         try:
             obj = obj[name]
