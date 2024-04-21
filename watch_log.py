@@ -1,4 +1,4 @@
-#!./venv/bin/python
+#!/usr/bin/env python
 import pathlib
 import subprocess
 
