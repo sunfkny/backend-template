@@ -36,7 +36,12 @@ session_pattern = re.compile(r"\t(?P<pid>[0-9]+)\.(?P<name>.*)\t\((?P<time>.*)\)
 
 
 def get_screen_pid(session_name: str):
-    screen_list_output = subprocess.check_output(["screen", "-list"]).decode()
+    try:
+        screen_list_output = subprocess.check_output(["screen", "-list"]).decode()
+    except subprocess.CalledProcessError as e:
+        if b"No Sockets found" in e.output:
+            return None
+        raise
 
     for session_line in screen_list_output.splitlines():
         match = session_pattern.search(session_line)
