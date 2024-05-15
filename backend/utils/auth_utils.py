@@ -1,10 +1,11 @@
 import time
 import uuid
-from typing import Callable, Generic
+from typing import Any, Callable, Generic
 
 import jwt
 from django.db.models.base import Model
 from django.http.request import HttpRequest
+from loguru import logger
 from ninja.errors import AuthenticationError
 from ninja.security import APIKeyHeader, HttpBearer
 from pydantic import BaseModel, Field
@@ -137,7 +138,8 @@ class AuthBearer(HttpBearer, Generic[TUser]):
             data: dict = jwt.decode(token, self.secret_key, algorithms=["HS256"])
             return JwtModel.parse_obj(data)
         except Exception as e:
-            raise AuthenticationError(f"{e.__class__.__name__}: {e}")
+            logger.warning(f"Invalid token: {e}")
+            raise AuthenticationError("Invalid token")
 
 
 class AuthTokenDatabase(APIKeyHeader, Generic[TUser]):
@@ -187,3 +189,105 @@ class AuthTokenDatabase(APIKeyHeader, Generic[TUser]):
         token = uuid.uuid4().hex
         self.save_token_to_db(user, token)
         return token
+
+
+class AuthBearerModel(HttpBearer, Generic[TUser, TToken]):
+    def __init__(
+        self,
+        user_model: Type[TUser],
+        token_model: Type[TToken],
+        user_device_to_token_model: Callable[[TUser, str | None], TToken],
+        token_model_to_user: Callable[[TToken], TUser | None],
+        token_model_to_redis_key: Callable[[TToken], str],
+        cache_token_expires: int = 12 * 60 * 60,
+        redis_conn: Redis | None = None,
+        secret_key: str = SECRET_KEY,
+        after_login_hook: Callable[[TUser], Any] | None = None,
+    ):
+        self.user_model = user_model
+        self.token_model = token_model
+        self.user_device_to_token_model = user_device_to_token_model
+        self.token_model_to_user = token_model_to_user
+        self.token_model_to_redis_key = token_model_to_redis_key
+        self.cache_token_expires = cache_token_expires
+        self.secret_key = secret_key
+        if redis_conn is None:
+            redis_conn = get_redis_connection()
+        self.redis_conn = redis_conn
+        self.after_login_hook = after_login_hook
+        super().__init__()
+
+    def __call__(self, request: HttpRequest) -> TToken | None:
+        # 返回的值保存在request.auth
+        auth = super().__call__(request)
+        return auth
+
+    def authenticate(self, request: HttpRequest, token: str) -> TToken | None:
+        info = self.decode_token(token)
+        if self.get_token(info) != token:
+            raise AuthenticationError("Token expired")
+        self.set_token(info, token)
+        return info
+
+    def set_token(self, info: TToken, token: str):
+        key = self.token_model_to_redis_key(info)
+        self.redis_conn.set(name=key, value=token, ex=self.cache_token_expires)
+
+    def get_token(self, info: TToken) -> str | None:
+        key = self.token_model_to_redis_key(info)
+        token_str = self.redis_conn.get(key)
+        if token_str is None:
+            return None
+        if isinstance(token_str, bytes):
+            token_str = token_str.decode()
+        return str(token_str)
+
+    def get_login_info_optional(self, request: HttpRequest) -> TToken | None:
+        auth = None
+        if hasattr(request, "auth"):
+            auth = getattr(request, "auth")
+        else:
+            auth = self.__call__(request)
+        return auth
+
+    def get_login_user_optional(self, request: HttpRequest) -> TUser | None:
+        info = self.get_login_info_optional(request)
+        if info is None:
+            return None
+        user = self.token_model_to_user(info)
+        return user
+
+    def get_login_info(self, request: HttpRequest) -> TToken:
+        info = self.get_login_info_optional(request)
+        if not info:
+            raise AuthenticationError("User not logged in")
+        return info
+
+    def get_login_user(self, request: HttpRequest) -> TUser:
+        user = self.get_login_user_optional(request)
+        if not user:
+            raise AuthenticationError("User not found")
+        if self.after_login_hook is not None:
+            self.after_login_hook(user)
+        return user
+
+    def encode_token(self, info: TToken) -> str:
+        payload = info.dict()
+        token_str = jwt.encode(payload, self.secret_key, algorithm="HS256")
+        self.set_token(info, token_str)
+        return token_str
+
+    def decode_token(self, token_str: str):
+        try:
+            data: dict = jwt.decode(token_str, self.secret_key, algorithms=["HS256"])
+            info = self.token_model.parse_obj(data)
+        except Exception as e:
+            logger.warning(f"Invalid token: {e}")
+            raise AuthenticationError("Invalid token")
+        return info
+
+    def generate_token(self, user: TUser, device: str | None = None) -> str:
+        info = self.user_device_to_token_model(user, device)
+        token_str = self.encode_token(info)
+        self.set_token(info, token_str)
+        return token_str
