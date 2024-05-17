@@ -34,4 +34,5 @@
     "files.watcherExclude": {
         "venv": true
     },
+    "files.insertFinalNewline": true,
 }
