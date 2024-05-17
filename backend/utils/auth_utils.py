@@ -30,7 +30,7 @@ class AuthBearer(HttpBearer, Generic[TUser]):
         uid_field: str = "id",
         cache_token_expires: int = 12 * 60 * 60,
         cache_token_prefix: str | None = None,
-        redis_conn: Redis | None = None,
+        redis_conn: "Redis[str] | None" = None,
         secret_key: str = SECRET_KEY,
         after_login_hook: Callable[[TUser], None] = lambda _: None,
     ):
@@ -81,8 +81,6 @@ class AuthBearer(HttpBearer, Generic[TUser]):
         """获取token"""
         key = f"{self.cache_token_prefix}:{uid}"
         token = self.redis_conn.get(key)
-        if isinstance(token, bytes):
-            token = token.decode()
         return token
 
     def token_check(self, uid: int | str, token: str):
@@ -127,8 +125,6 @@ class AuthBearer(HttpBearer, Generic[TUser]):
         """生成token"""
         payload = JwtModel(uid=uid).dict()
         token = jwt.encode(payload, self.secret_key, algorithm="HS256")
-        if isinstance(token, bytes):
-            token = token.decode()
         self.set_token(uid, token)
         return token
 

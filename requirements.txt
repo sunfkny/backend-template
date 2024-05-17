@@ -4,23 +4,22 @@ uwsgi; platform_system != "Windows"
 pick
 rich
 ipython
-django-ninja~=0.22
+django-ninja
 django-extensions
-django
+django>=3.0
 arrow
 PyJWT
 django-cors-headers
 mysqlclient
-# cryptography==37.0.4
 cryptography
 requests
 redis==4.6.0
 types-redis~=4.6.0
 loguru
 django-constance
+django-print-sql
 # django-crontab
 # django-rq
-# django-print-sql
 # hashids
 # multiavatar
 # Pillow

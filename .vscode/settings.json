@@ -17,6 +17,7 @@
         "reportImplicitStringConcatenation": "information",
         "reportMatchNotExhaustive": "information",
         "reportShadowedImports": "information",
+        "reportUnnecessaryComparison": "warning",
         "reportPrivateImportUsage": "none",
     },
     "python.analysis.typeCheckingMode": "basic",

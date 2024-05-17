@@ -11,14 +11,17 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import logging
-import os
+import re
 import sys
+import typing as t
 from pathlib import Path
 from typing import Protocol
 from urllib.parse import urljoin
 
 import loguru
 import redis
+from corsheaders.defaults import default_headers as corsheaders_default_headers
+from corsheaders.defaults import default_methods as corsheaders_default_methods
 
 loguru.logger.remove()
 
@@ -36,37 +39,59 @@ for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
 
 DOMAIN_NAME = ""
 BASE_URL = f"http://{DOMAIN_NAME}"
-DB_PREFIX = "t"  # 数据库表名前缀
-REDIS_PREFIX = ""  # redis前缀
-REDIS_URL = "redis://127.0.0.1:6379/0"
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_URLS_REGEX = re.compile(r"^.*?")
+# CORS_URLS_REGEX = re.compile(r"^/api/.*?")
+# CORS_ALLOWED_ORIGINS = []
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     re.compile(pattern)
+#     for pattern in (
+#         r"^https?://localhost(:[0-9]{2,5})?$",
+#         r"^https?://(127|192)(\.[0-9]{1,3}){3}(:[0-9]{2,5})?$",
+#     )
+# ]
+CORS_ALLOW_METHODS = (*corsheaders_default_methods,)
+CORS_ALLOW_HEADERS = (*corsheaders_default_headers,)
+
+DB_PREFIX = "t"
+REDIS_PREFIX = "r"
 
 
-def get_redis_connection() -> redis.Redis:
-    redis_conn = redis.from_url(
-        REDIS_URL,
-        decode_responses=True,
-    )
+redis_conn = redis.Redis(
+    host="127.0.0.1",
+    port=6379,
+    db=0,
+    decode_responses=True,
+)
+
+
+def get_redis_connection():
     return redis_conn
 
 
-CONSTANCE_REDIS_CONNECTION = REDIS_URL
+CONSTANCE_REDIS_CONNECTION = {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "db": 0,
+}
 CONSTANCE_REDIS_PREFIX = f"{REDIS_PREFIX}:constance:"
-# https://django-constance.readthedocs.io/
 CONSTANCE_CONFIG = {
-    # "THE_ANSWER": (42, "Answer to the Ultimate Question of Life, The Universe, and Everything"),
+    "THE_ANSWER": (42, "Answer to the Ultimate Question of Life, The Universe, and Everything"),
 }
 
 
 class ConstanceConfigProtocol(Protocol):
-    """typed config"""
+    """Constance config protocol."""
 
-    # THE_ANSWER: int
+    THE_ANSWER: int
 
 
 def get_constance_config() -> ConstanceConfigProtocol:
     from constance import config
 
-    return config
+    return t.cast(ConstanceConfigProtocol, config)
 
 
 # https://github.com/Delgan/loguru#suitable-for-scripts-and-libraries
@@ -144,11 +169,9 @@ def redirect_default_logger(name: str, keep_default: bool):
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure"
-if "django-insecure" in SECRET_KEY:
-    loguru.logger.warning("SECRET_KEY is insecure! Please run `python manage.py generate_secret_key` to generate a new one.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = [BASE_URL]
@@ -162,7 +185,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "constance",  # django-constance
+    "constance",  # https://django-constance.readthedocs.io/
     "corsheaders",
     "ninja",  # https://github.com/vitalik/django-ninja/commit/5bdcc43
     "django_extensions",
@@ -230,36 +253,6 @@ DATABASES = {
 #         },
 #     },
 # }
-
-
-# 跨域增加忽略
-CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW_ALL = True
-
-CORS_ALLOW_METHODS = (
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-    "VIEW",
-)
-
-CORS_ALLOW_HEADERS = (
-    "Authorization",
-    "XMLHttpRequest",
-    "X_FILENAME",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-    "Pragma",
-)
 
 
 # Password validation
@@ -331,8 +324,9 @@ CRONJOBS = [
 
 STATIC_URL = "static/"
 
-MEDIA_URL = "media/"
-MEDIA_BASE_URL = urljoin(BASE_URL, MEDIA_URL)
+MEDIA_URL_PATH = "media/"
+MEDIA_BASE_URL = urljoin(BASE_URL, MEDIA_URL_PATH)
+MEDIA_URL = MEDIA_BASE_URL
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

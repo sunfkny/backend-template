@@ -1,7 +1,9 @@
+from urllib.parse import urljoin
+
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
-from urllib.parse import urljoin
-from backend.settings import DB_PREFIX, BASE_URL
+
+from backend.settings import BASE_URL, DB_PREFIX
 
 
 def get_default_avatar():
@@ -110,9 +112,7 @@ class AdminUser(models.Model):
         self.password = make_password(password)
         self.save(update_fields=["password"])
 
-    def check_password(self, password: str) -> bool:
-        if self.password is None:
-            return False
+    def check_password(self, password: str | None) -> bool:
         return check_password(password=password, encoded=self.password)
 
     @property

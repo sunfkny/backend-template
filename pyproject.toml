@@ -5,7 +5,7 @@ description = "A django-ninja backend template"
 dependencies = [
     "uwsgi; platform_system != 'Windows'",
     "pick",
-    "django-ninja~=0.22",
+    "django-ninja",
     "django-extensions",
     "django>=3.0",
     "arrow",
@@ -22,7 +22,7 @@ readme = "README.md"
 requires-python = ">= 3.10"
 
 [tool.ruff]
-line-length = 120
+line-length = 160
 target-version = "py310"
 
 [tool.ruff.lint]
@@ -44,7 +44,14 @@ url = "https://pypi.org/simple/"
 [tool.rye]
 managed = true
 virtual = true
-dev-dependencies = ["rich", "ipython", "types-redis~=4.6.0", "ruff", "uv"]
+dev-dependencies = [
+    "rich",
+    "ipython",
+    "types-redis~=4.6.0",
+    "ruff",
+    "uv",
+    "django-print-sql",
+]
 
 [tool.rye.scripts]
 start = "python manage.py runserver"
