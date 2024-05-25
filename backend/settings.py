@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import inspect
 import logging
 import re
 import sys
@@ -94,18 +95,19 @@ def get_constance_config() -> ConstanceConfigProtocol:
     return t.cast(ConstanceConfigProtocol, config)
 
 
-# https://github.com/Delgan/loguru#suitable-for-scripts-and-libraries
+# https://github.com/Delgan/loguru#entirely-compatible-with-standard-logging
 class InterceptHandler(logging.Handler):
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         # Get corresponding Loguru level if it exists.
+        level: str | int
         try:
             level = loguru.logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
 
         # Find caller from where originated the logged message.
-        frame, depth = sys._getframe(6), 6
-        while frame and frame.f_code.co_filename == logging.__file__:
+        frame, depth = inspect.currentframe(), 0
+        while frame and (depth == 0 or frame.f_code.co_filename == logging.__file__):
             frame = frame.f_back
             depth += 1
 
@@ -115,16 +117,10 @@ class InterceptHandler(logging.Handler):
 logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
-def run_log_filter(record: "loguru.Record") -> bool:
-    if record["extra"].get("name") is not None:
-        return False
-    return True
-
-
 loguru.logger.add(
     LOG_DIR / "run.log",
     level=logging.INFO,
-    filter=run_log_filter,
+    filter=lambda record: record["extra"].get("name") is None,
     backtrace=False,
     watch=True,
 )
