@@ -19,6 +19,8 @@
         "reportShadowedImports": "information",
         "reportUnnecessaryComparison": "warning",
         "reportPrivateImportUsage": "none",
+        "reportUnboundVariable": "error",
+        "reportPossiblyUnboundVariable": "error",
     },
     "python.analysis.typeCheckingMode": "basic",
     "python.languageServer": "Pylance",
