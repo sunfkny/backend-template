@@ -1,5 +1,8 @@
 class ValueErrorWithCode(ValueError):
-    def __init__(self, message: str, code: int):
-        self.code = code
-        self.message = message
-        super().__init__(message)
+    code: int = -1
+
+    def __str__(self) -> str:
+        s = super().__str__()
+        if not s:
+            s = f"Error: {self.code}"
+        return s
