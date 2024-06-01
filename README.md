@@ -15,14 +15,3 @@ cd backend/apps
 django-admin startapp --template app_template <app_name>
 cd ../..
 ```
-## docs
-- [acme](docs/acme.md)
-- [bashrc](docs/bashrc.md)
-- [crontab](docs/crontab.md)
-- [git](docs/git.md)
-- [nginx](docs/nginx.md)
-- [pip](docs/pip.md)
-- [python](docs/python.md)
-- [sqlite3](docs/sqlite3.md)
-- [swapfile](docs/swapfile.md)
-- [ubuntu](docs/ubuntu.md)
