@@ -35,13 +35,15 @@ dev = [
 include = ["backend", "backend.*"]
 
 [tool.ruff]
+exclude = [".venv", "venv", "backend/apps/*/migrations"]
 line-length = 160
 target-version = "py310"
 
 [tool.ruff.lint]
+extend-select = ["I"]
 ignore = [
-    "F401", # unused-import
-    "E402", # module-import-not-at-top-of-file
+    "F401", # https://docs.astral.sh/ruff/rules/unused-import/
+    "E402", # https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file/
 ]
 
 [tool.uv.pip]
