@@ -23,7 +23,7 @@ fi
 
 python
 ```python
-#!venv/bin/python
+#!/usr/bin/env python
 import re
 import subprocess
 
