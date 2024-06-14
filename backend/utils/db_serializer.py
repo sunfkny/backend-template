@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import typing
-from typing import Any, Sequence, TypeAlias
+from collections.abc import Sequence
+from typing import Any, TypeAlias
 
 from django.core.exceptions import FieldError
 from django.db.models import Model, QuerySet

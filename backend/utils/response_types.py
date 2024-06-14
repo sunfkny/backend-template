@@ -1,12 +1,10 @@
-from __future__ import annotations
-
-from typing import Dict, Iterable, List, Union
+from collections.abc import Iterable
+from typing import TypedDict, Union
 
 from django.core.paginator import Page, Paginator
 from pydantic import BaseModel
-from typing_extensions import TypedDict
 
-DataType = Union[Dict, TypedDict, BaseModel]
+DataType = Union[dict, TypedDict, BaseModel]  # noqa: UP007
 
 
 class Response:
@@ -27,15 +25,15 @@ class Response:
         return {"code": 200, "msg": "OK", "data": data}
 
     @classmethod
-    def list(cls, data: List | Iterable):
+    def list(cls, data: Iterable):
         return {"code": 200, "msg": "OK", "data": data}
 
     @classmethod
-    def page_list(cls, data: List | Iterable, total: int, total_page: int):
+    def page_list(cls, data: Iterable, total: int, total_page: int):
         return {"code": 200, "msg": "OK", "data": data, "total": total, "total_page": total_page}
 
     @classmethod
-    def paginator_list(cls, data: List | Iterable, page: Union[Page, Paginator]):
+    def paginator_list(cls, data: Iterable, page: Page | Paginator):
         if isinstance(page, Page):
             page = page.paginator
         total = page.count

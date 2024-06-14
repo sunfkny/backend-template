@@ -35,12 +35,18 @@ dev = [
 include = ["backend", "backend.*"]
 
 [tool.ruff]
-exclude = [".venv", "venv", "backend/apps/*/migrations"]
+exclude = [".venv", "venv", "typings", "backend/apps/*/migrations"]
 line-length = 160
 target-version = "py310"
 
 [tool.ruff.lint]
-extend-select = ["I"]
+extend-select = [
+    "A",    # https://docs.astral.sh/ruff/rules/#flake8-builtins-a
+    "B006", #https://docs.astral.sh/ruff/rules/mutable-argument-default/
+    "I",    #https://docs.astral.sh/ruff/rules/#isort-i
+    "INP",  #https://docs.astral.sh/ruff/rules/#flake8-no-pep420-inp
+    "UP",   #https://docs.astral.sh/ruff/rules/#pyupgrade-up
+]
 ignore = [
     "F401", # https://docs.astral.sh/ruff/rules/unused-import/
     "E402", # https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file/

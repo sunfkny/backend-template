@@ -1,6 +1,7 @@
 import time
 import uuid
-from typing import Any, Callable, Generic
+from collections.abc import Callable
+from typing import Any, Generic, TypeVar
 
 import jwt
 from django.db.models.base import Model
@@ -10,7 +11,6 @@ from ninja.errors import AuthenticationError
 from ninja.security import APIKeyHeader, HttpBearer
 from pydantic import BaseModel, Field
 from redis import Redis
-from typing_extensions import Type, TypeVar
 
 from backend.settings import REDIS_PREFIX, SECRET_KEY, get_redis_connection
 
@@ -26,7 +26,7 @@ class JwtModel(BaseModel):
 class AuthBearer(HttpBearer, Generic[TUser]):
     def __init__(
         self,
-        user_model: Type[TUser],
+        user_model: type[TUser],
         uid_field: str = "id",
         cache_token_expires: int = 12 * 60 * 60,
         cache_token_prefix: str | None = None,
@@ -143,7 +143,7 @@ class AuthTokenDatabase(APIKeyHeader, Generic[TUser]):
 
     def __init__(
         self,
-        user_model: Type[TUser],
+        user_model: type[TUser],
         token_to_user: Callable[[str], TUser | None],
         save_token_to_db: Callable[[TUser, str], None],
         after_login_hook: Callable[[TUser], None] = lambda _: None,
@@ -190,8 +190,8 @@ class AuthTokenDatabase(APIKeyHeader, Generic[TUser]):
 class AuthBearerModel(HttpBearer, Generic[TUser, TToken]):
     def __init__(
         self,
-        user_model: Type[TUser],
-        token_model: Type[TToken],
+        user_model: type[TUser],
+        token_model: type[TToken],
         user_device_to_token_model: Callable[[TUser, str | None], TToken],
         token_model_to_user: Callable[[TToken], TUser | None],
         token_model_to_redis_key: Callable[[TToken], str],

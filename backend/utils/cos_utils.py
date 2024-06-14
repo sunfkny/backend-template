@@ -1,4 +1,4 @@
-__doc__ = """
+"""
 使用方法
 ```python
 @router.post("upload/params", summary="获取 POST Object 上传参数")

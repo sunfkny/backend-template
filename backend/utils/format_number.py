@@ -3,8 +3,8 @@ from decimal import Decimal
 
 def aggregate_decimal_quantize(value: dict | int | float | Decimal, digits: int = 2) -> str:
     if isinstance(value, dict):
-        value = sum(i for i in value.values() if isinstance(i, (int, float, Decimal)))
-    if isinstance(value, (int, float)):
+        value = sum(i for i in value.values() if isinstance(i, int | float | Decimal))
+    if isinstance(value, int | float):
         value = Decimal(value)
     return f"{value:.{digits}f}"
 

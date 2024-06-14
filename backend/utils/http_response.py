@@ -45,7 +45,7 @@ class ServerSentEvent:
         data: Any | None = None,
         *,
         event: str | None = None,
-        id: str | int | None = None,
+        id: str | int | None = None,  # noqa: A002
         retry: int | None = None,
         comment: str | None = None,
         sep: str | None = None,

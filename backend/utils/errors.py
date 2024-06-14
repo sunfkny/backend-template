@@ -1,4 +1,4 @@
-class ValueErrorWithCode(ValueError):
+class ValueCodeError(ValueError):
     code: int = -1
 
     def __str__(self) -> str:

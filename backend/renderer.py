@@ -24,7 +24,7 @@ class CustomJsonEncoder(NinjaJSONEncoder):
         try:
             return super().default(o)
         except TypeError:
-            logger.error((f"Object of type {o.__class__.__name__} {repr(o)} is not JSON serializable"))
+            logger.error(f"Object of type {o.__class__.__name__} {repr(o)} is not JSON serializable")
             return repr(o)
 
 
