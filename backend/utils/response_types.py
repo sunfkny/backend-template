@@ -13,6 +13,10 @@ class Response:
         return {"code": 200, "msg": "OK"}
 
     @classmethod
+    def success(cls, msg: str = "OK"):
+        return {"code": 200, "msg": msg}
+
+    @classmethod
     def error(cls, msg: str):
         return {"code": -1, "msg": msg}
 
