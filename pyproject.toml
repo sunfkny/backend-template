@@ -5,6 +5,8 @@ description = "A django-ninja backend template"
 dependencies = [
     "uwsgi; platform_system != 'Windows'",
     "pick",
+    "rich",
+    "ipython",
     "django-ninja",
     "django-extensions",
     "django>=3.0",
@@ -15,21 +17,13 @@ dependencies = [
     "cryptography",
     "requests",
     "redis==4.6.0",
+    "types-redis~=4.6.0",
     "loguru",
     "django-constance",
+    "django-print-sql",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"
-
-[project.optional-dependencies]
-dev = [
-    "uv",
-    "ruff",
-    "rich",
-    "ipython",
-    "types-redis~=4.6.0",
-    "django-print-sql",
-]
 
 [tool.setuptools.packages.find]
 include = ["backend", "backend.*"]
@@ -54,38 +48,3 @@ ignore = [
 
 [tool.uv.pip]
 index-url = "https://mirrors.aliyun.com/pypi/simple/"
-
-[[tool.rye.sources]]
-name = "aliyun"
-url = "https://mirrors.aliyun.com/pypi/simple/"
-[[tool.rye.sources]]
-name = "tsinghua"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
-[[tool.rye.sources]]
-name = "pypi"
-url = "https://pypi.org/simple/"
-
-[tool.rye]
-managed = true
-virtual = true
-dev-dependencies = [
-    "rich",
-    "ipython",
-    "types-redis~=4.6.0",
-    "ruff",
-    "uv",
-    "django-print-sql",
-]
-
-[tool.rye.scripts]
-start = "python manage.py runserver"
-makemigrations = "python manage.py makemigrations"
-migrate = "python manage.py migrate"
-tail = "python watch_log.py"
-shell = """python manage.py shell_plus \
---ipython \
---print-sql \
---dont-load auth \
---dont-load admin \
---dont-load contenttypes \
---dont-load sessions"""
