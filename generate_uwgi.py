@@ -8,12 +8,14 @@ from backend.settings import BASE_DIR, DOMAIN_NAME
 if not DOMAIN_NAME:
     raise Exception("backend.settings.DOMAIN_NAME is not set")
 
-secret_key = get_random_secret_key()
-source = pathlib.Path("./backend/settings.py").read_text()
-if 'SECRET_KEY = "django-insecure"' in source:
-    source = source.replace('SECRET_KEY = "django-insecure"', f'SECRET_KEY = "{secret_key}"')
-    source = source.replace("DEBUG = True", "DEBUG = False")
-    pathlib.Path("./backend/settings.py").write_text(source)
+settings_path = pathlib.Path("./backend/settings.py")
+settings_source = settings_path.read_text()
+insecure_secret_key = 'SECRET_KEY = "django-insecure"'
+if insecure_secret_key in settings_source:
+    secret_key = get_random_secret_key()
+    settings_source = settings_source.replace(insecure_secret_key, f'SECRET_KEY = "{secret_key}"')
+    settings_source = settings_source.replace("DEBUG = True", "DEBUG = False")
+    settings_path.write_text(settings_source)
 
 UWSGI_INI_FILE_NAME = f"{DOMAIN_NAME}.ini"
 UWSGI_INI_FILE_PATH = BASE_DIR / UWSGI_INI_FILE_NAME
@@ -116,7 +118,11 @@ server {{
     #     return 301 https://$host$request_uri;
     # }}
 
-    location /api {{
+    location /api/ {{
+        include uwsgi_params;
+        uwsgi_pass unix:$base/uwsgi.sock;
+    }}
+    location /admin/ {{
         include uwsgi_params;
         uwsgi_pass unix:$base/uwsgi.sock;
     }}
@@ -134,7 +140,7 @@ server {{
 print(
     f"""
 # ================== logrotate ==================
-# /etc/logrotate.d/{DOMAIN_NAME}
+# /etc/logrotate.d/{DOMAIN_NAME}.conf
 
 {BASE_DIR / 'logs/*.log'} {{
     daily
