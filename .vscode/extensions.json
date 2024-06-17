@@ -11,5 +11,6 @@
         "charliermarsh.ruff",
         "vscode-icons-team.vscode-icons",
         "Gruntfuggly.todo-tree",
+        "tamasfe.even-better-toml",
     ]
 }
