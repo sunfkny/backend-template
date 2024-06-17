@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
 from django.http import HttpRequest
-from ninja import File, Form, Query, Router
+from ninja import Body, File, Query, Router, Schema
 from ninja.files import UploadedFile
 
 from backend.apps.back.models import AdminPermission, AdminUser, Role
@@ -21,8 +21,8 @@ file_system_storage = FileSystemStorage()
 @router.post("admin/login", summary="后台登录")
 def post_admin_login(
     request: HttpRequest,
-    username: str = Form(..., description="账号"),
-    password: str = Form(..., description="密码"),
+    username: str = Body(..., description="账号"),
+    password: str = Body(..., description="密码"),
 ):
     exists_admin_user = AdminUser.objects.exists()
     if not exists_admin_user:
@@ -48,8 +48,8 @@ def post_admin_login(
 @router.post("admin/password", auth=auth_admin, summary="后台修改密码")
 def post_admin_password(
     request: HttpRequest,
-    old_password: str = Form(..., description="旧密码"),
-    new_password: str = Form(..., description="新密码"),
+    old_password: str = Body(..., description="旧密码"),
+    new_password: str = Body(..., description="新密码"),
 ):
     user = auth_admin.get_login_user(request)
     if not user.check_password(old_password):
@@ -59,11 +59,16 @@ def post_admin_password(
     return Response.ok()
 
 
+class UsernameSchema(Schema):
+    username: str = Body(..., description="用户名")
+
+
 @router.post("admin/password/reset", auth=auth_admin, summary="超级管理员后台重置密码")
 def post_admin_password_reset(
     request: HttpRequest,
-    username: str = Form(..., description="用户名"),
+    body: UsernameSchema,
 ):
+    username = body.username
     user = auth_admin.get_login_user(request)
     if not user.is_admin:
         return Response.error(msg="没有权限")
@@ -96,10 +101,10 @@ def get_admin_user_info(
 @router.post("admin/user/info/edit", auth=auth_admin, summary="后台用户信息修改")
 def post_admin_user_info_edit(
     request: HttpRequest,
-    admin_user_id: int = Form(0, alias="id", description="后台用户id(Admin权限)"),
-    summary: str = Form(..., description="简介"),
-    nickname: str = Form(..., description="显示名称"),
-    avatar: str = Form(..., description="头像"),
+    admin_user_id: int = Body(0, alias="id", description="后台用户id(Admin权限)"),
+    summary: str = Body(..., description="简介"),
+    nickname: str = Body(..., description="显示名称"),
+    avatar: str = Body(..., description="头像"),
 ):
     admin_user = auth_admin.get_login_user(request)
     if admin_user.is_admin and admin_user_id:
@@ -203,10 +208,10 @@ def get_admin_permission_list(
 @router.post("admin/permission/edit", auth=auth_admin, summary="权限修改")
 def post_admin_permission_edit(
     request: HttpRequest,
-    permission_id: int = Form(..., description="权限id", alias="id"),
-    # key: str = Form(..., description="权限标识"),
-    name: str = Form(..., description="权限名称"),
-    description: str = Form(..., description="权限描述"),
+    permission_id: int = Body(..., description="权限id", alias="id"),
+    # key: str = Body(..., description="权限标识"),
+    name: str = Body(..., description="权限名称"),
+    description: str = Body(..., description="权限描述"),
 ):
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
@@ -255,9 +260,9 @@ def get_admin_role_list(
 @router.post("admin/role/edit", auth=auth_admin, summary="角色修改")
 def post_admin_role_edit(
     request: HttpRequest,
-    role_id: int = Form(..., description="角色id", alias="id"),
-    name: str = Form(..., description="角色名称"),
-    description: str = Form(..., description="角色描述"),
+    role_id: int = Body(..., description="角色id", alias="id"),
+    name: str = Body(..., description="角色名称"),
+    description: str = Body(..., description="角色描述"),
 ):
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
@@ -276,8 +281,8 @@ def post_admin_role_edit(
 @router.post("admin/role/add", auth=auth_admin, summary="角色添加")
 def post_admin_role_add(
     request: HttpRequest,
-    name: str = Form(..., description="角色名称"),
-    description: str = Form(..., description="角色描述"),
+    name: str = Body(..., description="角色名称"),
+    description: str = Body(..., description="角色描述"),
 ):
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
@@ -327,8 +332,8 @@ def get_admin_role_permission_list(
 @router.post("admin/role/permission/add", auth=auth_admin, summary="角色权限增加")
 def post_admin_role_permission_add(
     request: HttpRequest,
-    role_id: int = Form(..., description="角色id"),
-    permission_id: int = Form(..., description="权限id"),
+    role_id: int = Body(..., description="角色id"),
+    permission_id: int = Body(..., description="权限id"),
 ):
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
@@ -349,8 +354,8 @@ def post_admin_role_permission_add(
 @router.post("admin/role/permission/remove", auth=auth_admin, summary="角色权限移除")
 def post_admin_role_permission_remove(
     request: HttpRequest,
-    role_id: int = Form(..., description="角色id"),
-    permission_id: int = Form(..., description="权限id"),
+    role_id: int = Body(..., description="角色id"),
+    permission_id: int = Body(..., description="权限id"),
 ):
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
@@ -371,10 +376,10 @@ def post_admin_role_permission_remove(
 @router.post("admin/user/add", auth=auth_admin, summary="后台用户创建")
 def post_admin_user_add(
     request: HttpRequest,
-    nickname: str = Form(..., description="后台用户名称"),
-    username: str = Form(..., description="后台用户名"),
-    password: str = Form(..., description="后台用户密码"),
-    role_id: int = Form(..., description="角色id"),
+    nickname: str = Body(..., description="后台用户名称"),
+    username: str = Body(..., description="后台用户名"),
+    password: str = Body(..., description="后台用户密码"),
+    role_id: int = Body(..., description="角色id"),
 ):
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
@@ -415,8 +420,8 @@ def get_admin_dropdown_permission(
 @router.post("admin/user/role/edit", auth=auth_admin, summary="后台管理员角色修改")
 def post_admin_user_role_edit(
     request: HttpRequest,
-    admin_user_id: int = Form(..., description="后台用户id"),
-    role_id: int = Form(..., description="角色id"),
+    admin_user_id: int = Body(..., description="后台用户id"),
+    role_id: int = Body(..., description="角色id"),
 ):
     login_user = auth_admin.get_login_user(request)
     if not login_user.is_admin:
