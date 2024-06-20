@@ -1,5 +1,6 @@
 db.sqlite3
-*.pyc
+*.py[cod]
+__pycache__/
 *.egg-info/
 build/
 venv/
