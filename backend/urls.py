@@ -39,9 +39,11 @@ set_exception_handlers(api)
 set_exception_handlers(api_back)
 
 from backend.apps.back.api_back import router as back_back_router
+from backend.apps.common.api import router as common_router
 from backend.apps.user.api import router as user_router
 
 api.add_router("/", user_router)
+api.add_router("/", common_router)
 api_back.add_router("/", back_back_router)
 
 urlpatterns = [
