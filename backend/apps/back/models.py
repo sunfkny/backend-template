@@ -40,7 +40,7 @@ class AdminPermission(models.Model):
 
 
 class RolePermission(models.Model):
-    role: models.ForeignKey["Role"]
+    role: "models.ForeignKey[Role]"
     role = models.ForeignKey("Role", on_delete=models.PROTECT, verbose_name="角色")
     permission = models.ForeignKey(AdminPermission, on_delete=models.PROTECT, verbose_name="权限")
 
