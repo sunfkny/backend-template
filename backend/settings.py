@@ -21,8 +21,6 @@ from urllib.parse import urljoin
 
 import loguru
 import redis
-from corsheaders.defaults import default_headers as corsheaders_default_headers
-from corsheaders.defaults import default_methods as corsheaders_default_methods
 
 loguru.logger.remove()
 
@@ -40,23 +38,41 @@ for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
 
 DOMAIN_NAME = ""
 BASE_URL = f"http://{DOMAIN_NAME}"
+FRONTEND_DOMAIN_NAME = ""
+FRONTEND_BASE_URL = f"http://{FRONTEND_DOMAIN_NAME}"
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
 CORS_URLS_REGEX = re.compile(r"^.*?")
-# CORS_URLS_REGEX = re.compile(r"^/api/.*?")
-# CORS_ALLOWED_ORIGINS = []
-# CORS_ALLOWED_ORIGIN_REGEXES = [
-#     re.compile(pattern)
-#     for pattern in (
-#         r"^https?://localhost(:[0-9]{2,5})?$",
-#         r"^https?://(127|192)(\.[0-9]{1,3}){3}(:[0-9]{2,5})?$",
-#     )
-# ]
-CORS_ALLOW_METHODS = (*corsheaders_default_methods,)
-CORS_ALLOW_HEADERS = (*corsheaders_default_headers,)
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    FRONTEND_BASE_URL,
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    re.compile(pattern)
+    for pattern in (
+        r"^https?://localhost(:[0-9]{2,5})?$",
+        r"^https?://(127|192)(\.[0-9]{1,3}){3}(:[0-9]{2,5})?$",
+    )
+]
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+)
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "accept-language",
+)
 
-DB_PREFIX = "t"
+
 REDIS_PREFIX = "r"
 
 
@@ -226,6 +242,8 @@ WSGI_APPLICATION = "backend.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+DB_PREFIX = "t"
+
 
 DATABASES = {
     "default": {
