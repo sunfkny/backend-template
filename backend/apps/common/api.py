@@ -50,7 +50,8 @@ def get_status(
 
         db_conn = connections["default"]
         with db_conn.cursor() as cursor:
-            value = cursor.execute("SELECT 1")
+            cursor.execute("SELECT 1")
+            value = cursor.fetchone()[0]
             db_status = value == 1
     except Exception as e:
         logger.error(e)
