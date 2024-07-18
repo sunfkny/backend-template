@@ -2,6 +2,7 @@
 [kraiz/django-crontab](https://github.com/kraiz/django-crontab)  
 [rq/django-rq](https://github.com/rq/django-rq)  
 [Bogdanp/dramatiq](https://github.com/Bogdanp/dramatiq)  
+[coleifer/huey](https://github.com/coleifer/huey)    
 
 ### 打印sql
 [rabbit-aaron/django-print-sql](https://github.com/rabbit-aaron/django-print-sql)  
