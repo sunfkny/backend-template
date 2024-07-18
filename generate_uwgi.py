@@ -25,20 +25,60 @@ if UWSGI_INI_FILE_PATH.exists():
 
 run_file = BASE_DIR / "run.sh"
 run_file.write_text(
-    f"""source ./venv/bin/activate
+    f"""set -e
+
+cd `dirname $0`
+
+if [ -n "$VIRTUAL_ENV" ]; then
+    UWSGI=$VIRTUAL_ENV/bin/uwsgi
+elif [ -f .venv/bin/uwsgi ]; then
+    UWSGI=.venv/bin/uwsgi
+elif [ -f venv/bin/uwsgi ]; then
+    UWSGI=venv/bin/uwsgi
+else
+    echo "Virtual environment not found."
+    exit 1
+fi
 
 if [ -f uwsgi.pid ]; then
     kill -9 `cat uwsgi.pid` || rm uwsgi.pid
 fi
 
-uwsgi --ini {shlex.quote(str(UWSGI_INI_FILE_PATH))}
+$UWSGI --ini {shlex.quote(str(UWSGI_INI_FILE_PATH))}
 """
 )
 run_file.chmod(0o755)
 
 
 reload_file = BASE_DIR / "reload.sh"
-reload_file.write_text("touch uwsgi.reload\n")
+reload_file.write_text("""set -e
+
+cd `dirname $0`
+
+if [ -n "$VIRTUAL_ENV" ]; then
+    PYTHON=$VIRTUAL_ENV/bin/python
+elif [ -f .venv/bin/python ]; then
+    PYTHON=.venv/bin/python
+elif [ -f venv/bin/python ]; then
+    PYTHON=venv/bin/python
+else
+    echo "Virtual environment not found."
+    exit 1
+fi
+
+echo "Using Python: $PYTHON"
+
+$PYTHON manage.py check
+
+touch uwsgi.reload
+
+tail -F -n0 logs/run.log | while read line; do
+    echo "$line"
+    if [[ "$line" == *"chain reloading complete"* ]]; then
+        break
+    fi
+done
+""")
 reload_file.chmod(0o755)
 
 UWSGI_INI_FILE_PATH.write_text(
