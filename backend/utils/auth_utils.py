@@ -99,6 +99,8 @@ class AuthBearer(HttpBearer, Generic[TUser]):
     def get_login_user_optional(self, request: HttpRequest) -> TUser | None:
         """可选获取登录用户, 未登录返回 None"""
         uid = self.get_login_uid_optional(request)
+        if uid is None:
+            return None
         user = self.user_model.objects.filter(
             **{
                 self.uid_field: uid,
@@ -110,14 +112,14 @@ class AuthBearer(HttpBearer, Generic[TUser]):
         """获取登录用户uid"""
         uid = self.get_login_uid_optional(request)
         if not uid:
-            raise AuthenticationError("not auth")
+            raise AuthenticationError("Uid not found")
         return uid
 
     def get_login_user(self, request: HttpRequest) -> TUser:
         """获取登录用户"""
         user = self.get_login_user_optional(request)
         if not user:
-            raise AuthenticationError("uid not found")
+            raise AuthenticationError("User not found")
         self.after_login_hook(user)
         return user
 
