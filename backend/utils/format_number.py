@@ -24,10 +24,10 @@ def intword(
     intword_suffix = ((3, "K"), (6, "M"), (9, "B"), (12, "T"))
     if use_chinese_units:
         current_language = translation.get_language()
-        if current_language == "zh-hant":
-            intword_suffix = ((4, "萬"), (8, "億"), (12, "兆"), (16, "京"))
         if current_language == "zh-hans":
             intword_suffix = ((4, "万"), (8, "亿"), (12, "兆"), (16, "京"))
+        if current_language == "zh-hant":
+            intword_suffix = ((4, "萬"), (8, "億"), (12, "兆"), (16, "京"))
 
     min_exponent = intword_suffix[0][0]
     format_str = f".{digits}f"
