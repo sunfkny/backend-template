@@ -206,7 +206,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # "backend.utils.middlewares.ApiLoggingMiddleware",
+    # "backend.middleware.logging.ApiLoggingMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
