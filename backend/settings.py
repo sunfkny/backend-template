@@ -36,17 +36,16 @@ for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
     if not path.exists():
         path.mkdir(parents=True)
 
-DOMAIN_NAME = ""
+DOMAIN_NAME = ""  # TODO: backend domain
 BASE_URL = f"http://{DOMAIN_NAME}"
-FRONTEND_DOMAIN_NAME = ""
-FRONTEND_BASE_URL = f"http://{FRONTEND_DOMAIN_NAME}"
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_URLS_REGEX = re.compile(r"^.*?")
-# CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-    FRONTEND_BASE_URL,
+    # TODO: frontend domain
 ]
+if not CORS_ALLOWED_ORIGINS:
+    CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGIN_REGEXES = [
     re.compile(pattern)
     for pattern in (
