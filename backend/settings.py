@@ -264,9 +264,21 @@ DATABASES = {
 #             "charset": "utf8mb4",
 #             "connect_timeout": 2,
 #         },
+#         "TEST": {
+#             "NAME": "test_database",
+#         },
 #     },
 # }
 
+PYTEST_RUNNING = Path(sys.argv[0]).name in ("pytest", "pytest.exe", "py.test")
+if PYTEST_RUNNING:
+    # DATABASES["default"]["USER"] = "root"
+    # DATABASES["default"]["PASSWORD"] = "password"
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
