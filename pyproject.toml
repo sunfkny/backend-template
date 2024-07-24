@@ -21,6 +21,7 @@ dependencies = [
     "loguru",
     "django-constance",
     "django-print-sql",
+    "pytest-django",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"
@@ -48,3 +49,11 @@ ignore = [
 
 [tool.uv.pip]
 index-url = "https://mirrors.aliyun.com/pypi/simple/"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "backend.settings"
+python_files = [
+    "backend/apps/*/tests.py",
+    "backend/utils/format_number.py",
+]
+filterwarnings = ["ignore::pydantic.warnings.PydanticDeprecatedSince20"]

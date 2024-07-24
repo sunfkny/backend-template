@@ -105,7 +105,7 @@ class AdminUser(models.Model):
             permission_list.append(AdminPermission.Keys.Admin)
         return permission_list
 
-    def has_permission(self, permission: AdminPermission.Keys) -> bool:
+    def has_permission(self, permission: AdminPermission.Keys | str) -> bool:
         return permission in self.permissions
 
     def make_password(self, password: str):
