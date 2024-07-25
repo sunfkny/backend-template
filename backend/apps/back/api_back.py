@@ -8,8 +8,8 @@ from ninja import Body, File, Query, Router, Schema
 from ninja.files import UploadedFile
 
 from backend.apps.back.models import AdminPermission, AdminUser, Role
+from backend.security import auth_admin
 from backend.settings import MEDIA_BASE_URL, get_logger, get_redis_connection
-from backend.utils.auth import auth_admin
 from backend.utils.response_types import Response
 
 router = Router(tags=["后台"])
