@@ -31,8 +31,8 @@ session_name = "tail"
 start_cmd = "tail -F logs/run.log"
 
 
-# \t{pid}.{name}\t({time})\t({status})
-session_pattern = re.compile(r"\t(?P<pid>[0-9]+)\.(?P<name>.*)\t\((?P<time>.*)\)\t\((?P<status>.*)\)$")
+# \t{pid}.{name}\t
+session_pattern = re.compile(r"\t(?P<pid>[0-9]+)\.(?P<name>.*)\t")
 
 
 def get_screen_pid(session_name: str):
