@@ -6,7 +6,7 @@ from ninja import NinjaAPI
 from ninja.errors import AuthenticationError, ValidationError
 from requests import RequestException
 
-from backend.utils.errors import ValueCodeError
+from backend.errors import ValueCodeError
 
 
 def set_exception_handlers(api: NinjaAPI):
