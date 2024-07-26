@@ -7,7 +7,6 @@ source venv/bin/activate
 python -m pip install -U pip
 pip install -U wheel setuptools
 pip install -r requirements.txt
-git clone https://github.com/sunfkny/typings.git
 ```
 ## startapp
 ```

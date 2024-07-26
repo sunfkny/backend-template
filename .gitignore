@@ -6,7 +6,6 @@ build/
 venv/
 .venv/
 logs/
-typings/
 dist/
 media/
 !media/default_avatar.svg

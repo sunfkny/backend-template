@@ -37,4 +37,7 @@
         "venv": true
     },
     "files.insertFinalNewline": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports.ruff": "explicit"
+    },
 }
