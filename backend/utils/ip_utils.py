@@ -4,7 +4,7 @@ from django.http import HttpRequest
 def get_client_ip(request: HttpRequest):
     """
     If the request is made through a proxy, the nginx realip module needs to be configured.
-
+    ```conf
     # /etc/nginx/cloudflare.conf
 
     real_ip_header CF-Connecting-IP;
@@ -34,5 +34,6 @@ def get_client_ip(request: HttpRequest):
     set_real_ip_from 2405:8100::/32;
     set_real_ip_from 2a06:98c0::/29;
     set_real_ip_from 2c0f:f248::/32;
+    ```
     """
     return request.META.get("REMOTE_ADDR")
