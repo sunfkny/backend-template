@@ -1,8 +1,7 @@
 from backend.apps.back.models import AdminUser
 from backend.apps.user.models import User
+from backend.security.auth import AuthBearer
 from backend.settings import get_redis_connection
-
-from .auth import AuthBearer
 
 redis_conn = get_redis_connection()
 
