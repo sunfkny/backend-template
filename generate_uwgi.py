@@ -154,9 +154,11 @@ server {{
 
     set $base {BASE_DIR};
 
-    # if ($ssl_protocol = "" ) {{
-    #     return 301 https://$host$request_uri;
+    # if ($scheme = http) {{
+    #     return 308 https://$host$request_uri;
     # }}
+    
+    client_max_body_size 10m;
 
     location /api/ {{
         include uwsgi_params;
@@ -173,6 +175,10 @@ server {{
         root $base/dist/;
         # try_files $uri $uri/ /index.html;
     }}
+    # location /index.html {{
+    #     add_header Cache-Control "no-cache";
+    #     root $base/dist/;
+    # }}
 }}
 """
 )
