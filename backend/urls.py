@@ -17,22 +17,31 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from ninja import NinjaAPI
+from ninja import NinjaAPI, Swagger
 
 from backend.settings import DEBUG, DIST_ROOT, MEDIA_ROOT, MEDIA_URL_PATH
 
 from .handler import set_exception_handlers
 from .renderer import CustomJSONRenderer
 
+docs = Swagger(
+    settings={
+        "persistAuthorization": True,
+        "requestSnippetsEnabled": True,
+    }
+)
+renderer = CustomJSONRenderer()
 api = NinjaAPI(
     title="Open API",
     version="1.0.0",
-    renderer=CustomJSONRenderer(),
+    renderer=renderer,
+    docs=docs,
 )
 api_back = NinjaAPI(
     title="Open API back",
     version="back 1.0.0",
-    renderer=CustomJSONRenderer(),
+    docs=docs,
+    renderer=renderer,
 )
 
 set_exception_handlers(api)
