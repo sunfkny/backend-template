@@ -125,7 +125,7 @@ class AuthBearer(HttpBearer, Generic[TUser]):
 
     def generate_token(self, uid: int | str) -> str:
         """生成token"""
-        payload = JwtModel(uid=uid).dict()
+        payload = JwtModel(uid=uid).model_dump()
         token = jwt.encode(payload, self.secret_key, algorithm="HS256")
         self.set_token(uid, token)
         return token
@@ -134,7 +134,7 @@ class AuthBearer(HttpBearer, Generic[TUser]):
         """解析token"""
         try:
             data: dict = jwt.decode(token, self.secret_key, algorithms=["HS256"])
-            return JwtModel.parse_obj(data)
+            return JwtModel.model_validate(data)
         except Exception as e:
             logger.warning(f"Invalid token: {e}")
             raise AuthenticationError("Invalid token")
@@ -278,7 +278,7 @@ class AuthBearerModel(HttpBearer, Generic[TUser, TToken]):
     def decode_token(self, token_str: str):
         try:
             data: dict = jwt.decode(token_str, self.secret_key, algorithms=["HS256"])
-            info = self.token_model.parse_obj(data)
+            info = self.token_model.model_validate(token_str)
         except Exception as e:
             logger.warning(f"Invalid token: {e}")
             raise AuthenticationError("Invalid token")

@@ -4,9 +4,9 @@ uwsgi; platform_system != "Windows"
 pick
 rich
 ipython
-django-ninja
+django-ninja>=1.0,<2.0.0
 django-extensions
-django>=3.0
+django
 arrow
 PyJWT
 django-cors-headers
