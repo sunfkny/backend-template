@@ -30,16 +30,17 @@ requires-python = ">= 3.10"
 include = ["backend", "backend.*"]
 
 [tool.ruff]
-extend-exclude = ["backend/apps/*/migrations"]
+extend-exclude = ["backend/apps/*/migrations", "typings"]
 line-length = 160
 target-version = "py310"
 
 [tool.ruff.lint]
 extend-select = [
-    "A",    # https://docs.astral.sh/ruff/rules/#flake8-builtins-a
-    "B006", #https://docs.astral.sh/ruff/rules/mutable-argument-default/
-    "I",    #https://docs.astral.sh/ruff/rules/#isort-i
-    "UP",  #https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    "A",      # https://docs.astral.sh/ruff/rules/#flake8-builtins-a
+    "B006",   #https://docs.astral.sh/ruff/rules/mutable-argument-default/
+    "I",      #https://docs.astral.sh/ruff/rules/#isort-i
+    "UP",     #https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    "RET503", #https://docs.astral.sh/ruff/rules/implicit-return/
 ]
 ignore = [
     "F401", # https://docs.astral.sh/ruff/rules/unused-import/
@@ -51,8 +52,5 @@ index-url = "https://mirrors.aliyun.com/pypi/simple/"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "backend.settings"
-python_files = [
-    "backend/apps/*/tests.py",
-    "backend/utils/format_number.py",
-]
+python_files = ["backend/apps/*/tests.py", "backend/utils/format_number.py"]
 filterwarnings = ["ignore::pydantic.warnings.PydanticDeprecatedSince20"]
