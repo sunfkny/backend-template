@@ -1,0 +1,39 @@
+{
+    "Django Paginator": {
+        "prefix": "page_queryset",
+        "body": [
+            "page_queryset = Paginator(queryset, size).page(page)",
+            "data = []",
+            "for i in page_queryset:",
+            "    data.append({$1})",
+            "return Response.paginator_list(data=data, page=page_queryset)",
+        ],
+        "description": "Django Paginator"
+    },
+    "Django ninja router": {
+        "prefix": "@router",
+        "body": [
+            "@router.${1|get,post,put,delete|}(\"$2\"${3})",
+            "def ${1}_${2/[\\/]/_/g}(",
+            "    request: HttpRequest,",
+            "    ${4}",
+            "):",
+            "    ${5:pass}"
+        ],
+        "description": "Django ninja router"
+    },
+    "Django ninja page size": {
+        "prefix": "ninja page size",
+        "body": [
+            "page: int = Query(..., description=\"页码\"),\nsize: int = Query(..., description=\"每页数量\"),",
+        ],
+        "description": "Django ninja router"
+    },
+    "Django ninja return": {
+        "prefix": "ninja return",
+        "body": [
+            "return Response.",
+        ],
+        "description": "Django ninja return"
+    },
+}
