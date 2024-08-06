@@ -3,10 +3,14 @@ import shlex
 
 from django.core.management.utils import get_random_secret_key
 
-from backend.settings import BASE_DIR, DOMAIN_NAME
+from backend.settings import BASE_DIR, BASE_URL, DOMAIN_NAME
 
 if not DOMAIN_NAME:
     raise Exception("backend.settings.DOMAIN_NAME is not set")
+UWSGI_INI_FILE_NAME = f"{DOMAIN_NAME}.ini"
+UWSGI_INI_FILE_PATH = BASE_DIR / UWSGI_INI_FILE_NAME
+if UWSGI_INI_FILE_PATH.exists():
+    raise Exception(f"{UWSGI_INI_FILE_PATH} already exists")
 
 settings_path = pathlib.Path("./backend/settings.py")
 settings_source = settings_path.read_text()
@@ -17,11 +21,6 @@ if insecure_secret_key in settings_source:
     settings_source = settings_source.replace("DEBUG = True", "DEBUG = False")
     settings_path.write_text(settings_source)
 
-UWSGI_INI_FILE_NAME = f"{DOMAIN_NAME}.ini"
-UWSGI_INI_FILE_PATH = BASE_DIR / UWSGI_INI_FILE_NAME
-
-if UWSGI_INI_FILE_PATH.exists():
-    raise Exception(f"{UWSGI_INI_FILE_PATH} already exists")
 
 run_file = BASE_DIR / "run.sh"
 run_file.write_text(
@@ -139,32 +138,55 @@ disable-write-exception=true
 """
 )
 
+is_www = DOMAIN_NAME.startswith("www.")
+is_https = BASE_URL.startswith("https://")
+comment_if_http = "" if is_https else "# "
+
+server_name_list = [DOMAIN_NAME]
+if is_www:
+    server_name_list.append(DOMAIN_NAME.removeprefix("www."))
+server_name = " ".join(server_name_list)
+non_www_domain_name = DOMAIN_NAME.removeprefix("www.")
+
+redirect = ""
+if is_www:
+    redirect += f"""
+    if ($http_host = {non_www_domain_name}) {{
+        return 301 https://{DOMAIN_NAME}$request_uri;
+    }}
+"""
+redirect += f"""
+    {comment_if_http}if ($scheme = http) {{
+    {comment_if_http}    return 301 https://$host$request_uri;
+    {comment_if_http}}}
+"""
+
+
 print(
     f"""# ================== nginx config ==================
 # /etc/nginx/conf.d/{DOMAIN_NAME}.conf
 
 server {{
     listen 80;
-    # listen 443 ssl http2;
-    server_name {DOMAIN_NAME};
+    {comment_if_http}listen 443 ssl;
+    {comment_if_http}http2 on;
+    server_name {server_name};
 
     access_log /var/log/nginx/{DOMAIN_NAME}_nginx.log combined;
-    # ssl_certificate /etc/nginx/ssl/{DOMAIN_NAME}.pem;
-    # ssl_certificate_key /etc/nginx/ssl/{DOMAIN_NAME}.key;
+    {comment_if_http}ssl_certificate /etc/nginx/ssl/{DOMAIN_NAME}.pem;
+    {comment_if_http}ssl_certificate_key /etc/nginx/ssl/{DOMAIN_NAME}.key;
 
     set $base {BASE_DIR};
 
-    # if ($scheme = http) {{
-    #     return 308 https://$host$request_uri;
-    # }}
-    
+    {redirect}
+
     client_max_body_size 10m;
 
     location /api/ {{
         include uwsgi_params;
         uwsgi_pass unix:$base/uwsgi.sock;
     }}
-    location /admin/ {{
+    location ~ ^/admin($|/) {{
         include uwsgi_params;
         uwsgi_pass unix:$base/uwsgi.sock;
     }}
