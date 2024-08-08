@@ -278,7 +278,7 @@ class AuthBearerModel(HttpBearer, Generic[TUser, TToken]):
     def decode_token(self, token_str: str):
         try:
             data: dict = jwt.decode(token_str, self.secret_key, algorithms=["HS256"])
-            info = self.token_model.model_validate(token_str)
+            info = self.token_model.model_validate(data)
         except Exception as e:
             logger.warning(f"Invalid token: {e}")
             raise AuthenticationError("Invalid token")
