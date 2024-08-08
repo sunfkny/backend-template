@@ -1,21 +1,23 @@
-from urllib.parse import urljoin
+import datetime
+import posixpath
 
 from django.contrib.auth.hashers import make_password
-from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
 from django.http import HttpRequest
 from ninja import Body, File, Query, Router, Schema
 from ninja.files import UploadedFile
+from ninja.security.session import SessionAuth
 
 from backend.apps.back.models import AdminPermission, AdminUser, Role
 from backend.response import Response
 from backend.security import auth_admin
-from backend.settings import MEDIA_BASE_URL, get_logger, get_redis_connection
+from backend.settings import get_logger, get_redis_connection
+from backend.storage import HashedFileSystemStorage
 
+django_auth = SessionAuth(csrf=False)
 router = Router(tags=["后台"])
 redis_conn = get_redis_connection()
 logger = get_logger()
-file_system_storage = FileSystemStorage()
 
 
 @router.post("admin/login", summary="后台登录")
@@ -441,11 +443,15 @@ def post_admin_user_role_edit(
     return Response.ok()
 
 
-@router.post("admin/upload/media", auth=auth_admin, summary="后台用户上传文件")
+@router.post("admin/upload/media", auth=[auth_admin, django_auth], summary="后台用户上传文件")
 def post_admin_upload_media(
     request: HttpRequest,
     file: UploadedFile = File(..., description="文件"),
 ):
-    name = file_system_storage.save(file.name, file)
-    url = urljoin(MEDIA_BASE_URL, name)
-    return Response.data({"url": url})
+    with HashedFileSystemStorage.use_absolute_storage(request):
+        storage = HashedFileSystemStorage()
+        dirname = datetime.datetime.now().strftime("uploads/%Y/%m/")
+        filename = posixpath.join(dirname, file.name)
+        name = storage.save(filename, file)
+        url = storage.url(name)
+        return Response.data({"url": url})

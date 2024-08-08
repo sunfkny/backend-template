@@ -350,9 +350,8 @@ CRONJOBS = [
 
 STATIC_URL = "static/"
 
-MEDIA_URL_PATH = "media/"
-MEDIA_BASE_URL = urljoin(BASE_URL, MEDIA_URL_PATH)
-MEDIA_URL = MEDIA_BASE_URL
+MEDIA_URL = "media/"
+DEFAULT_FILE_STORAGE = "backend.storage.HashedFileSystemStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

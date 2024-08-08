@@ -1,6 +1,5 @@
 import datetime
 import decimal
-from urllib.parse import urljoin
 
 from django.db import models
 from django.db.models.fields.files import FieldFile
@@ -8,13 +7,13 @@ from loguru import logger
 from ninja.renderers import JSONRenderer
 from ninja.responses import NinjaJSONEncoder
 
-from backend.settings import MEDIA_BASE_URL, USE_TZ
+from backend.settings import USE_TZ
 
 
 class CustomJsonEncoder(NinjaJSONEncoder):
     def default(self, o):
         if isinstance(o, FieldFile):
-            return urljoin(MEDIA_BASE_URL, o.name)
+            return o.url
         if isinstance(o, models.Model):
             return str(o)
         if isinstance(o, decimal.Decimal):
