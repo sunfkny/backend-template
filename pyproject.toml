@@ -19,7 +19,6 @@ dependencies = [
     "redis==4.6.0",
     "types-redis~=4.6.0",
     "loguru",
-    "django-constance",
     "django-print-sql",
     "pytest-django",
 ]

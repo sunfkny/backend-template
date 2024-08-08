@@ -17,3 +17,6 @@
 ### 文件类型识别
 [ahupp/python-magic](https://github.com/ahupp/python-magic)  
 [google/magika](https://github.com/google/magika)  
+
+# 动态配置
+[django-constance](https://github.com/jazzband/django-constance)  

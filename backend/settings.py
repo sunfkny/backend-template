@@ -87,29 +87,6 @@ def get_redis_connection():
     return redis_conn
 
 
-CONSTANCE_REDIS_CONNECTION = {
-    "host": "127.0.0.1",
-    "port": 6379,
-    "db": 0,
-}
-CONSTANCE_REDIS_PREFIX = f"{REDIS_PREFIX}:constance:"
-CONSTANCE_CONFIG = {
-    "THE_ANSWER": (42, "Answer to the Ultimate Question of Life, The Universe, and Everything"),
-}
-
-
-class ConstanceConfigProtocol(Protocol):
-    """Constance config protocol."""
-
-    THE_ANSWER: int
-
-
-def get_constance_config() -> ConstanceConfigProtocol:
-    from constance import config
-
-    return t.cast(ConstanceConfigProtocol, config)
-
-
 # https://github.com/Delgan/loguru#entirely-compatible-with-standard-logging
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
@@ -196,7 +173,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "constance",  # https://django-constance.readthedocs.io/
     "corsheaders",
     "ninja",  # https://github.com/vitalik/django-ninja/commit/5bdcc43
     "django_extensions",
