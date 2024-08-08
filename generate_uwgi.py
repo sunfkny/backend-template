@@ -1,4 +1,5 @@
 import pathlib
+import re
 import shlex
 
 from django.core.management.utils import get_random_secret_key
@@ -7,7 +8,8 @@ from backend.settings import BASE_DIR, BASE_URL, DOMAIN_NAME
 
 if not DOMAIN_NAME:
     raise Exception("backend.settings.DOMAIN_NAME is not set")
-UWSGI_INI_FILE_NAME = f"{DOMAIN_NAME}.ini"
+DOMAIN_NAME_SAFE = re.sub(r'[\/:*?"<>|]', "_", DOMAIN_NAME)
+UWSGI_INI_FILE_NAME = DOMAIN_NAME_SAFE + ".ini"
 UWSGI_INI_FILE_PATH = BASE_DIR / UWSGI_INI_FILE_NAME
 if UWSGI_INI_FILE_PATH.exists():
     raise Exception(f"{UWSGI_INI_FILE_PATH} already exists")
@@ -28,9 +30,20 @@ run_file.write_text(
 
 cd `dirname $0`
 
-if [ -n "$VIRTUAL_ENV" ]; then
-    UWSGI=$VIRTUAL_ENV/bin/uwsgi
-elif [ -f .venv/bin/uwsgi ]; then
+if [ -f .venv/bin/python ]; then
+    PYTHON=.venv/bin/python
+elif [ -f venv/bin/python ]; then
+    PYTHON=venv/bin/python
+else
+    echo "Virtual environment not found."
+    exit 1
+fi
+
+echo "Using Python: $PYTHON"
+
+$PYTHON manage.py check
+
+if [ -f .venv/bin/uwsgi ]; then
     UWSGI=.venv/bin/uwsgi
 elif [ -f venv/bin/uwsgi ]; then
     UWSGI=venv/bin/uwsgi
@@ -54,9 +67,7 @@ reload_file.write_text("""set -e
 
 cd `dirname $0`
 
-if [ -n "$VIRTUAL_ENV" ]; then
-    PYTHON=$VIRTUAL_ENV/bin/python
-elif [ -f .venv/bin/python ]; then
+if [ -f .venv/bin/python ]; then
     PYTHON=.venv/bin/python
 elif [ -f venv/bin/python ]; then
     PYTHON=venv/bin/python
@@ -80,58 +91,67 @@ done
 """)
 reload_file.chmod(0o755)
 
+
+if (BASE_DIR / ".venv/").is_dir():
+    venv = ".venv"
+elif (BASE_DIR / "venv").is_dir():
+    venv = "venv"
+else:
+    raise Exception("Virtual environment not found.")
+
+
 UWSGI_INI_FILE_PATH.write_text(
-    f"""# uwsgi使用配置文件启动
+    f"""; uwsgi使用配置文件启动
 [uwsgi]
-# 指定项目的根目录
+; 指定项目的根目录
 chdir={BASE_DIR}
-# 指定依赖的虚拟环境
-venv=venv
-# 指定项目的application
+; 指定依赖的虚拟环境
+venv={venv}
+; 指定项目的application
 module=backend.wsgi:application
-# uwsgi 协议
+; uwsgi 协议
 uwsgi-socket=uwsgi.sock
-# http 协议
-# http-socket=0.0.0.0:8011
-# 进程个数
+; http 协议
+; http-socket=127.0.0.1:8000
+; 进程个数
 workers=2
 pidfile=uwsgi.pid
-# 启动uwsgi的用户名和用户组
+; 启动uwsgi的用户名和用户组
 uid=root
 gid=root
-# 启用主进程
+; 启用主进程
 master=true
-# 退出时尝试删除所有生成的socket和pid文件
+; 退出时尝试删除所有生成的socket和pid文件
 vacuum=true
-# 加锁串行化接收, 避免多进程惊群问题
+; 加锁串行化接收, 避免多进程惊群问题
 thunder-lock=true
-# 启用线程
+; 启用线程
 threads=1
 enable-threads=true
-# 设置自中断时间
+; 设置自中断时间
 harakiri=60
 http-timeout=30
 socket-timeout=30
-# 设置缓冲
+; 设置缓冲
 post-buffering=8192
-# 设置日志目录
+; 设置日志目录
 daemonize=logs/run.log
-# touch触发重新打开日志
+; touch触发重新打开日志
 touch-logreopen=logs/run.log.logreopen
-# touch触发重启
-# touch-reload=uwsgi.reload
-# touch触发优雅链式重启
+; touch触发重启
+; touch-reload=uwsgi.reload
+; touch触发优雅链式重启
 lazy-apps=true
 touch-chain-reload=uwsgi.reload
-# 使用 x-forwarded-for 记录ip
-# log-x-forwarded-for=true
-# 禁用请求日志
-# disable-logging = true
-# 日志格式
+; 使用 x-forwarded-for 记录ip
+; log-x-forwarded-for=true
+; 禁用请求日志
+; disable-logging = true
+; 日志格式
 log-format-strftime = true
 log-date=%%Y-%%m-%%d %%H:%%M:%%S
 logformat=%(ftime)     | INFO     | %(addr) (%(proto) %(status)) %(method) %(uri) => generated %(size) bytes in %(msecs) msecs
-# uwsgi日志中不显示错误信息
+; uwsgi日志中不显示错误信息
 ignore-sigpipe=true
 ignore-write-errors=true
 disable-write-exception=true
@@ -164,7 +184,7 @@ redirect += f"""
 
 print(
     f"""# ================== nginx config ==================
-# /etc/nginx/conf.d/{DOMAIN_NAME}.conf
+# /etc/nginx/conf.d/{DOMAIN_NAME_SAFE}.conf
 
 server {{
     listen 80;
@@ -208,7 +228,7 @@ server {{
 print(
     f"""
 # ================== logrotate ==================
-# /etc/logrotate.d/{DOMAIN_NAME}.conf
+# /etc/logrotate.d/{DOMAIN_NAME_SAFE}.conf
 
 {BASE_DIR / 'logs/*.log'} {{
     daily
