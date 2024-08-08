@@ -448,10 +448,9 @@ def post_admin_upload_media(
     request: HttpRequest,
     file: UploadedFile = File(..., description="文件"),
 ):
-    with HashedFileSystemStorage.use_absolute_storage(request):
-        storage = HashedFileSystemStorage()
-        dirname = datetime.datetime.now().strftime("uploads/%Y/%m/")
-        filename = posixpath.join(dirname, file.name)
-        name = storage.save(filename, file)
-        url = storage.url(name)
-        return Response.data({"url": url})
+    storage = HashedFileSystemStorage()
+    dirname = datetime.datetime.now().strftime("uploads/%Y/%m/")
+    filename = posixpath.join(dirname, file.name)
+    name = storage.save(filename, file)
+    url = storage.url(name)
+    return Response.data({"url": url})

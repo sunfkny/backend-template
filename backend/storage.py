@@ -40,19 +40,3 @@ class HashedFileSystemStorage(FileSystemStorage):
             return name
         return super().save(name, content, max_length)
 
-    @property
-    def base_url(self):
-        if self._absolute_base_url:
-            return self._absolute_base_url
-        return super().base_url
-
-    @classmethod
-    @contextmanager
-    def use_absolute_storage(cls, request: HttpRequest):
-        if MEDIA_URL.startswith(("https://", "http://")):
-            yield
-        else:
-            original_absolute_base_url = cls._absolute_base_url
-            cls._absolute_base_url = request.build_absolute_uri(urljoin("/", MEDIA_URL))
-            yield
-            cls._absolute_base_url = original_absolute_base_url

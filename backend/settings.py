@@ -17,7 +17,7 @@ import sys
 import typing as t
 from pathlib import Path
 from typing import Protocol
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import loguru
 import redis
@@ -350,7 +350,9 @@ CRONJOBS = [
 
 STATIC_URL = "static/"
 
-MEDIA_URL = "media/"
+MEDIA_URL = urljoin(BASE_URL, "media/")
+MEDIA_URL_RELATIVE_PATH = urlparse(MEDIA_URL).path.removeprefix("/")
+
 DEFAULT_FILE_STORAGE = "backend.storage.HashedFileSystemStorage"
 
 # Default primary key field type

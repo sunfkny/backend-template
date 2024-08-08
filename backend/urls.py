@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path
 from ninja import NinjaAPI, Swagger
 
-from backend.settings import DEBUG, DIST_ROOT, MEDIA_ROOT, MEDIA_URL
+from backend.settings import DEBUG, DIST_ROOT, MEDIA_ROOT, MEDIA_URL_RELATIVE_PATH
 
 from .handler import set_exception_handlers
 from .renderer import CustomJSONRenderer
@@ -63,5 +63,5 @@ urlpatterns = [
 
 
 if DEBUG:
-    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT, show_indexes=True)
+    urlpatterns += static(MEDIA_URL_RELATIVE_PATH, document_root=MEDIA_ROOT, show_indexes=True)
     urlpatterns += static("/", document_root=DIST_ROOT, show_indexes=True)
