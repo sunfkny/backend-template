@@ -4,7 +4,6 @@ from django.http import HttpRequest, HttpResponse
 from loguru import logger
 from ninja import NinjaAPI
 from ninja.errors import AuthenticationError, ValidationError
-from requests import RequestException
 
 
 def set_exception_handlers(api: NinjaAPI):
@@ -41,15 +40,6 @@ def set_exception_handlers(api: NinjaAPI):
             status=400,
         )
 
-    @api.exception_handler(RequestException)
-    def request_exception_handler(request: HttpRequest, exc: RequestException) -> HttpResponse:
-        logger.warning(exc)
-        return api.create_response(
-            request,
-            {"code": -1, "msg": "第三方接口错误"},
-            status=200,
-        )
-
     @api.exception_handler(DatabaseError)
     def database_error_handler(request: HttpRequest, exc: DatabaseError) -> HttpResponse:
         logger.error(exc)
@@ -81,7 +71,6 @@ def set_exception_handlers(api: NinjaAPI):
         authentication_error_handler,
         validation_error_handler,
         invalid_page_handler,
-        request_exception_handler,
         database_error_handler,
         value_error_handler,
         exception_handler,
