@@ -6,8 +6,6 @@ from ninja import NinjaAPI
 from ninja.errors import AuthenticationError, ValidationError
 from requests import RequestException
 
-from backend.errors import ValueCodeError
-
 
 def set_exception_handlers(api: NinjaAPI):
     @api.exception_handler(AuthenticationError)
@@ -61,15 +59,6 @@ def set_exception_handlers(api: NinjaAPI):
             status=200,
         )
 
-    @api.exception_handler(ValueCodeError)
-    def value_error_with_code_handler(request: HttpRequest, exc: ValueCodeError) -> HttpResponse:
-        logger.warning(exc)
-        return api.create_response(
-            request,
-            {"code": exc.code, "msg": f"{exc}"},
-            status=200,
-        )
-
     @api.exception_handler(ValueError)
     def value_error_handler(request: HttpRequest, exc: ValueError) -> HttpResponse:
         logger.info(exc)
@@ -94,7 +83,6 @@ def set_exception_handlers(api: NinjaAPI):
         invalid_page_handler,
         request_exception_handler,
         database_error_handler,
-        value_error_with_code_handler,
         value_error_handler,
         exception_handler,
     )
