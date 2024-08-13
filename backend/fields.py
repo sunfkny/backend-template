@@ -27,14 +27,14 @@ def replace_image_src(html_content: str, from_prefix: str, to_prefix: str):
     return str(soup)
 
 
-class MediaHtmlField(models.TextField):
+class MediaHtmlMixin:
     """
-    TextField but save relative media url to database and read as absolute url.
+    Mixin to save relative media url to database and read as absolute url.
     """
 
     def check(self, **kwargs):
         return [
-            *super().check(**kwargs),
+            *super().check(**kwargs),  # type: ignore
             *self._check_bs4_library_installed(),
         ]
 
@@ -65,3 +65,7 @@ class MediaHtmlField(models.TextField):
         if isinstance(value, str):
             return replace_image_src(value, MEDIA_URL_RELATIVE_PATH, MEDIA_URL)
         return value
+
+
+class MediaHtmlField(MediaHtmlMixin, models.TextField):
+    pass
