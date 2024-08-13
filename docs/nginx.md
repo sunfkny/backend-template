@@ -22,3 +22,21 @@ log_format mycombined
   '"$http_referer" "$http_user_agent" "$http_authorization"';
 
 ```
+
+```nginx
+set $base /data/wwwroot/www.example.com;
+
+location ^~ /(jpeg|jpg|js|mp4|pdf|png|svg|css)/ {
+  root $base/;
+  add_header Cache-Control "public, max-age=31536000, immutable";
+}
+location ~ ^(/|/sw\.js|/index\.html|/manifest\.webmanifest|/manifest\.json)$ {
+  add_header Cache-Control "no-store";
+  root $base/;
+}
+location / {
+  root $base/;
+  try_files $uri $uri/ /index.html;
+}
+
+```
