@@ -11,6 +11,7 @@
     "python.analysis.ignore": [
         "typings",
         "venv",
+        ".venv",
         "backend/apps/*/migrations",
     ],
     "python.analysis.diagnosticSeverityOverrides": {
@@ -30,11 +31,13 @@
     },
     "todo-tree.filtering.excludeGlobs": [
         "**/node_modules/*/**",
-        "venv"
+        "venv",
+        ".venv",
     ],
     "todo-tree.highlights.enabled": false,
     "files.watcherExclude": {
-        "venv": true
+        "venv": true,
+        ".venv": true,
     },
     "files.insertFinalNewline": true,
     "editor.codeActionsOnSave": {
