@@ -235,6 +235,7 @@ print(
     rotate 14
     createolddir
     olddir old
+    copytruncate
     missingok
     dateext
     compress
