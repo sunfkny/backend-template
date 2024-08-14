@@ -1,9 +1,11 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.paginator import InvalidPage
 from django.db.utils import DatabaseError
 from django.http import HttpRequest, HttpResponse
 from loguru import logger
 from ninja import NinjaAPI
-from ninja.errors import AuthenticationError, ValidationError
+from ninja.errors import AuthenticationError
+from ninja.errors import ValidationError as NinjaValidationError
 
 
 def set_exception_handlers(api: NinjaAPI):
@@ -18,8 +20,8 @@ def set_exception_handlers(api: NinjaAPI):
             status=401,
         )
 
-    @api.exception_handler(ValidationError)
-    def validation_error_handler(request: HttpRequest, exc: ValidationError) -> HttpResponse:
+    @api.exception_handler(NinjaValidationError)
+    def ninja_validation_error_handler(request: HttpRequest, exc: NinjaValidationError) -> HttpResponse:
         logger.warning(exc.errors)
         if request.method == "POST":
             try:
@@ -32,12 +34,20 @@ def set_exception_handlers(api: NinjaAPI):
             status=422,
         )
 
+    @api.exception_handler(DjangoValidationError)
+    def django_validation_error_handler(request: HttpRequest, exc: DjangoValidationError) -> HttpResponse:
+        return api.create_response(
+            request,
+            {"code": -1, "msg": exc.message, "data": exc.params},
+            status=200,
+        )
+
     @api.exception_handler(InvalidPage)
     def invalid_page_handler(request: HttpRequest, exc: InvalidPage) -> HttpResponse:
         return api.create_response(
             request,
-            {"code": 400, "msg": f"页码错误: {exc}"},
-            status=400,
+            {"code": -1, "msg": f"页码错误: {exc}"},
+            status=200,
         )
 
     @api.exception_handler(DatabaseError)
@@ -69,7 +79,8 @@ def set_exception_handlers(api: NinjaAPI):
 
     return (
         authentication_error_handler,
-        validation_error_handler,
+        ninja_validation_error_handler,
+        django_validation_error_handler,
         invalid_page_handler,
         database_error_handler,
         value_error_handler,
