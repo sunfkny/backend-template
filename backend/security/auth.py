@@ -46,8 +46,7 @@ class AuthBearer(HttpBearer, Generic[TUser]):
         self.uid_field = uid_field
         if cache_token_prefix is None:
             cache_token_prefix = f"{REDIS_PREFIX}:{user_model.__name__}:token:"
-        else:
-            cache_token_prefix = cache_token_prefix.removesuffix(":")
+        cache_token_prefix = cache_token_prefix.removesuffix(":")
 
         self.cache_token_prefix = cache_token_prefix
         self.cache_token_expires = cache_token_expires
