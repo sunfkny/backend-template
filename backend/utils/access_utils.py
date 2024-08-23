@@ -22,10 +22,10 @@ def getattr_recursive(obj: Any, names: Iterable[str], default: Any = NOT_SET):
     return obj
 
 
-def getitem(obj: Any, name: Any, default: Any = NOT_SET) -> Any:
+def getitem(obj: Any, name: Any, default: Any = NOT_SET):
     try:
         return obj[name]
-    except KeyError:
+    except Exception:
         if default is NOT_SET:
             raise
         return default
@@ -35,7 +35,7 @@ def getitem_recursive(obj: Any, names: Iterable[Any], default: Any = NOT_SET):
     for name in names:
         try:
             obj = obj[name]
-        except (KeyError, IndexError):
+        except Exception:
             if default is NOT_SET:
                 raise
             return default
