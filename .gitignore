@@ -7,7 +7,7 @@ venv/
 .venv/
 logs/
 dist/
-media/
+media/*
 !media/default_avatar.svg
 locale/**/*.mo
 reload.sh
