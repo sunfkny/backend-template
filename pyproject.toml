@@ -45,10 +45,7 @@ ignore = [
 
 [tool.uv]
 package = false
-
-[tool.uv.pip]
-# https://help.mirrors.cernet.edu.cn/pypi/
-index-url = "https://mirrors.cernet.edu.cn/pypi/web/simple/"
+index-url = "https://mirrors.cernet.edu.cn/pypi/web/simple"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "backend.settings"
