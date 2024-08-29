@@ -25,9 +25,6 @@ dependencies = [
 readme = "README.md"
 requires-python = ">= 3.10"
 
-[tool.setuptools.packages.find]
-include = ["backend", "backend.*"]
-
 [tool.ruff]
 extend-exclude = ["backend/apps/*/migrations", "typings"]
 line-length = 160
@@ -45,6 +42,9 @@ ignore = [
     "F401", # https://docs.astral.sh/ruff/rules/unused-import/
     "E402", # https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file/
 ]
+
+[tool.uv]
+package = false
 
 [tool.uv.pip]
 # https://help.mirrors.cernet.edu.cn/pypi/

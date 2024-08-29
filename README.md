@@ -1,16 +1,13 @@
 # backend-template
-```
+```shell
 git clone https://github.com/sunfkny/backend-template.git
 cd backend-template
-python3 -m venv venv
-source venv/bin/activate
-python -m pip install -U pip
-pip install -U wheel setuptools
-pip install -r requirements.txt
+pip install 'uv>=0.4.0'
+uv sync
 ```
 ## startapp
-```
+```shell
 cd backend/apps
-django-admin startapp --template app_template <app_name>
+django-admin startapp --template app_template your_app_name
 cd ../..
 ```
