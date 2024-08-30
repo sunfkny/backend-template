@@ -55,7 +55,7 @@ def set_exception_handlers(api: NinjaAPI):
     def invalid_page_handler(request: HttpRequest, exc: InvalidPage) -> HttpResponse:
         return api.create_response(
             request,
-            {"code": -1, "msg": f"页码错误: {exc}"},
+            {"code": -1, "msg": f"{exc}"},
             status=200,
         )
 
