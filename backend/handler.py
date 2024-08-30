@@ -6,6 +6,7 @@ from loguru import logger
 from ninja import NinjaAPI
 from ninja.errors import AuthenticationError
 from ninja.errors import ValidationError as NinjaValidationError
+from pydantic import ValidationError as PydanticValidationError
 
 
 def set_exception_handlers(api: NinjaAPI):
@@ -39,6 +40,14 @@ def set_exception_handlers(api: NinjaAPI):
         return api.create_response(
             request,
             {"code": -1, "msg": exc.message, "data": exc.params},
+            status=200,
+        )
+
+    @api.exception_handler(PydanticValidationError)
+    def pydantic_validation_error_handler(request: HttpRequest, exc: PydanticValidationError) -> HttpResponse:
+        return api.create_response(
+            request,
+            {"code": -1, "msg": "数据校验错误", "data": exc.errors(include_url=False)},
             status=200,
         )
 
@@ -81,6 +90,7 @@ def set_exception_handlers(api: NinjaAPI):
         authentication_error_handler,
         ninja_validation_error_handler,
         django_validation_error_handler,
+        pydantic_validation_error_handler,
         invalid_page_handler,
         database_error_handler,
         value_error_handler,
