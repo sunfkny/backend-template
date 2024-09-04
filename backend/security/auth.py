@@ -177,7 +177,7 @@ class AuthTokenDatabase(APIKeyHeader, Generic[TUser]):
         """获取登录用户"""
         user = self.get_login_user_optional(request)
         if user is None:
-            raise AuthenticationError("token not found")
+            raise AuthenticationError("Token not found")
         self.after_login_hook(user)
         return user
 
