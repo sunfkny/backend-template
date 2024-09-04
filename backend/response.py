@@ -30,10 +30,14 @@ class Response:
 
     @classmethod
     def list(cls, data: Iterable):
+        if not isinstance(data, list):
+            data = list(data)
         return {"code": 200, "msg": "OK", "data": data}
 
     @classmethod
     def page_list(cls, data: Iterable, total: int, total_page: int):
+        if not isinstance(data, list):
+            data = list(data)
         return {"code": 200, "msg": "OK", "data": data, "total": total, "total_page": total_page}
 
     @classmethod
