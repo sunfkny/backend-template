@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import inspect
 import logging
+import os
 import re
 import sys
 import typing as t
@@ -247,7 +248,7 @@ DATABASES = {
 #     },
 # }
 
-PYTEST_RUNNING = Path(sys.argv[0]).name in ("pytest", "pytest.exe", "py.test")
+PYTEST_RUNNING = "pytest" in sys.modules or "PYTEST_VERSION" in os.environ
 if PYTEST_RUNNING:
     # DATABASES["default"]["USER"] = "root"
     # DATABASES["default"]["PASSWORD"] = "password"
