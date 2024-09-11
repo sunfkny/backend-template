@@ -46,8 +46,8 @@ def set_exception_handlers(api: NinjaAPI):
 
     @api.exception_handler(PydanticValidationError)
     def pydantic_validation_error_handler(request: HttpRequest, exc: PydanticValidationError) -> HttpResponse:
-        data = [{"type": e["type"], "loc": e["loc"], "msg": e["msg"]} for e in exc.errors()]
-        logger.warning(data)
+        logger.warning(exc)
+        data = exc.errors(include_url=False, include_context=False, include_input=False)
         return api.create_response(
             request,
             {"code": -1, "msg": "数据校验错误", "data": data},
