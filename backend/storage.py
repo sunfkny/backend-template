@@ -39,4 +39,3 @@ class HashedFileSystemStorage(FileSystemStorage):
         if self.exists(name):
             return name
         return super().save(name, content, max_length)
-

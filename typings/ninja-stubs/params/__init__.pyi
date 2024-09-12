@@ -5,4 +5,3 @@ from ninja.params.functions import Form as Form
 from ninja.params.functions import Header as Header
 from ninja.params.functions import Path as Path
 from ninja.params.functions import Query as Query
-
