@@ -3,7 +3,7 @@ name = "backend"
 version = "0.1.0"
 description = "A django-ninja backend template"
 dependencies = [
-    "uwsgi; platform_system != 'Windows'",
+    "uwsgi",
     "pick",
     "rich",
     "ipython",
