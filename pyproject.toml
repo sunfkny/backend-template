@@ -50,5 +50,14 @@ index-url = "https://mirror.nju.edu.cn/pypi/web/simple"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "backend.settings"
-python_files = ["backend/apps/*/tests.py", "backend/utils/format_number.py"]
-filterwarnings = ["ignore::pydantic.warnings.PydanticDeprecatedSince20"]
+addopts = "-vx"
+python_files = [
+    "tests/test_*.py",
+    "tests/**/test_*.py",
+    "backend/apps/*/tests.py",
+    "backend/apps/*/test_*.py",
+]
+filterwarnings = [
+    "ignore::pydantic.warnings.PydanticDeprecatedSince20",
+    "ignore::django.utils.deprecation.RemovedInDjango60Warning",
+]

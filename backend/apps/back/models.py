@@ -72,7 +72,7 @@ class Role(models.Model):
 
     @property
     def is_admin(self) -> bool:
-        return AdminPermission.Keys.Admin in self.permission_list
+        return RolePermission.objects.filter(role=self, permission__key=AdminPermission.Keys.Admin).exists()
 
 
 class AdminUser(models.Model):
@@ -84,6 +84,7 @@ class AdminUser(models.Model):
     avatar = models.CharField(default=get_default_avatar, max_length=255, verbose_name="头像")
     summary = models.CharField(default="", max_length=512, verbose_name="简介")
     is_superadmin = models.BooleanField(default=False, verbose_name="是否超级管理员")
+    role_id: int | None
     role = models.ForeignKey(Role, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="角色")
 
     class Meta:
@@ -106,7 +107,25 @@ class AdminUser(models.Model):
         return permission_list
 
     def has_permission(self, permission: AdminPermission.Keys | str) -> bool:
-        return permission in self.permissions
+        if self.is_superadmin:
+            return True
+
+        if isinstance(permission, AdminPermission.Keys):
+            permission = permission.value
+
+        role_permissions: list[str] = []
+
+        if self.role_id:
+            role_permissions.extend(
+                RolePermission.objects.filter(
+                    role_id=self.role_id,
+                ).values_list("permission__key", flat=True)
+            )
+
+        if AdminPermission.Keys.Admin.value in role_permissions:
+            return True
+
+        return permission in role_permissions
 
     def make_password(self, password: str):
         self.password = make_password(password)
