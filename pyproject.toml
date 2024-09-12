@@ -27,7 +27,7 @@ readme = "README.md"
 requires-python = ">= 3.10"
 
 [tool.ruff]
-extend-exclude = ["backend/apps/*/migrations", "typings"]
+extend-exclude = ["backend/apps/*/migrations"]
 line-length = 160
 target-version = "py310"
 
