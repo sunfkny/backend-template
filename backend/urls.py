@@ -33,15 +33,15 @@ docs = Swagger(
 renderer = CustomJSONRenderer()
 api = NinjaAPI(
     title="Open API",
-    version="1.0.0",
     renderer=renderer,
     docs=docs,
+    urls_namespace="api",
 )
 api_back = NinjaAPI(
-    title="Open API back",
-    version="back 1.0.0",
+    title="Open API",
     docs=docs,
     renderer=renderer,
+    urls_namespace="api_back",
 )
 
 set_exception_handlers(api)
