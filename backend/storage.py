@@ -1,13 +1,8 @@
 import hashlib
 import os
-from contextlib import contextmanager
-from urllib.parse import urljoin
 
 from django.core.files import File
 from django.core.files.storage import FileSystemStorage
-from django.http.request import HttpRequest
-
-from backend.settings import MEDIA_URL
 
 absolute_base_url: str | None = None
 

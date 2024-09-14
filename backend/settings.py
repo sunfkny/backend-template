@@ -15,9 +15,7 @@ import logging
 import os
 import re
 import sys
-import typing as t
 from pathlib import Path
-from typing import Protocol
 from urllib.parse import urljoin, urlparse
 
 import loguru
@@ -201,7 +199,9 @@ ROOT_URLCONF = "backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -250,8 +250,6 @@ DATABASES = {
 
 PYTEST_RUNNING = "pytest" in sys.modules or "PYTEST_VERSION" in os.environ
 if PYTEST_RUNNING:
-    # DATABASES["default"]["USER"] = "root"
-    # DATABASES["default"]["PASSWORD"] = "password"
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -295,12 +293,13 @@ USE_I18N = True
 # https://docs.djangoproject.com/zh-hans/4.2/topics/i18n/translation/#how-django-discovers-language-preference
 # 创建语言文件
 # https://docs.djangoproject.com/zh-hans/4.2/topics/i18n/translation/#localization-how-to-create-language-files
-# python manage.py makemessages -l en -l es -l fr -l ko -l ja -l pt -l zh_Hans -l zh_Hant --ignore=venv/*
-# python manage.py compilemessages --ignore=venv/*
 
-# LOCALE_PATHS = [
-#     BASE_DIR / "locale",
-# ]
+# python manage.py makemessages --no-location --ignore=.venv/* -l en -l zh_Hans -l zh_Hant
+# python manage.py compilemessages --ignore=.venv/*
+
+LOCALE_PATHS = [
+    BASE_DIR / "locale",
+]
 
 USE_L10N = True
 
