@@ -50,7 +50,6 @@ index-url = "https://mirror.nju.edu.cn/pypi/web/simple"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "backend.settings"
-addopts = "-vx"
 python_files = [
     "tests/test_*.py",
     "tests/**/test_*.py",
