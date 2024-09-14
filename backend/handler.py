@@ -11,7 +11,7 @@ from pydantic import ValidationError as PydanticValidationError
 
 def set_exception_handlers(api: NinjaAPI):
     @api.exception_handler(AuthenticationError)
-    def authentication_error_handler(request: HttpRequest, exc: AuthenticationError) -> HttpResponse:
+    def _(request: HttpRequest, exc: AuthenticationError) -> HttpResponse:
         error_str = str(exc)
         if error_str:
             logger.warning(error_str)
@@ -22,7 +22,7 @@ def set_exception_handlers(api: NinjaAPI):
         )
 
     @api.exception_handler(NinjaValidationError)
-    def ninja_validation_error_handler(request: HttpRequest, exc: NinjaValidationError) -> HttpResponse:
+    def _(request: HttpRequest, exc: NinjaValidationError) -> HttpResponse:
         logger.warning(exc.errors)
         if request.method == "POST":
             try:
@@ -36,7 +36,7 @@ def set_exception_handlers(api: NinjaAPI):
         )
 
     @api.exception_handler(DjangoValidationError)
-    def django_validation_error_handler(request: HttpRequest, exc: DjangoValidationError) -> HttpResponse:
+    def _(request: HttpRequest, exc: DjangoValidationError) -> HttpResponse:
         logger.warning(exc)
         return api.create_response(
             request,
@@ -45,7 +45,7 @@ def set_exception_handlers(api: NinjaAPI):
         )
 
     @api.exception_handler(PydanticValidationError)
-    def pydantic_validation_error_handler(request: HttpRequest, exc: PydanticValidationError) -> HttpResponse:
+    def _(request: HttpRequest, exc: PydanticValidationError) -> HttpResponse:
         logger.warning(exc)
         data = exc.errors(include_url=False, include_context=False, include_input=False)
         return api.create_response(
@@ -55,7 +55,7 @@ def set_exception_handlers(api: NinjaAPI):
         )
 
     @api.exception_handler(InvalidPage)
-    def invalid_page_handler(request: HttpRequest, exc: InvalidPage) -> HttpResponse:
+    def _(request: HttpRequest, exc: InvalidPage) -> HttpResponse:
         return api.create_response(
             request,
             {"code": 400, "msg": f"{exc}"},
@@ -63,7 +63,7 @@ def set_exception_handlers(api: NinjaAPI):
         )
 
     @api.exception_handler(DatabaseError)
-    def database_error_handler(request: HttpRequest, exc: DatabaseError) -> HttpResponse:
+    def _(request: HttpRequest, exc: DatabaseError) -> HttpResponse:
         logger.error(exc)
         return api.create_response(
             request,
@@ -72,7 +72,7 @@ def set_exception_handlers(api: NinjaAPI):
         )
 
     @api.exception_handler(ValueError)
-    def value_error_handler(request: HttpRequest, exc: ValueError) -> HttpResponse:
+    def _(request: HttpRequest, exc: ValueError) -> HttpResponse:
         logger.info(exc)
         return api.create_response(
             request,
@@ -81,21 +81,10 @@ def set_exception_handlers(api: NinjaAPI):
         )
 
     @api.exception_handler(Exception)
-    def exception_handler(request: HttpRequest, exc: Exception) -> HttpResponse:
+    def _(request: HttpRequest, exc: Exception) -> HttpResponse:
         logger.exception(exc)
         return api.create_response(
             request,
             {"code": 500, "msg": "内部错误"},
             status=500,
         )
-
-    return (
-        authentication_error_handler,
-        ninja_validation_error_handler,
-        django_validation_error_handler,
-        pydantic_validation_error_handler,
-        invalid_page_handler,
-        database_error_handler,
-        value_error_handler,
-        exception_handler,
-    )
