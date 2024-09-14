@@ -6,7 +6,6 @@ from django.db.models.sql.compiler import SQLCompiler
 from backend.settings import get_logger
 from backend.utils.timer import Timer
 
-logger = get_logger("slow_query")
 original_execute_sql = SQLCompiler.execute_sql
 
 
@@ -20,7 +19,7 @@ def slow_query(long_query_time: float):
             alias = self.connection.alias
             sql, args = self.as_sql()
             statement = sql % args
-            logger.info(f"{alias} ({timer}) {statement}")
+            get_logger("slow_query").info(f"{alias} ({timer}) {statement}")
 
         return ret
 
