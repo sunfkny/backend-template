@@ -1,5 +1,4 @@
 import pathlib
-import re
 import shlex
 
 from django.core.management.utils import get_random_secret_key
@@ -8,8 +7,7 @@ from backend.settings import BASE_DIR, BASE_URL, DOMAIN_NAME
 
 if not DOMAIN_NAME:
     raise Exception("backend.settings.DOMAIN_NAME is not set")
-DOMAIN_NAME_SAFE = re.sub(r'[\/:*?"<>|]', "_", DOMAIN_NAME)
-UWSGI_INI_FILE_NAME = DOMAIN_NAME_SAFE + ".ini"
+UWSGI_INI_FILE_NAME = DOMAIN_NAME + ".ini"
 UWSGI_INI_FILE_PATH = BASE_DIR / UWSGI_INI_FILE_NAME
 if UWSGI_INI_FILE_PATH.exists():
     raise Exception(f"{UWSGI_INI_FILE_PATH} already exists")
@@ -28,11 +26,11 @@ run_file = BASE_DIR / "run.sh"
 run_file.write_text(
     f"""set -e
 
-cd `dirname $0`
+cd "$(dirname "$0")"
 
-if [ -f .venv/bin/python ]; then
+if [ -e .venv/bin/python ]; then
     PYTHON=.venv/bin/python
-elif [ -f venv/bin/python ]; then
+elif [ -e venv/bin/python ]; then
     PYTHON=venv/bin/python
 else
     echo "Virtual environment not found."
@@ -43,16 +41,16 @@ echo "Using Python: $PYTHON"
 
 $PYTHON manage.py check
 
-if [ -f .venv/bin/uwsgi ]; then
+if [ -e .venv/bin/uwsgi ]; then
     UWSGI=.venv/bin/uwsgi
-elif [ -f venv/bin/uwsgi ]; then
+elif [ -e venv/bin/uwsgi ]; then
     UWSGI=venv/bin/uwsgi
 else
-    echo "Virtual environment not found."
+    echo "uwsgi not found."
     exit 1
 fi
 
-if [ -f uwsgi.pid ]; then
+if [ -e uwsgi.pid ]; then
     kill -9 `cat uwsgi.pid` || rm uwsgi.pid
 fi
 
@@ -65,11 +63,11 @@ run_file.chmod(0o755)
 reload_file = BASE_DIR / "reload.sh"
 reload_file.write_text("""set -e
 
-cd `dirname $0`
+cd "$(dirname "$0")"
 
-if [ -f .venv/bin/python ]; then
+if [ -e .venv/bin/python ]; then
     PYTHON=.venv/bin/python
-elif [ -f venv/bin/python ]; then
+elif [ -e venv/bin/python ]; then
     PYTHON=venv/bin/python
 else
     echo "Virtual environment not found."
@@ -92,7 +90,7 @@ done
 reload_file.chmod(0o755)
 
 
-if (BASE_DIR / ".venv/").is_dir():
+if (BASE_DIR / ".venv").is_dir():
     venv = ".venv"
 elif (BASE_DIR / "venv").is_dir():
     venv = "venv"
@@ -158,39 +156,18 @@ disable-write-exception=true
 """
 )
 
-is_www = DOMAIN_NAME.startswith("www.")
 is_https = BASE_URL.startswith("https://")
 comment_if_http = "" if is_https else "# "
 
-server_name_list = [DOMAIN_NAME]
-if is_www:
-    server_name_list.append(DOMAIN_NAME.removeprefix("www."))
-server_name = " ".join(server_name_list)
-non_www_domain_name = DOMAIN_NAME.removeprefix("www.")
-
-redirect = ""
-if is_www:
-    redirect += f"""
-    if ($http_host = {non_www_domain_name}) {{
-        return 301 https://{DOMAIN_NAME}$request_uri;
-    }}
-"""
-redirect += f"""
-    {comment_if_http}if ($scheme = http) {{
-    {comment_if_http}    return 301 https://$host$request_uri;
-    {comment_if_http}}}
-"""
-
-
 print(
     f"""# ================== nginx config ==================
-# /etc/nginx/conf.d/{DOMAIN_NAME_SAFE}.conf
+# /etc/nginx/conf.d/{DOMAIN_NAME}.conf
 
 server {{
     listen 80;
     {comment_if_http}listen 443 ssl;
     {comment_if_http}http2 on;
-    server_name {server_name};
+    server_name {DOMAIN_NAME};
 
     access_log /var/log/nginx/{DOMAIN_NAME}_nginx.log combined;
     {comment_if_http}ssl_certificate /etc/nginx/ssl/{DOMAIN_NAME}.pem;
@@ -198,7 +175,9 @@ server {{
 
     set $base {BASE_DIR};
 
-    {redirect}
+    {comment_if_http}if ($scheme = http) {{
+    {comment_if_http}    return 301 https://$host$request_uri;
+    {comment_if_http}}}
 
     client_max_body_size 10m;
 
@@ -228,7 +207,7 @@ server {{
 print(
     f"""
 # ================== logrotate ==================
-# /etc/logrotate.d/{DOMAIN_NAME_SAFE}.conf
+# /etc/logrotate.d/{DOMAIN_NAME}.conf
 
 {BASE_DIR / 'logs/*.log'} {{
     daily
