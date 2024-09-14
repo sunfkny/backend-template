@@ -1,10 +1,10 @@
 set -e
 
-cd `dirname $0`
+cd "$(dirname "$0")"
 
-if [ -f .venv/bin/python ]; then
+if [ -e .venv/bin/python ]; then
     PYTHON=.venv/bin/python
-elif [ -f venv/bin/python ]; then
+elif [ -e venv/bin/python ]; then
     PYTHON=venv/bin/python
 else
     echo "Virtual environment not found."
