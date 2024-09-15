@@ -3,7 +3,7 @@ import functools
 from django.core import checks
 from django.db import models
 
-from backend.settings import MEDIA_URL, MEDIA_URL_RELATIVE_PATH
+from backend.settings import BASE_URL, MEDIA_URL, MEDIA_URL_PATH
 
 
 @functools.cache
@@ -48,22 +48,31 @@ class MediaHtmlMixin:
                     obj=self,
                 )
             ]
-        else:
-            return []
+        return []
+
+    def _check_base_url(self):
+        if not BASE_URL:
+            return [
+                checks.Error(
+                    "Cannot use MediaHtmlField because BASE_URL is not set.",
+                    obj=self,
+                )
+            ]
+        return []
 
     def get_prep_value(self, value):
         if value:
-            return replace_image_src(value, MEDIA_URL, MEDIA_URL_RELATIVE_PATH)
+            return replace_image_src(value, MEDIA_URL, MEDIA_URL_PATH)
         return value
 
     def from_db_value(self, value, expression, connection):
         if value:
-            return replace_image_src(value, MEDIA_URL_RELATIVE_PATH, MEDIA_URL)
+            return replace_image_src(value, MEDIA_URL_PATH, MEDIA_URL)
         return value
 
     def to_python(self, value):
         if isinstance(value, str):
-            return replace_image_src(value, MEDIA_URL_RELATIVE_PATH, MEDIA_URL)
+            return replace_image_src(value, MEDIA_URL_PATH, MEDIA_URL)
         return value
 
 

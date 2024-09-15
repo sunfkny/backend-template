@@ -11,7 +11,7 @@ from ninja.security.session import SessionAuth
 from backend.apps.back.models import AdminPermission, AdminUser, Role
 from backend.response import Response
 from backend.security import auth_admin
-from backend.settings import get_logger, get_redis_connection
+from backend.settings import DOMAIN_NAME, MEDIA_URL_PATH, get_logger, get_redis_connection
 from backend.storage import HashedFileSystemStorage
 
 django_auth = SessionAuth(csrf=False)
@@ -455,7 +455,11 @@ def post_admin_upload_media(
     request: HttpRequest,
     file: UploadedFile = File(..., description="文件"),
 ):
-    storage = HashedFileSystemStorage()
+    base_url = None
+    if not DOMAIN_NAME:
+        base_url = request.build_absolute_uri(f"/{MEDIA_URL_PATH}")
+
+    storage = HashedFileSystemStorage(base_url=base_url)
     dirname = datetime.datetime.now().strftime("uploads/%Y/%m/")
     filename = posixpath.join(dirname, file.name)
     name = storage.save(filename, file)

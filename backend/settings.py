@@ -36,7 +36,7 @@ for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
         path.mkdir(parents=True)
 
 DOMAIN_NAME = ""  # TODO: backend domain
-BASE_URL = f"http://{DOMAIN_NAME}"
+BASE_URL = f"http://{DOMAIN_NAME}" if DOMAIN_NAME else ""
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_URLS_REGEX = re.compile(r"^.*?")
@@ -161,7 +161,9 @@ SECRET_KEY = "django-insecure"
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = [BASE_URL]
+CSRF_TRUSTED_ORIGINS = []
+if BASE_URL:
+    CSRF_TRUSTED_ORIGINS.append(BASE_URL)
 
 # Application definition
 
@@ -326,8 +328,8 @@ CRONJOBS = [
 
 STATIC_URL = "static/"
 
-MEDIA_URL = urljoin(BASE_URL, "media/")
-MEDIA_URL_RELATIVE_PATH = urlparse(MEDIA_URL).path.removeprefix("/")
+MEDIA_URL_PATH = "media/"
+MEDIA_URL = urljoin(BASE_URL, MEDIA_URL_PATH)
 
 DEFAULT_FILE_STORAGE = "backend.storage.HashedFileSystemStorage"
 
