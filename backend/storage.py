@@ -4,12 +4,8 @@ import os
 from django.core.files import File
 from django.core.files.storage import FileSystemStorage
 
-absolute_base_url: str | None = None
-
 
 class HashedFileSystemStorage(FileSystemStorage):
-    _absolute_base_url: str | None = None
-
     def _get_content_name(self, name: str | None, content: File) -> str:
         dir_name, file_name = os.path.split(name or content.name)
         file_hash = self._compute_hash(content)
