@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Generic, TypedDict, TypeVar, Union
+from collections.abc import Collection, Mapping
+from typing import Generic, TypeVar
 
 from django.core.paginator import Page, Paginator
 from ninja import Field, Schema
 from pydantic import BaseModel
 
-DataType = Union[dict, TypedDict, BaseModel]  # noqa: UP007
+DataType = Mapping | BaseModel
 T = TypeVar("T")
 U = TypeVar("U", bound=DataType)
 
@@ -65,19 +66,15 @@ class Response:
         return {"code": 200, "msg": "OK", "data": data}
 
     @classmethod
-    def list(cls, data: list[DataType]):
-        if not isinstance(data, list):
-            data = list(data)
+    def list(cls, data: Collection[DataType]):
         return {"code": 200, "msg": "OK", "data": data}
 
     @classmethod
-    def page_list(cls, data: list[DataType], total: int, total_page: int):
-        if not isinstance(data, list):
-            data = list(data)
+    def page_list(cls, data: Collection[DataType], total: int, total_page: int):
         return {"code": 200, "msg": "OK", "data": data, "total": total, "total_page": total_page}
 
     @classmethod
-    def paginator_list(cls, data: list[DataType], page: Page | Paginator):
+    def paginator_list(cls, data: Collection[DataType], page: Page | Paginator):
         if isinstance(page, Page):
             page = page.paginator
         total = page.count

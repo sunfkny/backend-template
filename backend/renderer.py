@@ -1,5 +1,6 @@
 import datetime
 import decimal
+from collections.abc import Collection, Mapping
 
 from django.db import models
 from django.db.models.fields.files import FieldFile
@@ -20,6 +21,14 @@ class CustomJsonEncoder(NinjaJSONEncoder):
             return f"{o:f}"
         if not USE_TZ and isinstance(o, datetime.datetime):
             return o.strftime("%Y-%m-%d %H:%M:%S")
+        if isinstance(o, dict):
+            return o
+        if isinstance(o, Mapping):
+            return dict(o)
+        if isinstance(o, str):
+            return o
+        if isinstance(o, Collection):
+            return list(o)
         try:
             return super().default(o)
         except TypeError:
