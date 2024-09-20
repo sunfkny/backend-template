@@ -5,7 +5,7 @@
     "jupyter.jupyterCommandLineArguments": [
         "--allow-root"
     ],
-    "python.analysis.addImport.exactMatchOnly": true,
+    "python.analysis.typeEvaluation.deprecateTypingAliases": true,
     "python.analysis.autoFormatStrings": true,
     "python.analysis.diagnosticMode": "workspace",
     "python.analysis.ignore": [
