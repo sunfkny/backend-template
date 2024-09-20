@@ -23,6 +23,7 @@ import redis
 
 loguru.logger.remove()
 
+os.environ["PYDANTIC_ERRORS_INCLUDE_URL"] = "0"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOG_DIR = BASE_DIR / "logs"
