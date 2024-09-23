@@ -30,6 +30,6 @@ def schema_response(func: Callable[P, S]) -> Callable[P, JsonResponse]:
     @wraps(func)
     def wrapper(*args, **kwargs) -> JsonResponse:
         result = func(*args, **kwargs)
-        return JsonResponse(result, encoder=CustomJsonEncoder)
+        return JsonResponse(result, safe=False, encoder=CustomJsonEncoder)
 
     return wrapper
