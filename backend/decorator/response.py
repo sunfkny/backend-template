@@ -1,10 +1,10 @@
 import inspect
-import pathlib
 from collections.abc import Callable
 from functools import wraps
 from typing import ParamSpec, TypeVar
 
 from django.http.response import JsonResponse
+from loguru import logger
 from ninja.operation import Operation
 from pydantic import BaseModel
 
@@ -17,7 +17,8 @@ S = TypeVar("S", bound=BaseModel)
 def schema_response(func: Callable[P, S]) -> Callable[P, JsonResponse]:
     response = inspect.signature(func).return_annotation
     if response == inspect._empty:
-        raise Exception(f'View function "{func.__name__}" is missing a return type annotation.')
+        response = None
+        logger.warning(f'View function "{func.__name__}" is missing a return type annotation.')
 
     def contribute_to_operation(operation: Operation):
         operation.response_models = {200: operation._create_response_model(response)}
