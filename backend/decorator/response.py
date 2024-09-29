@@ -1,8 +1,9 @@
 import inspect
 from collections.abc import Callable
 from functools import wraps
-from typing import ParamSpec, TypeVar
+from typing import ParamSpec, Protocol, TypeVar
 
+from django.http import HttpRequest
 from django.http.response import JsonResponse
 from loguru import logger
 from ninja.operation import Operation
@@ -12,13 +13,23 @@ from backend.renderer import CustomJsonEncoder
 
 P = ParamSpec("P")
 S = TypeVar("S", bound=BaseModel)
+T = TypeVar("T", covariant=True)
 
 
-def schema_response(func: Callable[P, S]) -> Callable[P, JsonResponse]:
+class ViewFunc(Protocol[P, T]):
+    def __call__(
+        self,
+        request: HttpRequest,
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> T: ...
+
+
+def schema_response(func: ViewFunc[P, S]) -> ViewFunc[P, JsonResponse]:
     response = inspect.signature(func).return_annotation
     if response == inspect._empty:
         response = None
-        logger.warning(f'View function "{func.__name__}" is missing a return type annotation.')
+        logger.warning(f'View function "{func.__qualname__}" is missing a return type annotation.')
 
     def contribute_to_operation(operation: Operation):
         operation.response_models = {200: operation._create_response_model(response)}
