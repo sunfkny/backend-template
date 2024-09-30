@@ -22,6 +22,8 @@ import loguru
 import redis
 
 loguru.logger.remove()
+if sys.argv[:2] == ["manage.py", "runserver"]:
+    loguru.logger.add(sys.stderr, level=logging.DEBUG, backtrace=False)
 
 os.environ["PYDANTIC_ERRORS_INCLUDE_URL"] = "0"
 
