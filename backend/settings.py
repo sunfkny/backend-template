@@ -167,6 +167,18 @@ if BASE_URL:
     CSRF_TRUSTED_ORIGINS.append(BASE_URL)
 
 # Application definition
+TINYMCE_DEFAULT_CONFIG = {
+    "theme": "silver",
+    "height": 500,
+    "menubar": False,
+    "plugins": "advlist,autolink,lists,link,image,charmap,print,preview,anchor,"
+    + "searchreplace,visualblocks,code,fullscreen,insertdatetime,media,table,paste,"
+    + "code,help,wordcount",
+    "toolbar": "undo redo | formatselect | "
+    + "bold italic backcolor image | alignleft aligncenter "
+    + "alignright alignjustify | bullist numlist outdent indent | "
+    + "removeformat | help",
+}
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -176,6 +188,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "tinymce",
+    "filebrowser",
     "ninja",  # https://github.com/vitalik/django-ninja/commit/5bdcc43
     "django_extensions",
     # "django_crontab",

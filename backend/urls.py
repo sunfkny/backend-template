@@ -16,7 +16,8 @@ Including another URLconf
 
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from filebrowser.sites import site as filebrowser_site
 from ninja import NinjaAPI, Swagger
 
 from backend.settings import DEBUG, MEDIA_ROOT, MEDIA_URL_PATH
@@ -56,7 +57,9 @@ api.add_router("/", common_router)
 api_back.add_router("/", back_back_router)
 
 urlpatterns = [
+    path("admin/filebrowser/", filebrowser_site.urls),
     path("admin/", admin.site.urls),
+    path("tinymce/", include("tinymce.urls")),
     path("api/", api.urls),
     path("api/back/", api_back.urls),
 ]

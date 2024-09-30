@@ -22,7 +22,11 @@ dependencies = [
     "loguru",
     "django-print-sql",
     "pytest-django",
-    "psutil>=6.0.0",
+    "psutil>=6.0",
+    "django-tinymce",
+    "beautifulsoup4",
+    "django-filebrowser-no-grappelli",
+    "pillow",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"
