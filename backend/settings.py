@@ -173,6 +173,11 @@ TINYMCE_DEFAULT_CONFIG = {
     "theme": "silver",
     "height": 500,
     "menubar": False,
+    "language": "zh-Hans",
+    "browser_spellcheck": True,
+    "relative_urls": False,
+    "remove_script_host": False,
+    "convert_urls": True,
     "plugins": "advlist,autolink,lists,link,image,charmap,print,preview,anchor,"
     + "searchreplace,visualblocks,code,fullscreen,insertdatetime,media,table,paste,"
     + "code,help,wordcount",
