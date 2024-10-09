@@ -1,7 +1,7 @@
 import functools
 
 from django.core import checks
-from django.db import models
+from tinymce.models import HTMLField
 
 from backend.settings import BASE_URL, MEDIA_URL, MEDIA_URL_PATH
 
@@ -76,5 +76,5 @@ class MediaHtmlMixin:
         return value
 
 
-class MediaHtmlField(MediaHtmlMixin, models.TextField):
+class MediaHtmlField(MediaHtmlMixin, HTMLField):
     pass
