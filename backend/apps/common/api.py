@@ -62,6 +62,7 @@ def get_status(
             db_status = value == (1,)
     except Exception as e:
         logger.error(e)
+        db_status = str(e)
 
     migrations_status = False
     try:
@@ -77,6 +78,7 @@ def get_status(
 
     except Exception as e:
         logger.error(e)
+        migrations_status = str(e)
 
     return Response.data(
         {
