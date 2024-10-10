@@ -97,7 +97,6 @@ def get_system_info(request: HttpRequest):
         "getcwd": os.getcwd(),
         "getpid": os.getpid(),
         "cpu_count": os.cpu_count(),
-        "getloadavg": os.getloadavg(),
     }
 
     sys_data = {
@@ -137,6 +136,7 @@ def get_system_info(request: HttpRequest):
         "cpu_percent": psutil.cpu_percent(),
         "cpu_count": psutil.cpu_count(),
         "cpu_freq": psutil.cpu_freq().current,
+        "getloadavg": psutil.getloadavg(),
         "swap_memory": psutil.swap_memory()._asdict(),
         "virtual_memory": psutil.virtual_memory()._asdict(),
         "net_io_counters": psutil.net_io_counters()._asdict(),
