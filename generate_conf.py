@@ -48,11 +48,6 @@ if is_www:
         return 301 https://{DOMAIN_NAME}$request_uri;
     }}
 """
-redirect += """
-    # if ($scheme = http) {
-    #     return 301 https://$host$request_uri;
-    # }
-"""
 
 
 print(
@@ -67,13 +62,14 @@ server {{
     # listen 443 ssl http2;
     # ssl_certificate /etc/nginx/ssl/{DOMAIN_NAME_SAFE}.pem;
     # ssl_certificate_key /etc/nginx/ssl/{DOMAIN_NAME_SAFE}.key;
+    # if ($scheme = http) {{
+    #     return 301 https://$host$request_uri;
+    # }}
 
     set $base {BASE_DIR};
-
-    {redirect}
-
     client_max_body_size 10m;
 
+    {redirect}
     location /api/ {{
         include uwsgi_params;
         uwsgi_pass unix:$base/uwsgi.sock;
