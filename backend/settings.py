@@ -33,8 +33,9 @@ LOG_FILE_PATH = LOG_DIR / "run.log"
 DIST_ROOT = BASE_DIR / "dist"
 STATIC_ROOT = DIST_ROOT / "static"
 MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_UPLOADS_ROOT = MEDIA_ROOT / "uploads"
 
-for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT]:
+for path in [LOG_DIR, STATIC_ROOT, MEDIA_ROOT, MEDIA_UPLOADS_ROOT]:
     if not path.exists():
         path.mkdir(parents=True)
 
