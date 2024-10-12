@@ -9,37 +9,35 @@ from pydantic import BaseModel
 
 DataType = Mapping | BaseModel
 T = TypeVar("T")
-U = TypeVar("U", bound=DataType)
+U = TypeVar("U")
 
 
 class D(Schema, Generic[T]):
     code: int = Field(..., examples=[200])
     msg: str = Field(..., examples=["OK"])
-    data: T | None = None
+    data: T
 
     @staticmethod
-    def ok(data: U | None = None, code: int = 200, msg: str = "OK") -> D[U]:
+    def ok(data: U, code: int = 200, msg: str = "OK") -> D[U]:
         return D[U](code=code, msg=msg, data=data)
 
     @staticmethod
-    def error(msg: str, data: U | None = None, code: int = -1) -> D[U]:
-        return D[U](code=code, msg=msg, data=data)
+    def success(msg: str = "OK") -> D[None]:
+        return D(code=200, msg=msg, data=None)
 
 
 class L(Schema, Generic[T]):
     code: int = Field(..., examples=[200])
     msg: str = Field(..., examples=["OK"])
-    data: list[T] | None = None
-    total: int | None = None
-    total_page: int | None = None
+    data: list[T]
+    total: int = Field(..., examples=[10])
+    total_page: int = Field(..., examples=[1])
 
     @staticmethod
-    def ok(data: list[U], total: int | None = None, total_page: int | None = None, code: int = 200, msg: str = "OK") -> L[U]:
+    def ok(data: list[U], code: int = 200, msg: str = "OK", total: int | None = None, total_page: int = 1) -> L[U]:
+        if total is None:
+            total = len(data)
         return L[U](code=code, msg=msg, data=data, total=total, total_page=total_page)
-
-    @staticmethod
-    def error(msg: str, data: list[U] | None = None, code: int = -1) -> L[U]:
-        return L[U](code=code, msg=msg, data=data)
 
     @staticmethod
     def page(data: list[U], page: Page | Paginator, code: int = 200, msg: str = "OK") -> L[U]:
