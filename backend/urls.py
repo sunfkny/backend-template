@@ -20,10 +20,9 @@ from django.urls import include, path
 from filebrowser.sites import site as filebrowser_site
 from ninja import NinjaAPI, Swagger
 
+from backend.handler import set_exception_handlers
+from backend.renderer import CustomJSONRenderer
 from backend.settings import DEBUG, MEDIA_ROOT, MEDIA_URL_PATH
-
-from .handler import set_exception_handlers
-from .renderer import CustomJSONRenderer
 
 docs = Swagger(
     settings={
