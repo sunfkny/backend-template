@@ -15,13 +15,10 @@ dependencies = [
     "PyJWT",
     "django-cors-headers",
     "mysqlclient",
-    "cryptography",
     "requests",
     "redis==4.6.0",
-    "types-redis~=4.6.0",
     "loguru",
     "django-print-sql",
-    "pytest-django",
     "psutil>=6.0",
     "django-tinymce",
     "beautifulsoup4",
@@ -52,6 +49,10 @@ ignore = [
 [tool.uv]
 package = false
 index-url = "https://mirror.nju.edu.cn/pypi/web/simple"
+dev-dependencies = [
+    "pytest-django",
+    "types-redis~=4.6",
+]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "backend.settings"
