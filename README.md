@@ -2,7 +2,7 @@
 ```shell
 git clone https://github.com/sunfkny/backend-template.git
 cd backend-template
-pip install 'uv>=0.4.0'
+pip install uv -U
 uv sync
 ```
 ## startapp
