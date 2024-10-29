@@ -450,8 +450,8 @@ def post_admin_user_role_edit(
     return Response.ok()
 
 
-@router.post("admin/upload/media", auth=[auth_admin, django_auth], summary="后台用户上传文件")
-def post_admin_upload_media(
+@router.post("admin/storage/save", auth=[auth_admin, django_auth], summary="后台用户上传文件")
+def post_admin_storage_save(
     request: HttpRequest,
     file: UploadedFile = File(..., description="文件"),
 ):
@@ -465,3 +465,38 @@ def post_admin_upload_media(
     name = storage.save(filename, file)
     url = storage.url(name)
     return Response.data({"url": url})
+
+
+@router.get("admin/storage/listdir", auth=[auth_admin, django_auth], summary="后台用户文件管理")
+def post_admin_storage_listdir(
+    request: HttpRequest,
+    path: str = Query("", description="文件路径"),
+):
+    base_url = None
+    if not DOMAIN_NAME:
+        base_url = request.build_absolute_uri(f"/{MEDIA_URL_PATH}")
+
+    storage = HashedFileSystemStorage(base_url=base_url)
+    try:
+        directories, files = storage.listdir(path)
+    except FileNotFoundError:
+        raise ValueError("路径不存在")
+
+    return Response.data(
+        {
+            "directories": [
+                {
+                    "name": d,
+                    "path": posixpath.join(path, d),
+                }
+                for d in directories
+            ],
+            "files": [
+                {
+                    "name": f,
+                    "url": storage.url(posixpath.join(path, f)),
+                }
+                for f in files
+            ],
+        }
+    )
