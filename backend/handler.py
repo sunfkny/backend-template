@@ -85,6 +85,13 @@ def set_exception_handlers(api: NinjaAPI):
         logger.exception(exc)
         return api.create_response(
             request,
-            {"code": 500, "msg": "内部错误"},
+            {
+                "code": 500,
+                "msg": "内部错误",
+                "data": {
+                    "__class__": exc.__class__.__name__,
+                    "args": [repr(arg) for arg in exc.args],
+                },
+            },
             status=500,
         )
