@@ -9,10 +9,13 @@ from ninja.files import UploadedFile
 from ninja.security.session import SessionAuth
 
 from backend.apps.back.models import AdminPermission, AdminUser, Role
-from backend.response import Response
+from backend.decorator.response import schema_response
+from backend.response import D, L
 from backend.security import auth_admin
 from backend.settings import DOMAIN_NAME, MEDIA_URL_PATH, get_logger, get_redis_connection
 from backend.storage import HashedFileSystemStorage
+
+from .schema import AdminPermissionModelSchema, AdminUserModelSchema, RoleModelSchema, RolePermissionSchema, StorageListdirSchema, TokenSchema, UrlSchema
 
 django_auth = SessionAuth(csrf=False)
 router = Router(tags=["后台"])
@@ -21,11 +24,12 @@ logger = get_logger()
 
 
 @router.post("admin/login", summary="后台登录")
+@schema_response
 def post_admin_login(
     request: HttpRequest,
     username: str = Body(..., description="账号"),
     password: str = Body(..., description="密码"),
-):
+) -> D[TokenSchema]:
     exists_admin_user = AdminUser.objects.exists()
     if not exists_admin_user:
         AdminUser.objects.create(
@@ -39,26 +43,25 @@ def post_admin_login(
     user = AdminUser.objects.filter(username=username).first()
     if user and user.check_password(password):
         token = auth_admin.generate_token(user.pk)
-        data = {
-            "token": token,
-        }
-        return Response.data(data)
+        data = TokenSchema(token=token)
+        return D.ok(data)
 
     raise ValueError("帐号或密码错误")
 
 
 @router.post("admin/password", auth=auth_admin, summary="后台修改密码")
+@schema_response
 def post_admin_password(
     request: HttpRequest,
     old_password: str = Body(..., description="旧密码"),
     new_password: str = Body(..., description="新密码"),
-):
+) -> D[None]:
     user = auth_admin.get_login_user(request)
     if not user.check_password(old_password):
         raise ValueError("密码错误")
 
     user.make_password(new_password)
-    return Response.ok()
+    return D.success()
 
 
 class UsernameSchema(Schema):
@@ -66,10 +69,11 @@ class UsernameSchema(Schema):
 
 
 @router.post("admin/password/reset", auth=auth_admin, summary="超级管理员后台重置密码")
+@schema_response
 def post_admin_password_reset(
     request: HttpRequest,
     body: UsernameSchema,
-):
+) -> D[None]:
     username = body.username
     user = auth_admin.get_login_user(request)
     if not user.is_admin:
@@ -81,33 +85,28 @@ def post_admin_password_reset(
 
     user.make_password(user.username)
 
-    return Response.ok()
+    return D.success()
 
 
 @router.get("admin/user/info", auth=auth_admin, summary="后台用户信息")
+@schema_response
 def get_admin_user_info(
     request: HttpRequest,
-):
+) -> D[AdminUserModelSchema]:
     user = auth_admin.get_login_user(request)
-    data = {
-        "id": user.pk,
-        "introduction": user.summary,
-        "role_name": user.role_name,
-        "roles": user.permissions,
-        "avatar": user.avatar,
-        "nickname": user.nickname,
-    }
-    return Response.data(data)
+    data = AdminUserModelSchema.from_orm(user)
+    return D.ok(data)
 
 
 @router.post("admin/user/info/edit", auth=auth_admin, summary="后台用户信息修改")
+@schema_response
 def post_admin_user_info_edit(
     request: HttpRequest,
     admin_user_id: int = Body(0, alias="id", description="后台用户id(Admin权限)"),
     summary: str = Body(..., description="简介"),
     nickname: str = Body(..., description="显示名称"),
     avatar: str = Body(..., description="头像"),
-):
+) -> D[None]:
     admin_user = auth_admin.get_login_user(request)
     if admin_user.is_admin and admin_user_id:
         admin_user = AdminUser.objects.filter(id=admin_user_id).first()
@@ -117,40 +116,35 @@ def post_admin_user_info_edit(
     admin_user.summary = summary
     admin_user.nickname = nickname
     admin_user.avatar = avatar
-    admin_user.save()
-    return Response.ok()
+    admin_user.save(update_fields=["summary", "nickname", "avatar"])
+    return D.success()
 
 
 @router.get("admin/user/info/detail", auth=auth_admin, summary="后台用户信息详情")
+@schema_response
 def get_admin_user_info_detail(
     request: HttpRequest,
     admin_user_id: int = Query(0, alias="id", description="后台用户id(Admin权限)"),
-):
+) -> D[AdminUserModelSchema]:
     admin_user = auth_admin.get_login_user(request)
     if admin_user.is_admin and admin_user_id:
         admin_user = AdminUser.objects.filter(id=admin_user_id).first()
         if not admin_user:
             raise ValueError("后台用户不存在")
 
-    data = {
-        "id": admin_user.pk,
-        "nickname": admin_user.nickname,
-        "avatar": admin_user.avatar,
-        "summary": admin_user.summary,
-        "role_id": admin_user.role.pk if admin_user.role else 0,
-        "role_name": admin_user.role_name,
-    }
-    return Response.data(data)
+    data = AdminUserModelSchema.from_orm(admin_user)
+    return D.ok(data)
 
 
 @router.get("admin/user/info/list", auth=auth_admin, summary="后台用户列表")
+@schema_response
 def get_admin_user_info_list(
     request: HttpRequest,
     page: int = Query(1, description="页码"),
     size: int = Query(10, description="每页数量"),
     nickname: str = Query("", description="显示名称筛选"),
     username: str = Query("", description="登录名称筛选"),
-):
+) -> L[AdminUserModelSchema]:
     admin_user = auth_admin.get_login_user(request)
     queryset = AdminUser.objects.order_by("-id")
     if not admin_user.is_admin:
@@ -161,61 +155,36 @@ def get_admin_user_info_list(
         queryset = queryset.filter(username__icontains=username)
 
     paginator = Paginator(queryset, size)
-    page_business = paginator.page(page)
-    data = []
-    for i in page_business:
-        data.append(
-            {
-                "id": i.pk,
-                "avatar": i.avatar,
-                "nickname": i.nickname,
-                "summary": i.summary,
-                "username": i.username,
-                "role_id": i.role.pk if i.role else 0,
-                "role_name": i.role_name,
-            }
-        )
-    return Response.page_list(data, total_page=paginator.num_pages, total=paginator.count)
+    page_queryset = paginator.page(page)
+    data = [AdminUserModelSchema.from_orm(i) for i in page_queryset]
+    return L.page(data, page=page_queryset)
 
 
 @router.get("admin/permission/list", auth=auth_admin, summary="权限列表")
+@schema_response
 def get_admin_permission_list(
     request: HttpRequest,
-    page: int = Query(..., description="页数"),
-    size: int = Query(..., description="每页数量"),
-):
+    page: int = Query(1, description="页数"),
+    size: int = Query(10, description="每页数量"),
+) -> L[AdminPermissionModelSchema]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
 
     queryset = AdminPermission.objects.all().order_by("id")
-    page_permission = Paginator(queryset, size).page(page)
-    data = []
-    for i in page_permission:
-        data.append(
-            {
-                "id": i.pk,
-                "key": i.key,
-                "name": i.name,
-                "description": i.description,
-            }
-        )
-
-    return Response.page_list(
-        data=data,
-        total_page=page_permission.paginator.num_pages,
-        total=page_permission.paginator.count,
-    )
+    page_queryset = Paginator(queryset, size).page(page)
+    data = [AdminPermissionModelSchema.from_orm(i) for i in page_queryset]
+    return L.page(data, page=page_queryset)
 
 
 @router.post("admin/permission/edit", auth=auth_admin, summary="权限修改")
+@schema_response
 def post_admin_permission_edit(
     request: HttpRequest,
     permission_id: int = Body(..., description="权限id", alias="id"),
-    # key: str = Body(..., description="权限标识"),
     name: str = Body(..., description="权限名称"),
     description: str = Body(..., description="权限描述"),
-):
+) -> D[None]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
@@ -224,49 +193,37 @@ def post_admin_permission_edit(
     if not permission:
         raise ValueError("权限不存在")
 
-    # permission.key = key
     permission.name = name
     permission.description = description
-    permission.save()
-    return Response.ok()
+    permission.save(update_fields=["name", "description"])
+    return D.success()
 
 
 @router.get("admin/role/list", auth=auth_admin, summary="角色列表")
+@schema_response
 def get_admin_role_list(
     request: HttpRequest,
     page: int = Query(1, description="页数"),
     size: int = Query(10, description="每页数量"),
-):
+) -> L[RoleModelSchema]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
 
     queryset = Role.objects.order_by("id")
-    page_role = Paginator(queryset, size).page(page)
-    data = []
-    for i in page_role:
-        data.append(
-            {
-                "id": i.pk,
-                "name": i.name,
-                "description": i.description,
-            }
-        )
-
-    return Response.page_list(
-        data=data,
-        total_page=page_role.paginator.num_pages,
-        total=page_role.paginator.count,
-    )
+    page_queryset = Paginator(queryset, size).page(page)
+    data = [RoleModelSchema.from_orm(i) for i in page_queryset]
+    return L.page(data, page=page_queryset)
 
 
 @router.post("admin/role/edit", auth=auth_admin, summary="角色修改")
+@schema_response
 def post_admin_role_edit(
     request: HttpRequest,
     role_id: int = Body(..., description="角色id", alias="id"),
     name: str = Body(..., description="角色名称"),
     description: str = Body(..., description="角色描述"),
-):
+) -> D[None]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
@@ -277,16 +234,17 @@ def post_admin_role_edit(
 
     role.name = name
     role.description = description
-    role.save()
-    return Response.ok()
+    role.save(update_fields=["name", "description"])
+    return D.success()
 
 
 @router.post("admin/role/add", auth=auth_admin, summary="角色添加")
+@schema_response
 def post_admin_role_add(
     request: HttpRequest,
     name: str = Body(..., description="角色名称"),
     description: str = Body(..., description="角色描述"),
-):
+) -> D[None]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
@@ -295,14 +253,15 @@ def post_admin_role_add(
     if role:
         raise ValueError("角色已存在")
     Role.objects.create(name=name, description=description)
-    return Response.ok()
+    return D.success()
 
 
 @router.get("admin/role/permission/list", auth=auth_admin, summary="角色权限列表")
+@schema_response
 def get_admin_role_permission_list(
     request: HttpRequest,
     role_id: int = Query(..., description="角色id", alias="id"),
-):
+) -> D[RolePermissionSchema]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
@@ -312,32 +271,21 @@ def get_admin_role_permission_list(
         raise ValueError("角色不存在")
 
     role_permission = role.permission.all()
-    permissions = [
-        {
-            "id": i.pk,
-            "key": i.key,
-            "name": i.name,
-            "description": i.description,
-        }
-        for i in role_permission
-    ]
 
-    data = {
-        "role": {
-            "id": role.pk,
-            "name": role.name,
-        },
-        "permissions": permissions,
-    }
-    return Response.data(data)
+    data = RolePermissionSchema(
+        role=RoleModelSchema.from_orm(role),
+        permissions=[AdminPermissionModelSchema.from_orm(i) for i in role_permission],
+    )
+    return D.ok(data)
 
 
 @router.post("admin/role/permission/add", auth=auth_admin, summary="角色权限增加")
+@schema_response
 def post_admin_role_permission_add(
     request: HttpRequest,
     role_id: int = Body(..., description="角色id"),
     permission_id: int = Body(..., description="权限id"),
-):
+) -> D[None]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
@@ -351,15 +299,16 @@ def post_admin_role_permission_add(
         raise ValueError("权限不存在")
 
     role.permission.add(permission)
-    return Response.ok()
+    return D.success()
 
 
 @router.post("admin/role/permission/remove", auth=auth_admin, summary="角色权限移除")
+@schema_response
 def post_admin_role_permission_remove(
     request: HttpRequest,
     role_id: int = Body(..., description="角色id"),
     permission_id: int = Body(..., description="权限id"),
-):
+) -> D[None]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
@@ -373,17 +322,18 @@ def post_admin_role_permission_remove(
         raise ValueError("权限不存在")
 
     role.permission.remove(permission)
-    return Response.ok()
+    return D.success()
 
 
 @router.post("admin/user/add", auth=auth_admin, summary="后台用户创建")
+@schema_response
 def post_admin_user_add(
     request: HttpRequest,
     nickname: str = Body(..., description="后台用户名称"),
     username: str = Body(..., description="后台用户名"),
     password: str = Body(..., description="后台用户密码"),
     role_id: int = Body(..., description="角色id"),
-):
+) -> D[None]:
     admin_user = auth_admin.get_login_user(request)
     if not admin_user.is_admin:
         raise ValueError("没有权限")
@@ -401,37 +351,36 @@ def post_admin_user_add(
         password=make_password(password),
         role=role,
     )
-    return Response.ok()
+    return D.success()
 
 
 @router.get("admin/dropdown/role", summary="角色选择下拉")
+@schema_response
 def get_admin_dropdown_role(
     request: HttpRequest,
-):
+) -> L[RoleModelSchema]:
     queryset = Role.objects.all()
-    data = []
-    for i in queryset:
-        data.append({"id": i.pk, "name": i.name})
-    return Response.list(data)
+    data = [RoleModelSchema.from_orm(i) for i in queryset]
+    return L.ok(data)
 
 
 @router.get("admin/dropdown/permission", summary="权限选择下拉")
+@schema_response
 def get_admin_dropdown_permission(
     request: HttpRequest,
-):
+) -> L[AdminPermissionModelSchema]:
     queryset = AdminPermission.objects.all()
-    data = []
-    for i in queryset:
-        data.append({"id": i.pk, "name": i.name, "key": i.key})
-    return Response.list(data)
+    data = [AdminPermissionModelSchema.from_orm(i) for i in queryset]
+    return L.ok(data)
 
 
 @router.post("admin/user/role/edit", auth=auth_admin, summary="后台管理员角色修改")
+@schema_response
 def post_admin_user_role_edit(
     request: HttpRequest,
     admin_user_id: int = Body(..., description="后台用户id"),
     role_id: int = Body(..., description="角色id"),
-):
+) -> D[None]:
     login_user = auth_admin.get_login_user(request)
     if not login_user.is_admin:
         raise ValueError("没有权限")
@@ -447,14 +396,15 @@ def post_admin_user_role_edit(
     change_user.role = role
     change_user.save()
 
-    return Response.ok()
+    return D.success()
 
 
 @router.post("admin/storage/save", auth=[auth_admin, django_auth], summary="后台用户上传文件")
+@schema_response
 def post_admin_storage_save(
     request: HttpRequest,
     file: UploadedFile = File(..., description="文件"),
-):
+) -> D[UrlSchema]:
     base_url = None
     if not DOMAIN_NAME:
         base_url = request.build_absolute_uri(f"/{MEDIA_URL_PATH}")
@@ -464,14 +414,16 @@ def post_admin_storage_save(
     filename = posixpath.join(dirname, file.name)
     name = storage.save(filename, file)
     url = storage.url(name)
-    return Response.data({"url": url})
+    data = UrlSchema(url=url)
+    return D.ok(data)
 
 
 @router.get("admin/storage/listdir", auth=[auth_admin, django_auth], summary="后台用户文件管理")
+@schema_response
 def post_admin_storage_listdir(
     request: HttpRequest,
     path: str = Query("", description="文件路径"),
-):
+) -> D[StorageListdirSchema]:
     base_url = None
     if not DOMAIN_NAME:
         base_url = request.build_absolute_uri(f"/{MEDIA_URL_PATH}")
@@ -482,21 +434,20 @@ def post_admin_storage_listdir(
     except FileNotFoundError:
         raise ValueError("路径不存在")
 
-    return Response.data(
-        {
-            "directories": [
-                {
-                    "name": d,
-                    "path": posixpath.join(path, d),
-                }
-                for d in directories
-            ],
-            "files": [
-                {
-                    "name": f,
-                    "url": storage.url(posixpath.join(path, f)),
-                }
-                for f in files
-            ],
-        }
+    data = StorageListdirSchema(
+        directories=[
+            StorageListdirSchema.DirectorySchema(
+                name=d,
+                path=posixpath.join(path, d),
+            )
+            for d in directories
+        ],
+        files=[
+            StorageListdirSchema.FileSchema(
+                name=f,
+                url=storage.url(posixpath.join(path, f)),
+            )
+            for f in files
+        ],
     )
+    return D.ok(data)
