@@ -7,9 +7,13 @@ from backend.apps.back.models import AdminPermission, AdminUser, Role
 
 @pytest.fixture
 def client(db):
-    from backend.apps.back.api_back import router
+    from backend.apps.back import api_back
 
-    client = TestClient(router)
+    api_back.auth_admin.set_token = lambda *_, **__: None
+    api_back.auth_admin.token_check = lambda *_, **__: True
+
+    client = TestClient(api_back.router)
+
     response = client.post(
         "/admin/login",
         json={"username": "root", "password": "root@123"},
