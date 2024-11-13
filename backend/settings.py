@@ -173,19 +173,53 @@ if BASE_URL:
 TINYMCE_DEFAULT_CONFIG = {
     "theme": "silver",
     "height": 500,
-    "menubar": False,
-    "language": "zh-Hans",
+    "menubar": True,
     "browser_spellcheck": True,
     "relative_urls": False,
     "remove_script_host": False,
     "convert_urls": True,
-    "plugins": "advlist,autolink,lists,link,image,charmap,print,preview,anchor,"
-    + "searchreplace,visualblocks,code,fullscreen,insertdatetime,media,table,paste,"
-    + "code,help,wordcount",
-    "toolbar": "undo redo | formatselect | "
-    + "bold italic backcolor image | alignleft aligncenter "
-    + "alignright alignjustify | bullist numlist outdent indent | "
-    + "removeformat | help",
+    "paste_data_images": False,
+    "help_accessibility": False,
+    "promotion": False,
+    "branding": False,
+    "plugins": ",".join(
+        [
+            "advlist",
+            "autolink",
+            "lists",
+            "link",
+            "image",
+            "charmap",
+            "preview",
+            "anchor",
+            "searchreplace",
+            "visualblocks",
+            "visualchars",
+            "code",
+            "codesample",
+            "fullscreen",
+            "insertdatetime",
+            "media",
+            "table",
+            "help",
+            "wordcount",
+        ]
+    ),
+    # "toolbar": "undo redo | formatselect | "
+    # + "bold italic backcolor image | alignleft aligncenter "
+    # + "alignright alignjustify | bullist numlist outdent indent | "
+    # + "removeformat | help",
+    "toolbar": " | ".join(
+        " ".join(i for i in block)
+        for block in [
+            ["undo", "redo"],
+            ["bold", "italic", "underline", "strikethrough", "forecolor", "backcolor"],
+            ["image"],
+            ["alignleft", "aligncenter", "alignright", "alignjustify"],
+            ["bullist", "numlist", "outdent", "indent"],
+            ["help"],
+        ]
+    ),
 }
 
 INSTALLED_APPS = [
@@ -220,6 +254,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "backend.urls"
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 TEMPLATES = [
     {
