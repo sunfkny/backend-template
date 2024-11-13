@@ -4,8 +4,9 @@ import posixpath
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.http import HttpRequest
-from ninja import Body, File, Query, Router, Schema
+from ninja import Router, Schema
 from ninja.files import UploadedFile
+from ninja.params.functions import Body, File, Query
 from ninja.security.session import SessionAuth
 
 from backend.apps.back.models import AdminPermission, AdminUser, Role
