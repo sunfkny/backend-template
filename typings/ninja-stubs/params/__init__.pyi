@@ -1,3 +1,4 @@
+from re import Pattern
 from typing import Annotated, Any, TypeVar
 
 from ninja.params.functions import Body as Body
@@ -27,7 +28,7 @@ def P(
     le: float | None = None,
     min_length: int | None = None,
     max_length: int | None = None,
-    regex: str | None = None,
+    pattern: str | Pattern[str] | None = None,
     example: Any = None,
     examples: dict[str, Any] | None = None,
     deprecated: bool | None = None,
