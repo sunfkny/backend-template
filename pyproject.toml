@@ -28,6 +28,9 @@ dependencies = [
 readme = "README.md"
 requires-python = ">= 3.10"
 
+[dependency-groups]
+dev = ["pytest", "pytest-django", "types-redis~=4.6"]
+
 [tool.ruff]
 extend-exclude = ["backend/apps/*/migrations"]
 line-length = 160
@@ -49,10 +52,6 @@ ignore = [
 [tool.uv]
 package = false
 index-url = "https://mirror.nju.edu.cn/pypi/web/simple"
-dev-dependencies = [
-    "pytest-django",
-    "types-redis~=4.6",
-]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "backend.settings"

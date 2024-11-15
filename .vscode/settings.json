@@ -1,46 +1,55 @@
 {
     "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff"
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports.ruff": "explicit"
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true
     },
-    "jupyter.jupyterCommandLineArguments": [
-        "--allow-root"
-    ],
-    "python.analysis.typeEvaluation.deprecateTypingAliases": true,
+    "files.insertFinalNewline": true,
+    "files.watcherExclude": {
+        "**/.venv/**": true
+    },
     "python.analysis.autoFormatStrings": true,
+    "python.analysis.autoImportCompletions": true,
     "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.ignore": [
-        "typings",
-        "venv",
-        ".venv",
-        "backend/apps/*/migrations",
-    ],
     "python.analysis.diagnosticSeverityOverrides": {
         "reportImplicitStringConcatenation": "information",
         "reportMatchNotExhaustive": "information",
-        "reportShadowedImports": "information",
-        "reportUnnecessaryComparison": "warning",
-        "reportPrivateImportUsage": "none",
-        "reportUnboundVariable": "error",
         "reportPossiblyUnboundVariable": "error",
+        "reportPrivateImportUsage": "none",
+        "reportShadowedImports": "information",
+        "reportUnboundVariable": "error",
+        "reportUnnecessaryComparison": "warning"
     },
+    "python.analysis.displayEnglishDiagnostics": true,
+    "python.analysis.extraCommitChars": true,
+    "python.analysis.gotoDefinitionInStringLiteral": true,
+    "python.analysis.ignore": [
+        "typings",
+        ".venv",
+        "backend/apps/*/migrations",
+    ],
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.pytestParameters": true,
+    "python.analysis.packageIndexDepths": [
+        {
+            "depth": 6,
+            "includeAllSymbols": false,
+            "name": "django"
+        },
+        {
+            "depth": 6,
+            "includeAllSymbols": false,
+            "name": "ninja"
+        },
+    ],
+    "python.analysis.showOnlyDirectDependenciesInAutoImport": true,
     "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.typeEvaluation.deprecateTypingAliases": true,
     "python.languageServer": "Pylance",
     "python.terminal.activateEnvInCurrentTerminal": true,
-    "ruff.codeAction.disableRuleComment": {
-        "enable": false
-    },
-    "todo-tree.filtering.excludeGlobs": [
-        "**/node_modules/*/**",
-        "venv",
-        ".venv",
-    ],
-    "todo-tree.highlights.enabled": false,
-    "files.watcherExclude": {
-        "venv": true,
-        ".venv": true,
-    },
-    "files.insertFinalNewline": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports.ruff": "explicit"
-    },
+    "todo-tree.highlights.enabled": false
 }
