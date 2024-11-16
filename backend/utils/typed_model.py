@@ -4,7 +4,7 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal
 
 from django.db import models
-from django.db.models import BaseConstraint, Index
+from django.db.models import BaseConstraint, Index, OrderBy
 from django.db.models.query import QuerySet
 from typing_extensions import TypeVar
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         get_latest_by: ClassVar[str | Sequence[str]]
         managed: ClassVar[bool]  # default: True
         order_with_respect_to: ClassVar[str]
-        ordering: ClassVar[Sequence[str]]
+        ordering: ClassVar[Sequence[str | OrderBy]]
         permissions: ClassVar[list[tuple[str, str]]]
         default_permissions: ClassVar[Sequence[str]]  # default: ("add", "change", "delete", "view")
         proxy: ClassVar[bool]  # default: False
