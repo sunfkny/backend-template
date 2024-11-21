@@ -3,7 +3,7 @@ import shlex
 
 from django.core.management.utils import get_random_secret_key
 
-from backend.settings import BASE_DIR, BASE_URL, DOMAIN_NAME
+from backend.settings import BASE_DIR, DOMAIN_NAME
 
 if not DOMAIN_NAME:
     raise Exception("backend.settings.DOMAIN_NAME is not set")
