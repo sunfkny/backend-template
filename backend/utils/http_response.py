@@ -30,7 +30,7 @@ class ExcelResponse(AttachmentResponse):
         self,
         streaming_content: BinaryIO,
         *args,
-        filename: str = "",
+        filename: str = "download",
         **kwargs,
     ) -> None:
         filename = getattr(streaming_content, "name", filename)
