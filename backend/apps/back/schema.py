@@ -1,4 +1,4 @@
-from ninja import ModelSchema, Schema
+from ninja import Field, ModelSchema, Schema
 
 from .models import AdminPermission, AdminUser, Role
 
@@ -14,6 +14,7 @@ class UrlSchema(Schema):
 class AdminUserModelSchema(ModelSchema):
     role_name: str
     role_id: int | None
+    roles: list[str] = Field(alias="permissions")
 
     class Meta:
         model = AdminUser
