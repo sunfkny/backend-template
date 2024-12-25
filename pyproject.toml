@@ -10,7 +10,7 @@ dependencies = [
     "pydantic~=2.0",
     "django-ninja",
     "django-extensions",
-    "django>=3.1",
+    "django>=3.2",
     "arrow",
     "PyJWT",
     "django-cors-headers",
@@ -24,6 +24,7 @@ dependencies = [
     "beautifulsoup4",
     "django-filebrowser-no-grappelli",
     "pillow",
+    "django-stubs[compatible-mypy]",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"
@@ -68,3 +69,13 @@ filterwarnings = [
     "ignore::pydantic.warnings.PydanticDeprecatedSince20",
     "ignore::django.utils.deprecation.RemovedInDjango60Warning",
 ]
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+disable_error_code = ["import-untyped", "var-annotated"]
+check_untyped_defs = true
+exclude = ["tests/*"]
+
+[tool.django-stubs]
+django_settings_module = "backend.settings"
+strict_settings = false
