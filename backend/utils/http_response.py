@@ -113,7 +113,7 @@ class EventSourceResponse(StreamingHttpResponse):
         **kwargs,
     ):
         super().__init__(
-            streaming_content=streaming_content,
+            streaming_content,
             content_type="text/event-stream",
             *args,
             **kwargs,

@@ -1,4 +1,5 @@
 import functools
+from collections.abc import Iterable
 
 from django.core import checks
 from tinymce.models import HTMLField
@@ -12,10 +13,9 @@ def replace_image_src(html_content: str, from_prefix: str, to_prefix: str):
 
     soup = BeautifulSoup(html_content, "html.parser")
 
-    images = soup.find_all("img")
+    images: Iterable[Tag] = soup.find_all("img")
 
     for img in images:
-        img: Tag
         src = img.get("src")
         if not isinstance(src, str):
             continue

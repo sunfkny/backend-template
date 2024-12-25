@@ -39,17 +39,17 @@ def get_ip(
 def get_status(
     request: HttpRequest,
 ):
-    redis_status = False
+    redis_status = "False"
     try:
         from backend.settings import get_redis_connection
 
         redis_conn = get_redis_connection()
-        redis_status = redis_conn.ping()
+        redis_status = str(redis_conn.ping())
     except Exception as e:
         logger.error(e)
-        redis_status = str(e)
+        redis_status = repr(e)
 
-    db_status = False
+    db_status = "False"
     try:
         from django.db import close_old_connections, connections
 
@@ -59,12 +59,12 @@ def get_status(
         with db_conn.cursor() as cursor:
             cursor.execute("SELECT 1")
             value = cursor.fetchone()
-            db_status = value == (1,)
+            db_status = str(value == (1,))
     except Exception as e:
         logger.error(e)
-        db_status = str(e)
+        db_status = repr(e)
 
-    migrations_status = False
+    migrations_status = "False"
     try:
         from django.db import connections
         from django.db.migrations.executor import MigrationExecutor
@@ -74,11 +74,11 @@ def get_status(
         if plan:
             logger.error(f"There are {len(plan)} migrations to apply")
         else:
-            migrations_status = True
+            migrations_status = "True"
 
     except Exception as e:
         logger.error(e)
-        migrations_status = str(e)
+        migrations_status = repr(e)
 
     return Response.data(
         {

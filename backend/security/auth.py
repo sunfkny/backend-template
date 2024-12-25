@@ -77,7 +77,7 @@ class AuthJwt(HttpBearer, Generic[TUser]):
         uid = self.get_login_uid_optional(request)
         if uid is None:
             return None
-        user = self.user_model.objects.filter(
+        user = self.user_model._default_manager.filter(
             **{
                 self.uid_field: uid,
             }
@@ -191,7 +191,7 @@ class AuthBearerToken(HttpBearer, Generic[TUser]):
         uid = self.get_login_uid_optional(request)
         if uid is None:
             return None
-        user = self.user_model.objects.filter(pk=uid).first()
+        user = self.user_model._default_manager.filter(pk=uid).first()
         return user
 
     def get_login_uid(self, request: HttpRequest) -> int | str:
@@ -247,8 +247,8 @@ class AuthBearerTokenDatabase(APIKeyHeader, Generic[TUser]):
         auth = super().__call__(request)
         return auth
 
-    def authenticate(self, request: HttpRequest, token: str) -> TUser | None:
-        return self.user_model.objects.filter(
+    def authenticate(self, request: HttpRequest, token: str | None) -> TUser | None:
+        return self.user_model._default_manager.filter(
             **{
                 self.token_field: token,
             }
@@ -273,10 +273,10 @@ class AuthBearerTokenDatabase(APIKeyHeader, Generic[TUser]):
     def generate_token(self, user: TUser) -> str:
         """生成token"""
         token = uuid.uuid4().hex
-        self.user_model.objects.filter(pk=user.pk).update(**{self.token_field: token})
+        self.user_model._default_manager.filter(pk=user.pk).update(**{self.token_field: token})
         return token
 
     def get_token(self, pk: int | str) -> str | None:
         """获取token"""
-        user = self.user_model.objects.filter(pk=pk).only(self.token_field).first()
+        user = self.user_model._default_manager.filter(pk=pk).only(self.token_field).first()
         return getattr(user, self.token_field)

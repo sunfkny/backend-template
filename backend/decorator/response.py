@@ -17,6 +17,8 @@ T = TypeVar("T", covariant=True)
 
 
 class ViewFunc(Protocol[P, T]):
+    __qualname__: str
+
     def __call__(
         self,
         request: HttpRequest,
@@ -29,7 +31,7 @@ def schema_response(func: ViewFunc[P, S]) -> ViewFunc[P, JsonResponse]:
     response = inspect.signature(func).return_annotation
     if response == inspect._empty:
         response = None
-        logger.warning(f'View function "{func.__qualname__}" is missing a return type annotation.')
+        logger.warning(f"View function `{func.__qualname__}` is missing a return type annotation.")
 
     def contribute_to_operation(operation: Operation):
         operation.response_models = {200: operation._create_response_model(response)}

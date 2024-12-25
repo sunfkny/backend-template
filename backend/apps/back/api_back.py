@@ -80,11 +80,10 @@ def post_admin_password_reset(
     if not user.is_admin:
         raise ValueError("没有权限")
 
-    user = AdminUser.objects.filter(username=username).first()
-    if not user:
+    admin_user = AdminUser.objects.filter(username=username).first()
+    if not admin_user:
         raise ValueError("用户不存在")
-
-    user.make_password(user.username)
+    admin_user.make_password(user.username)
 
     return D.success()
 
@@ -108,11 +107,13 @@ def post_admin_user_info_edit(
     nickname: str = Body(..., description="显示名称"),
     avatar: str = Body(..., description="头像"),
 ) -> D[None]:
-    admin_user = auth_admin.get_login_user(request)
-    if admin_user.is_admin and admin_user_id:
+    user = auth_admin.get_login_user(request)
+    if user.is_admin and admin_user_id:
         admin_user = AdminUser.objects.filter(id=admin_user_id).first()
         if not admin_user:
             raise ValueError("后台用户不存在")
+    else:
+        admin_user = user
 
     admin_user.summary = summary
     admin_user.nickname = nickname
@@ -127,11 +128,13 @@ def get_admin_user_info_detail(
     request: HttpRequest,
     admin_user_id: int = Query(0, alias="id", description="后台用户id(Admin权限)"),
 ) -> D[AdminUserModelSchema]:
-    admin_user = auth_admin.get_login_user(request)
-    if admin_user.is_admin and admin_user_id:
+    user = auth_admin.get_login_user(request)
+    if user.is_admin and admin_user_id:
         admin_user = AdminUser.objects.filter(id=admin_user_id).first()
         if not admin_user:
             raise ValueError("后台用户不存在")
+    else:
+        admin_user = user
 
     data = AdminUserModelSchema.from_orm(admin_user)
     return D.ok(data)
@@ -409,6 +412,8 @@ def post_admin_storage_save(
     base_url = None
     if not DOMAIN_NAME:
         base_url = request.build_absolute_uri(f"/{MEDIA_URL_PATH}")
+    if not file.name:
+        raise ValueError("文件名不能为空")
 
     storage = HashedFileSystemStorage(base_url=base_url)
     dirname = datetime.datetime.now().strftime("uploads/%Y/%m/")
