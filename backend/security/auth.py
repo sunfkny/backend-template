@@ -247,10 +247,10 @@ class AuthBearerTokenDatabase(APIKeyHeader, Generic[TUser]):
         auth = super().__call__(request)
         return auth
 
-    def authenticate(self, request: HttpRequest, token: str | None) -> TUser | None:
+    def authenticate(self, request: HttpRequest, key: str | None) -> TUser | None:
         return self.user_model._default_manager.filter(
             **{
-                self.token_field: token,
+                self.token_field: key,
             }
         ).first()
 
