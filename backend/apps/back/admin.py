@@ -8,14 +8,14 @@ class AdminPermissionAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(RolePermission)
-class RolePermissionAdmin(admin.ModelAdmin):
-    pass
+class RolePermissionInline(admin.TabularInline):
+    model = RolePermission
+    extra = 0
 
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    pass
+    inlines = (RolePermissionInline,)
 
 
 @admin.register(AdminUser)

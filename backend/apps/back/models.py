@@ -20,7 +20,7 @@ class AdminPermission(models.Model):
 
     class Meta:
         db_table = f"{DB_PREFIX}_permission"
-        verbose_name = "权限表"
+        verbose_name = "权限"
         verbose_name_plural = verbose_name
 
     def __str__(self):
@@ -46,11 +46,8 @@ class RolePermission(models.Model):
 
     class Meta:
         db_table = f"{DB_PREFIX}_role_permission"
-        verbose_name = "角色权限表"
+        verbose_name = "角色权限"
         verbose_name_plural = verbose_name
-
-    def __str__(self):
-        return f"{self.role.name} - {self.permission.name}"
 
 
 class Role(models.Model):
@@ -60,7 +57,7 @@ class Role(models.Model):
 
     class Meta:
         db_table = f"{DB_PREFIX}_role"
-        verbose_name = "角色表"
+        verbose_name = "角色"
         verbose_name_plural = verbose_name
 
     def __str__(self):
@@ -89,7 +86,7 @@ class AdminUser(models.Model):
 
     class Meta:
         db_table = f"{DB_PREFIX}_admin_user"
-        verbose_name = "后台用户表"
+        verbose_name = "后台用户"
         verbose_name_plural = verbose_name
 
     def __str__(self):
