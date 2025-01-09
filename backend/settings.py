@@ -222,6 +222,17 @@ TINYMCE_DEFAULT_CONFIG = {
     ),
 }
 
+SHELL_PLUS_DONT_LOAD = [
+    "auth",
+    "admin",
+    "contenttypes",
+    "sessions",
+]
+SHELL_PLUS_PRE_IMPORTS = [
+    ("backend.security", ("auth_admin", "auth")),
+]
+SHELL_PLUS_PRINT_SQL = True
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

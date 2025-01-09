@@ -14,3 +14,4 @@ reload.sh
 run.sh
 *.pid
 *.ini
+uwsgi.reload

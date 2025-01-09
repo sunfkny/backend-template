@@ -30,7 +30,7 @@ readme = "README.md"
 requires-python = ">= 3.10"
 
 [dependency-groups]
-dev = ["pytest", "pytest-django", "types-redis~=4.6"]
+dev = ["pytest", "pytest-django", "ruff", "taskipy", "types-redis~=4.6"]
 
 [tool.ruff]
 extend-exclude = ["backend/apps/*/migrations"]
@@ -79,3 +79,11 @@ exclude = ["tests/*"]
 [tool.django-stubs]
 django_settings_module = "backend.settings"
 strict_settings = false
+
+[tool.taskipy.tasks]
+lint = "ruff format && ruff check --fix"
+check = "python manage.py check"
+pre_reload = "task lint && task check"
+reload = "touch uwsgi.reload"
+sync = "git pull --ff && uv sync && python manage.py migrate && python manage.py collectstatic"
+shell = "python manage.py shell_plus --print-sql --ipython"

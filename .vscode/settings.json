@@ -3,14 +3,14 @@
         "diffEditor.ignoreTrimWhitespace": false,
         "editor.codeActionsOnSave": {
             "source.fixAll": "explicit",
-            "source.organizeImports.ruff": "explicit"
+            "source.organizeImports.ruff": "explicit",
         },
         "editor.defaultFormatter": "charliermarsh.ruff",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
     },
     "files.insertFinalNewline": true,
     "files.watcherExclude": {
-        "**/.venv/**": true
+        "**/.venv/**": true,
     },
     "python.analysis.autoFormatStrings": true,
     "python.analysis.autoImportCompletions": true,
@@ -22,7 +22,7 @@
         "reportPrivateImportUsage": "none",
         "reportShadowedImports": "information",
         "reportUnboundVariable": "error",
-        "reportUnnecessaryComparison": "warning"
+        "reportUnnecessaryComparison": "warning",
     },
     "python.analysis.displayEnglishDiagnostics": true,
     "python.analysis.extraCommitChars": true,
@@ -38,12 +38,12 @@
         {
             "depth": 6,
             "includeAllSymbols": false,
-            "name": "django"
+            "name": "django",
         },
         {
             "depth": 6,
             "includeAllSymbols": false,
-            "name": "ninja"
+            "name": "ninja",
         },
     ],
     "python.analysis.showOnlyDirectDependenciesInAutoImport": true,
@@ -51,5 +51,5 @@
     "python.analysis.typeEvaluation.deprecateTypingAliases": true,
     "python.languageServer": "Pylance",
     "python.terminal.activateEnvInCurrentTerminal": true,
-    "todo-tree.highlights.enabled": false
+    "todo-tree.highlights.enabled": false,
 }
