@@ -1,12 +1,19 @@
 import pathlib
 import shlex
+import sys
 
 from django.core.management.utils import get_random_secret_key
 
 from backend.settings import BASE_DIR, DOMAIN_NAME
 
-if not DOMAIN_NAME:
-    raise Exception("backend.settings.DOMAIN_NAME is not set")
+
+def check_domain_name(d: str):
+    if not d:
+        raise Exception("backend.settings.DOMAIN_NAME is not set")
+
+
+check_domain_name(DOMAIN_NAME)
+
 UWSGI_INI_FILE_NAME = DOMAIN_NAME + ".ini"
 UWSGI_INI_FILE_PATH = BASE_DIR / UWSGI_INI_FILE_NAME
 if UWSGI_INI_FILE_PATH.exists():
@@ -21,62 +28,35 @@ if insecure_secret_key in settings_source:
     settings_source = settings_source.replace("DEBUG = True", "DEBUG = False")
     settings_path.write_text(settings_source)
 
+python = pathlib.Path(sys.executable)
+scripts = python.parent.relative_to(BASE_DIR)
+venv = scripts.parent
+uwsgi = scripts / "uwsgi"
 
 run_file = BASE_DIR / "run.sh"
 run_file.write_text(
     f"""set -e
 
-cd "$(dirname "$0")"
+cd "{BASE_DIR}"
 
-if [ -e .venv/bin/python ]; then
-    PYTHON=.venv/bin/python
-elif [ -e venv/bin/python ]; then
-    PYTHON=venv/bin/python
-else
-    echo "Virtual environment not found."
-    exit 1
-fi
-
-echo "Using Python: $PYTHON"
-
-$PYTHON manage.py check
-
-if [ -e .venv/bin/uwsgi ]; then
-    UWSGI=.venv/bin/uwsgi
-elif [ -e venv/bin/uwsgi ]; then
-    UWSGI=venv/bin/uwsgi
-else
-    echo "uwsgi not found."
-    exit 1
-fi
+{python} manage.py check
 
 if [ -e uwsgi.pid ]; then
     kill -9 `cat uwsgi.pid` || rm uwsgi.pid
 fi
 
-$UWSGI --ini {shlex.quote(str(UWSGI_INI_FILE_PATH))}
+{uwsgi} --ini {shlex.quote(str(UWSGI_INI_FILE_PATH))}
 """
 )
 run_file.chmod(0o755)
 
 
 reload_file = BASE_DIR / "reload.sh"
-reload_file.write_text("""set -e
+reload_file.write_text(f"""set -e
 
-cd "$(dirname "$0")"
+cd "{BASE_DIR}"
 
-if [ -e .venv/bin/python ]; then
-    PYTHON=.venv/bin/python
-elif [ -e venv/bin/python ]; then
-    PYTHON=venv/bin/python
-else
-    echo "Virtual environment not found."
-    exit 1
-fi
-
-echo "Using Python: $PYTHON"
-
-$PYTHON manage.py check
+{python} manage.py check
 
 touch uwsgi.reload
 
@@ -88,14 +68,6 @@ tail -F -n0 logs/run.log | while read line; do
 done
 """)
 reload_file.chmod(0o755)
-
-
-if (BASE_DIR / ".venv").is_dir():
-    venv = ".venv"
-elif (BASE_DIR / "venv").is_dir():
-    venv = "venv"
-else:
-    raise Exception("Virtual environment not found.")
 
 
 UWSGI_INI_FILE_PATH.write_text(
