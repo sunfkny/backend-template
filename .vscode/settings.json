@@ -52,4 +52,5 @@
     "python.languageServer": "Pylance",
     "python.terminal.activateEnvInCurrentTerminal": true,
     "todo-tree.highlights.enabled": false,
+    "todo-tree.tree.scanMode": "workspace only",
 }
