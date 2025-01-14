@@ -9,6 +9,13 @@
         "editor.formatOnSave": true,
     },
     "files.insertFinalNewline": true,
+    "files.readonlyInclude": {
+        ".venv/**": true,
+        "**/.vscode{,-server}/extensions/ms-python.vscode-pylance-*/**": true,
+        "**/node_modules/**": true,
+        "**/Python/*/Lib/**": true,
+        "/usr/lib/python*/**": true
+    },
     "files.watcherExclude": {
         "**/.venv/**": true,
     },
