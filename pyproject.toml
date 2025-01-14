@@ -24,13 +24,18 @@ dependencies = [
     "beautifulsoup4",
     "django-filebrowser-no-grappelli",
     "pillow",
-    "django-stubs[compatible-mypy]",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"
 
 [dependency-groups]
-dev = ["pytest", "pytest-django", "ruff", "taskipy", "types-redis~=4.6"]
+dev = [
+    "pytest",
+    "pytest-django",
+    "ruff",
+    "taskipy",
+    "types-redis~=4.6",
+]
 
 [tool.ruff]
 extend-exclude = ["backend/apps/*/migrations"]
@@ -69,16 +74,6 @@ filterwarnings = [
     "ignore::pydantic.warnings.PydanticDeprecatedSince20",
     "ignore::django.utils.deprecation.RemovedInDjango60Warning",
 ]
-
-[tool.mypy]
-plugins = ["mypy_django_plugin.main"]
-disable_error_code = ["import-untyped", "var-annotated"]
-check_untyped_defs = true
-exclude = ["tests/*"]
-
-[tool.django-stubs]
-django_settings_module = "backend.settings"
-strict_settings = false
 
 [tool.taskipy.tasks]
 lint = "ruff format && ruff check --fix"
