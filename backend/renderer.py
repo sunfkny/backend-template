@@ -1,6 +1,6 @@
 import datetime
 import decimal
-from collections.abc import Collection, Mapping
+from collections.abc import Generator, Mapping
 
 from django.db import models
 from django.db.models.fields.files import FieldFile
@@ -30,7 +30,7 @@ class CustomJsonEncoder(NinjaJSONEncoder):
             return dict(o)
         if isinstance(o, str):
             return o
-        if isinstance(o, Collection):
+        if isinstance(o, Generator):
             return list(o)
         try:
             return super().default(o)
