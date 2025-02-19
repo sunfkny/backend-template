@@ -1,5 +1,4 @@
 import inspect
-from collections.abc import Callable
 from functools import wraps
 from typing import ParamSpec, Protocol, TypeVar
 
@@ -7,6 +6,7 @@ from django.http import HttpRequest
 from django.http.response import JsonResponse
 from loguru import logger
 from ninja.operation import Operation
+from ninja.utils import contribute_operation_callback
 from pydantic import BaseModel
 
 from backend.renderer import CustomJsonEncoder
@@ -33,13 +33,10 @@ def schema_response(func: ViewFunc[P, S]) -> ViewFunc[P, JsonResponse]:
         response = None
         logger.warning(f"View function `{func.__qualname__}` is missing a return type annotation.")
 
-    def contribute_to_operation(operation: Operation):
+    def callback(operation: Operation):
         operation.response_models = {200: operation._create_response_model(response)}
 
-    ninja_contribute_to_operation = "_ninja_contribute_to_operation"
-    operation_callbacks = getattr(func, ninja_contribute_to_operation, [])
-    operation_callbacks.append(contribute_to_operation)
-    setattr(func, ninja_contribute_to_operation, operation_callbacks)
+    contribute_operation_callback(func, callback)
 
     @wraps(func)
     def wrapper(*args, **kwargs) -> JsonResponse:
