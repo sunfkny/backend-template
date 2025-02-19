@@ -76,11 +76,11 @@ def test_post_admin_user_info_edit(client: TestClient):
             "avatar": "test avatar",
         },
     )
+    check_business_code(response)
     user = AdminUser.objects.get(id=1)
     assert user.summary == "test summary"
     assert user.nickname == "test nickname"
     assert user.avatar == "test avatar"
-    check_business_code(response)
 
 
 def test_get_admin_user_info_detail(client: TestClient):
@@ -121,7 +121,10 @@ def test_post_admin_permission_edit(client: TestClient):
 
 
 def test_get_admin_role_list(client: TestClient):
-    Role.objects.get_or_create(id=1, defaults={"name": "test role list", "description": "test description list"})
+    Role.objects.get_or_create(
+        id=1,
+        defaults={"name": "test role list", "description": "test description list"},
+    )
     response = client.get(
         "/admin/role/list",
     )
@@ -129,7 +132,10 @@ def test_get_admin_role_list(client: TestClient):
 
 
 def test_post_admin_role_edit(client: TestClient):
-    role, _ = Role.objects.get_or_create(id=1, defaults={"name": "test role", "description": "test description"})
+    role, _ = Role.objects.get_or_create(
+        id=1,
+        defaults={"name": "test role", "description": "test description"},
+    )
     response = client.post(
         "/admin/role/edit",
         json={
@@ -157,7 +163,10 @@ def test_post_admin_role_add(client: TestClient):
 
 
 def test_get_admin_role_permission_list(client: TestClient):
-    Role.objects.get_or_create(id=1, defaults={"name": "test role", "description": "test description"})
+    Role.objects.get_or_create(
+        id=1,
+        defaults={"name": "test role", "description": "test description"},
+    )
     response = client.get(
         "/admin/role/permission/list?id=1",
     )
@@ -165,7 +174,10 @@ def test_get_admin_role_permission_list(client: TestClient):
 
 
 def test_post_admin_role_permission_add(client: TestClient):
-    role, _ = Role.objects.get_or_create(id=1, defaults={"name": "test role", "description": "test description"})
+    role, _ = Role.objects.get_or_create(
+        id=1,
+        defaults={"name": "test role", "description": "test description"},
+    )
     permission = AdminPermission.objects.get(id=1)
     response = client.post(
         "/admin/role/permission/add",
@@ -180,7 +192,10 @@ def test_post_admin_role_permission_add(client: TestClient):
 
 
 def test_post_admin_role_permission_remove(client: TestClient):
-    role, _ = Role.objects.get_or_create(id=1, defaults={"name": "test role", "description": "test description"})
+    role, _ = Role.objects.get_or_create(
+        id=1,
+        defaults={"name": "test role", "description": "test description"},
+    )
     permission = AdminPermission.objects.get(id=1)
     role.permission.add(permission)
     role.refresh_from_db()
@@ -198,7 +213,10 @@ def test_post_admin_role_permission_remove(client: TestClient):
 
 
 def post_admin_user_add(client: TestClient):
-    role, _ = Role.objects.get_or_create(id=1, defaults={"name": "test role", "description": "test description"})
+    role, _ = Role.objects.get_or_create(
+        id=1,
+        defaults={"name": "test role", "description": "test description"},
+    )
     response = client.post(
         "/admin/user/add",
         json={
@@ -212,7 +230,10 @@ def post_admin_user_add(client: TestClient):
 
 
 def test_get_admin_dropdown_role_list(client: TestClient):
-    role, _ = Role.objects.get_or_create(id=1, defaults={"name": "test role", "description": "test description"})
+    role, _ = Role.objects.get_or_create(
+        id=1,
+        defaults={"name": "test role", "description": "test description"},
+    )
     response = client.get(
         "/admin/dropdown/role",
     )
@@ -227,7 +248,10 @@ def test_get_admin_dropdown_permission_list(client: TestClient):
 
 
 def test_post_admin_user_role_edit(client: TestClient):
-    role, _ = Role.objects.get_or_create(id=1, defaults={"name": "test role", "description": "test description"})
+    role, _ = Role.objects.get_or_create(
+        id=1,
+        defaults={"name": "test role", "description": "test description"},
+    )
     user = AdminUser.objects.create(username="test user", password="test password")
     response = client.post(
         "/admin/user/role/edit",
