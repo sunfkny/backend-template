@@ -52,6 +52,10 @@ ignore = [
 [tool.uv]
 package = false
 
+[[tool.uv.dependency-metadata]]
+name = "uwsgi"
+requires-dist = []
+
 [[tool.uv.index]]
 url = "https://mirror.nju.edu.cn/pypi/web/simple"
 default = true
