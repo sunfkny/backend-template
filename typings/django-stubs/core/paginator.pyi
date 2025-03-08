@@ -43,7 +43,13 @@ class Paginator(Generic[_T]):
     def num_pages(self) -> int: ...
     @property
     def page_range(self) -> range: ...
-    def get_elided_page_range(self, number: int | float | str = ..., *, on_each_side: int = ..., on_ends: int = ...) -> Iterator[str | int]: ...
+    def get_elided_page_range(
+        self,
+        number: int | float | str = ...,
+        *,
+        on_each_side: int = ...,
+        on_ends: int = ...,
+    ) -> Iterator[str | int]: ...
 
 class Page(Sequence[_T]):
     object_list: _SupportsPagination[_T]

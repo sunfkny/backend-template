@@ -16,7 +16,15 @@ from backend.security import auth_admin
 from backend.settings import DOMAIN_NAME, MEDIA_URL_PATH, get_logger, get_redis_connection
 from backend.storage import HashedFileSystemStorage
 
-from .schema import AdminPermissionModelSchema, AdminUserModelSchema, RoleModelSchema, RolePermissionSchema, StorageListdirSchema, TokenSchema, UrlSchema
+from .schema import (
+    AdminPermissionModelSchema,
+    AdminUserModelSchema,
+    RoleModelSchema,
+    RolePermissionSchema,
+    StorageListdirSchema,
+    TokenSchema,
+    UrlSchema,
+)
 
 django_auth = SessionAuth(csrf=False)
 router = Router(tags=["后台"])
