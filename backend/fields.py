@@ -1,5 +1,4 @@
 import functools
-from collections.abc import Iterable
 
 from django.core import checks
 from tinymce.models import HTMLField
@@ -9,13 +8,15 @@ from backend.settings import BASE_URL, MEDIA_URL, MEDIA_URL_PATH
 
 @functools.cache
 def replace_image_src(html_content: str, from_prefix: str, to_prefix: str):
-    from bs4 import BeautifulSoup, Tag  # type: ignore
+    from bs4 import BeautifulSoup, Tag
 
     soup = BeautifulSoup(html_content, "html.parser")
 
-    images: Iterable[Tag] = soup.find_all("img")
+    images = soup.find_all("img")
 
     for img in images:
+        if not isinstance(img, Tag):
+            continue
         src = img.get("src")
         if not isinstance(src, str):
             continue
@@ -35,20 +36,8 @@ class MediaHtmlMixin:
     def check(self, **kwargs):
         return [
             *super().check(**kwargs),  # type: ignore
-            *self._check_bs4_library_installed(),
+            *self._check_base_url(),
         ]
-
-    def _check_bs4_library_installed(self):
-        try:
-            from bs4 import BeautifulSoup, Tag  # type: ignore
-        except ImportError:
-            return [
-                checks.Error(
-                    "Cannot use MediaHtmlField because beautifulsoup4 is not installed.",
-                    obj=self,
-                )
-            ]
-        return []
 
     def _check_base_url(self):
         if not BASE_URL:
