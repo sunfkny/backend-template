@@ -77,7 +77,7 @@ from backend.utils.format_number import intword
                 (10000000000000000, "1京"),
                 (12000000000000000, "1.2京"),
                 (12300000000000000, "1.23京"),
-                (12350000000000000, "1.24京"),
+                (712350000000000000, "1.24京"),
             ],
         ),
     ],
@@ -86,4 +86,5 @@ def test_intword(language: str, value_expected_list: list[tuple[Any, str]]):
     with translation.override(language):
         for value, expected in value_expected_list:
             result = intword(value, digits=2)
-            assert result == expected, f"Failed for language={language}, value={value}: expected {expected}, got {result}"
+            message = f"{language=} {value=} {expected=} {result=}"
+            assert result == expected, message

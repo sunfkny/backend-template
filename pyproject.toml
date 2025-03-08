@@ -29,17 +29,11 @@ readme = "README.md"
 requires-python = ">= 3.10"
 
 [dependency-groups]
-dev = [
-    "pytest",
-    "pytest-django",
-    "ruff",
-    "taskipy",
-    "types-redis~=4.6",
-]
+dev = ["pytest", "pytest-django", "ruff", "taskipy", "types-redis~=4.6"]
 
 [tool.ruff]
 extend-exclude = ["backend/apps/*/migrations"]
-line-length = 160
+line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
