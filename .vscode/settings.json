@@ -37,6 +37,10 @@
     "python.analysis.ignore": [
         "typings",
         ".venv",
+        "venv",
+        "**/node_modules",
+        "/usr/lib/python*/",
+        "*:\\**\\Python\\*\\Lib\\",
         "backend/apps/*/migrations",
     ],
     "python.analysis.inlayHints.functionReturnTypes": true,
