@@ -88,14 +88,14 @@ class AuthJwt(HttpBearer, Generic[TUser]):
         """获取登录用户uid"""
         uid = self.get_login_uid_optional(request)
         if not uid:
-            raise AuthenticationError("Uid not found")
+            raise AuthenticationError(message="Uid not found")
         return uid
 
     def get_login_user(self, request: HttpRequest) -> TUser:
         """获取登录用户"""
         user = self.get_login_user_optional(request)
         if not user:
-            raise AuthenticationError("User not found")
+            raise AuthenticationError(message="User not found")
         return user
 
     def generate_token(self, uid: int | str) -> str:
@@ -112,7 +112,7 @@ class AuthJwt(HttpBearer, Generic[TUser]):
             return JwtModel.model_validate(data)
         except Exception as e:
             logger.warning(f"Invalid token: {e}")
-            raise AuthenticationError("Invalid token")
+            raise AuthenticationError(message="Invalid token")
 
 
 class BearerTokenModel(BaseModel):
@@ -198,14 +198,14 @@ class AuthBearerToken(HttpBearer, Generic[TUser]):
         """获取登录用户uid"""
         uid = self.get_login_uid_optional(request)
         if not uid:
-            raise AuthenticationError("Uid not found")
+            raise AuthenticationError(message="Uid not found")
         return uid
 
     def get_login_user(self, request: HttpRequest) -> TUser:
         """获取登录用户"""
         user = self.get_login_user_optional(request)
         if not user:
-            raise AuthenticationError("User not found")
+            raise AuthenticationError(message="User not found")
         return user
 
     def generate_token(self, uid: int | str) -> str:
@@ -222,7 +222,7 @@ class AuthBearerToken(HttpBearer, Generic[TUser]):
             return BearerTokenModel.model_validate(data)
         except Exception as e:
             logger.warning(f"Invalid token: {e}")
-            raise AuthenticationError("Invalid token")
+            raise AuthenticationError(message="Invalid token")
 
 
 class AuthBearerTokenDatabase(APIKeyHeader, Generic[TUser]):
@@ -267,7 +267,7 @@ class AuthBearerTokenDatabase(APIKeyHeader, Generic[TUser]):
         """获取登录用户"""
         user = self.get_login_user_optional(request)
         if user is None:
-            raise AuthenticationError("Token not found")
+            raise AuthenticationError(message="Token not found")
         return user
 
     def generate_token(self, user: TUser) -> str:
