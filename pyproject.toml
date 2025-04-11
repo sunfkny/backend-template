@@ -39,14 +39,13 @@ target-version = "py310"
 [tool.ruff.lint]
 extend-select = [
     "A",      # https://docs.astral.sh/ruff/rules/#flake8-builtins-a
-    "B006",   #https://docs.astral.sh/ruff/rules/mutable-argument-default/
-    "I",      #https://docs.astral.sh/ruff/rules/#isort-i
-    "UP",     #https://docs.astral.sh/ruff/rules/#pyupgrade-up
-    "RET503", #https://docs.astral.sh/ruff/rules/implicit-return/
+    "B006",   # https://docs.astral.sh/ruff/rules/mutable-argument-default/
+    "I",      # https://docs.astral.sh/ruff/rules/#isort-i
+    "RET503", # https://docs.astral.sh/ruff/rules/implicit-return/
 ]
 ignore = [
-    "F401", # https://docs.astral.sh/ruff/rules/unused-import/
     "E402", # https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file/
+    "F401", # https://docs.astral.sh/ruff/rules/unused-import/
 ]
 
 [tool.uv]

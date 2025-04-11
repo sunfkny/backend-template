@@ -12,7 +12,7 @@ print(
 # ================== logrotate ==================
 # /etc/logrotate.d/{DOMAIN_NAME}.conf
 
-{BASE_DIR / 'logs/*.log'} {{
+{BASE_DIR / "logs/*.log"} {{
     daily
     rotate 14
     createolddir
@@ -24,7 +24,7 @@ print(
     notifempty
     sharedscripts
     postrotate
-      touch {BASE_DIR / 'logs/run.log.logreopen'}
+      touch {BASE_DIR / "logs/run.log.logreopen"}
     endscript
 }}
 """
