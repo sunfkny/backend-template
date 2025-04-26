@@ -1,9 +1,11 @@
+import ast
 import pathlib
 import shlex
 import sys
 
 from django.core.management.utils import get_random_secret_key
 
+import backend.settings
 from backend.settings import BASE_DIR, DOMAIN_NAME
 
 
@@ -19,14 +21,26 @@ UWSGI_INI_FILE_PATH = BASE_DIR / UWSGI_INI_FILE_NAME
 if UWSGI_INI_FILE_PATH.exists():
     raise Exception(f"{UWSGI_INI_FILE_PATH} already exists")
 
-settings_path = pathlib.Path("./backend/settings.py")
+settings_path = pathlib.Path(backend.settings.__file__)
 settings_source = settings_path.read_text()
-insecure_secret_key = 'SECRET_KEY = "django-insecure"'
-if insecure_secret_key in settings_source:
-    secret_key = get_random_secret_key()
-    settings_source = settings_source.replace(insecure_secret_key, f'SECRET_KEY = "{secret_key}"')
-    settings_source = settings_source.replace("DEBUG = True", "DEBUG = False")
-    settings_path.write_text(settings_source)
+
+
+class SettingsTransformer(ast.NodeTransformer):
+    def visit_Assign(self, node):
+        if len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            target = node.targets[0]
+            if target.id == "SECRET_KEY":
+                node.value = ast.Constant(value=get_random_secret_key())
+            elif target.id == "DEBUG":
+                node.value = ast.Constant(value=False)
+        return node
+
+
+settings_tree = ast.parse(settings_source)
+settings_tree = SettingsTransformer().visit(settings_tree)
+settings_tree = ast.fix_missing_locations(settings_tree)
+
+settings_path.write_text(ast.unparse(settings_tree))
 
 python = pathlib.Path(sys.executable)
 scripts = python.parent.relative_to(BASE_DIR)
