@@ -1,5 +1,5 @@
 import functools
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from django.db.models import F, Field, ForeignObjectRel, Model, Q, QuerySet
 from django.db.models.base import ModelBase
@@ -79,14 +79,19 @@ def get_accessor_name(self_model: type[Model], model: type[Model]) -> str:
     raise ValueError(f"{model!r} is not a related model to {self_model!r}")
 
 
-class ColQ:
+class ColBase:
+    def __init__(self, field: FieldOrFieldsLike):
+        self.field = field
+        self.name = get_field_name(field)
+
+
+class ColQ(ColBase):
     """
     Like django Q, but accept field and named args instead of kwargs
     """
 
     def __init__(self, field: FieldOrFieldsLike):
-        self.field = field
-        self.name = get_field_name(field)
+        super().__init__(field)
 
     def filter(
         self,
@@ -144,14 +149,13 @@ class ColQ:
         return q
 
 
-class ColF:
+class ColF(ColBase):
     """
     Like django F, but accept field instead of kwargs
     """
 
     def __init__(self, field: FieldOrFieldsLike):
-        self.field = field
-        self.name = get_field_name(field)
+        super().__init__(field)
         self.f = F(self.name)
 
     def order_by(
@@ -164,9 +168,6 @@ class ColF:
             return self.f.desc(nulls_first=nulls_first, nulls_last=nulls_last)
         else:
             return self.f.asc(nulls_first=nulls_first, nulls_last=nulls_last)
-
-    def select_related(self) -> str:
-        return get_field_name(self.field)
 
     @staticmethod
     def get_prefetch_related(self_model: type[Model], model: type[Model]) -> str:
@@ -227,7 +228,7 @@ class ColQuerySet(Generic[TModel]):
         return ColQuerySet(self.model, self._qs.order_by(ColF(field).order_by(desc)))
 
     def select_related_col(self, *fields: FieldOrFieldsLike):
-        paths = [ColF(f).select_related() for f in fields]
+        paths = [ColF(f).name for f in fields]
         return ColQuerySet(self.model, self._qs.select_related(*paths))
 
     def prefetch_related_col(self, *related_models: type[Model]):
@@ -245,3 +246,6 @@ class ColQuerySet(Generic[TModel]):
 
     def all(self):
         return self._qs.all()
+
+    def update(self, values: dict[ColBase, Any]):
+        return self._qs.update(**{k.name: v for k, v in values.items()})

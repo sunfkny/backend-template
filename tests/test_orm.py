@@ -1,4 +1,5 @@
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Concat
 
 from backend.apps.back.models import AdminPermission, AdminUser, Role, RolePermission
 from backend.utils.orm import ColF, ColQ, ColQuerySet, get_field_name
@@ -77,7 +78,7 @@ def test_col_query(db, django_assert_num_queries):
         )
         .order_by(ColF(AdminUser.create_time).order_by(descending=True))
         .select_related(
-            ColF(AdminUser.role).select_related(),
+            ColF(AdminUser.role).name,
         )
     )
     assert str(q2.query) == str(
@@ -297,3 +298,37 @@ def test_col_query(db, django_assert_num_queries):
     )
     with django_assert_num_queries(1):
         q15.first()
+
+
+def test_col_update(db, django_assert_num_queries):
+    role = Role.objects.create(name="some role name")
+    other_role = Role.objects.create(name="other role name")
+    perm = AdminPermission.objects.create(key="admin", name="admin")
+    role.permission.add(perm)
+    user = AdminUser.objects.create(username="Admin", role=role)
+
+    assert user.username == "Admin"
+    assert user.role == role
+
+    with django_assert_num_queries(1):
+        rows = (
+            ColQuerySet(AdminUser)
+            .filter_col(
+                AdminUser.username,
+                user.username,
+            )
+            .update(
+                {
+                    ColF(AdminUser.username): Concat(
+                        ColF(AdminUser.username).f,
+                        Value(" update"),
+                    ),
+                    ColF(AdminUser.role): other_role,
+                }
+            )
+        )
+        assert rows == 1
+
+    user.refresh_from_db()
+    assert user.username == "Admin update"
+    assert user.role == other_role
