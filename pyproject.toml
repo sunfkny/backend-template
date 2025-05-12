@@ -56,7 +56,7 @@ name = "uwsgi"
 requires-dist = []
 
 [[tool.uv.index]]
-url = "https://mirror.nju.edu.cn/pypi/web/simple"
+url = "https://mirrors.aliyun.com/pypi/simple"
 default = true
 
 [tool.pytest.ini_options]
